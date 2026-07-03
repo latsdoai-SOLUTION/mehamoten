@@ -1,5 +1,5 @@
 /* מהמותן — Service Worker (offline-first app shell) */
-const CACHE = "mehamoten-v4";
+const CACHE = "mehamoten-v5";
 const ASSETS = [
   "./",
   "./index.html",
