@@ -1,0 +1,59 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mehamoten app icon">
+  <defs>
+    <radialGradient id="stageBg" cx="50%" cy="22%" r="95%">
+      <stop offset="0%" stop-color="#241a33"/>
+      <stop offset="55%" stop-color="#181221"/>
+      <stop offset="100%" stop-color="#100c17"/>
+    </radialGradient>
+    <radialGradient id="spotlight" cx="50%" cy="6%" r="70%">
+      <stop offset="0%" stop-color="#f6e7b4" stop-opacity="0.85"/>
+      <stop offset="28%" stop-color="#f6e7b4" stop-opacity="0.30"/>
+      <stop offset="60%" stop-color="#f6e7b4" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#f6e7b4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="redBurst" cx="50%" cy="42%" r="62%">
+      <stop offset="0%" stop-color="#ff5066"/>
+      <stop offset="55%" stop-color="#e23149"/>
+      <stop offset="100%" stop-color="#b71f37"/>
+    </radialGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#stageBg)"/>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#spotlight)"/>
+  <path d="M256 -10 L412 250 L100 250 Z" fill="#f6e7b4" opacity="0.07"/>
+  <g transform="translate(256 268)" filter="url(#softGlow)">
+    <g fill="#e23149">
+      <path d="M0 -178 L26 -118 L-26 -118 Z"/>
+      <path d="M0 178 L26 118 L-26 118 Z"/>
+      <path d="M178 0 L118 26 L118 -26 Z"/>
+      <path d="M-178 0 L-118 26 L-118 -26 Z"/>
+      <g transform="rotate(45)">
+        <path d="M0 -178 L26 -118 L-26 -118 Z"/>
+        <path d="M0 178 L26 118 L-26 118 Z"/>
+        <path d="M178 0 L118 26 L118 -26 Z"/>
+        <path d="M-178 0 L-118 26 L-118 -26 Z"/>
+      </g>
+      <g transform="rotate(22.5)">
+        <path d="M0 -160 L18 -112 L-18 -112 Z"/>
+        <path d="M0 160 L18 112 L-18 112 Z"/>
+        <path d="M160 0 L112 18 L112 -18 Z"/>
+        <path d="M-160 0 L-112 18 L-112 -18 Z"/>
+      </g>
+      <g transform="rotate(67.5)">
+        <path d="M0 -160 L18 -112 L-18 -112 Z"/>
+        <path d="M0 160 L18 112 L-18 112 Z"/>
+        <path d="M160 0 L112 18 L112 -18 Z"/>
+        <path d="M-160 0 L-112 18 L-112 -18 Z"/>
+      </g>
+    </g>
+  </g>
+  <circle cx="256" cy="268" r="120" fill="url(#redBurst)" stroke="#ff5066" stroke-width="3"/>
+  <circle cx="256" cy="268" r="120" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"/>
+  <g transform="translate(256 268) scale(0.13228 -0.13228) translate(-692.00 -567.00)">
+    <path d="M88 1120H432Q445 1112 474.5 1014.5Q504 917 504 874Q535 983 638.0 1058.5Q741 1134 852 1134Q1296 1134 1296 602V0H720V237H965V602Q965 767 938.5 829.5Q912 892 829 892Q798 892 772.0 879.5Q746 867 726.5 849.0Q707 831 689.5 797.5Q672 764 660.5 735.0Q649 706 637.0 658.5Q625 611 618.0 578.0Q611 545 600 490L503 0H173L265 485Q279 560 281 619Q281 731 245.0 832.5Q209 934 88 1120Z" fill="#f6e7b4" stroke="#7a1226" stroke-width="16"/>
+  </g>
+  <circle cx="338" cy="372" r="13" fill="#ff5066"/>
+</svg>

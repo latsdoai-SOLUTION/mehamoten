@@ -1,0 +1,24 @@
+<svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mehamoten">
+  <defs>
+    <radialGradient id="rb" cx="50%" cy="42%" r="62%">
+      <stop offset="0%" stop-color="#ff5066"/>
+      <stop offset="60%" stop-color="#e23149"/>
+      <stop offset="100%" stop-color="#b71f37"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#14101d"/>
+  <g transform="translate(32 32)" fill="#e23149">
+    <path d="M0 -28 L5 -18 L-5 -18 Z"/>
+    <path d="M0 28 L5 18 L-5 18 Z"/>
+    <path d="M28 0 L18 5 L18 -5 Z"/>
+    <path d="M-28 0 L-18 5 L-18 -5 Z"/>
+    <g transform="rotate(45)">
+      <path d="M0 -28 L5 -18 L-5 -18 Z"/>
+      <path d="M0 28 L5 18 L-5 18 Z"/>
+      <path d="M28 0 L18 5 L18 -5 Z"/>
+      <path d="M-28 0 L-18 5 L-18 -5 Z"/>
+    </g>
+  </g>
+  <circle cx="32" cy="32" r="19" fill="url(#rb)" stroke="#ff5066" stroke-width="1.2"/>
+  <circle cx="40" cy="42" r="3" fill="#ff5066"/>
+</svg>

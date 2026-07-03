@@ -1,0 +1,27 @@
+{
+  "name": "מהמותן — משחק אלתור",
+  "short_name": "מהמותן",
+  "description": "המנחה הדיגיטלי למשחק אלתור. הוא מוביל אתכם צעד-צעד, סופר את הזמן וזורק 'החלפה!'. גם אם אתם לא טובים באלתור — תיהנו.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "/mehamoten/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#14101d",
+  "theme_color": "#14101d",
+  "categories": ["games", "entertainment"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "screenshots/shot-wide-1.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "מסך הבית — המנחה הדיגיטלי" },
+    { "src": "screenshots/shot-wide-2.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "קלף במה + אילוץ" },
+    { "src": "screenshots/shot-narrow-1.png", "sizes": "720x1280", "type": "image/png", "form_factor": "narrow", "label": "רגע ההחלפה" }
+  ]
+}

@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#14101d">
+<meta name="description" content="מהמותן — המנחה הדיגיטלי למשחק אלתור. הוא מוביל אתכם צעד-צעד, סופר את הזמן וזורק 'החלפה!'. גם אם אתם לא טובים באלתור — תיהנו.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="מהמותן">
+<title>מהמותן — המנחה הדיגיטלי</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1726; --paper:#efe9dd; --stage:#100c17; --stage2:#1e1729; --spot:#f6e7b4;
+    --change:#e23149; --change2:#ff5066; --style:#8c2fc9; --lang:#1786a6; --body:#2c9e5b;
+    --guess:#e08a1e; --set:#3c4a5c; --line:rgba(255,255,255,.14); --ok:#2c9e5b; --gold:#f6e7b4;
+    --tap:54px; --r:22px;
+    --spring:linear(0, 1.12 55%, .96 75%, 1.02 88%, 1);
+  }
+  @property --p{syntax:'<number>';inherits:false;initial-value:1}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{margin:0;color:#fff;font-family:"Heebo",sans-serif;overflow:hidden;background:var(--stage);
+    -webkit-font-smoothing:antialiased;user-select:none;font-size:17px}
+  .stagebg{position:fixed;inset:0;z-index:-2;background:
+    radial-gradient(60% 42% at 50% 108%, rgba(226,49,73,.17), transparent 70%),
+    radial-gradient(42% 40% at 88% -12%, rgba(140,47,201,.14), transparent 70%),
+    radial-gradient(36% 34% at 6% 16%, rgba(23,134,166,.09), transparent 70%),
+    var(--stage)}
+  .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.055;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .stagebg::before{content:"";position:absolute;left:50%;top:-18%;transform:translateX(-50%);
+    width:140vw;height:115vh;transform-origin:50% 0%;
+    background:radial-gradient(ellipse 46% 60% at 50% 0%, rgba(246,231,180,.16), rgba(246,231,180,.05) 42%, transparent 66%);
+    pointer-events:none;animation:spotlight-breathe 7s ease-in-out infinite}
+  .stagebg::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse 80% 70% at 50% 38%, transparent 55%, rgba(0,0,0,.55) 100%);pointer-events:none}
+  button{font-family:inherit;cursor:pointer;border:none;color:inherit}
+  button:focus-visible{outline:3px solid var(--spot);outline-offset:3px}
+  .app{position:fixed;inset:0}
+
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;
+    justify-content:center;padding:max(20px,3.2vmin);text-align:center;animation:fade .4s ease;overflow:auto}
+  .screen.active{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .display{font-family:"Secular One",sans-serif;font-weight:400;line-height:.95}
+  .muted{color:#cfc8da}
+  .eyebrow{font-family:"Rubik";font-weight:700;letter-spacing:.2em;color:var(--spot);font-size:clamp(11px,1.7vmin,14px)}
+  .pill{font-family:"Rubik";font-weight:700;font-size:clamp(12px,1.6vmin,15px);background:rgba(255,255,255,.07);
+    border:1px solid var(--line);padding:9px 16px;border-radius:999px;backdrop-filter:blur(3px)}
+
+  .big{font-family:"Secular One";background:linear-gradient(160deg,var(--change2) -20%,var(--change) 55%);color:#fff;font-size:clamp(23px,4.6vmin,44px);
+    padding:.55em 1.25em;border-radius:999px;min-height:var(--tap);
+    box-shadow:0 9px 0 #9c1626,0 18px 38px rgba(226,49,73,.4),inset 0 1px 0 rgba(255,255,255,.25);
+    transition:transform .45s var(--spring),box-shadow .45s var(--spring)}
+  .big:active{transform:translateY(6px) scale(.97);box-shadow:0 3px 0 #9c1626,0 8px 18px rgba(226,49,73,.3);transition-duration:.08s}
+  .ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;font-family:"Rubik";
+    font-weight:700;padding:13px 24px;font-size:clamp(14px,1.9vmin,18px);min-height:var(--tap);
+    transition:background .15s;backdrop-filter:blur(3px)}
+  .ghost:active{background:rgba(255,255,255,.14)}
+  .ghost.hintb{color:var(--spot);border-color:rgba(246,231,180,.35)}
+  .ghost.topicb{color:#ffd9a3;border-color:rgba(224,138,30,.45)}
+  .ghost.stuckb{color:#9fe3ff;border-color:rgba(23,134,166,.5)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center}
+
+  /* ONBOARDING */
+  #onboard{position:fixed;inset:0;z-index:70;background:var(--stage);display:none;flex-direction:column;
+    align-items:center;justify-content:center;padding:8vmin 6vw;text-align:center}
+  #onboard.open{display:flex}
+  #onboard .ob{max-width:560px;display:none;animation:fade .4s}
+  #onboard .ob.on{display:block}
+  #onboard .obic{font-size:clamp(56px,16vmin,120px);margin-bottom:10px}
+  #onboard h3{font-family:"Secular One";font-size:clamp(28px,6vmin,52px);margin:0 0 14px}
+  #onboard p{font-size:clamp(16px,2.6vmin,22px);color:#e9e3d4;line-height:1.6;margin:0 auto;max-width:480px}
+  #onboard .dots{display:flex;gap:9px;justify-content:center;margin:26px 0}
+  #onboard .dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25)}
+  #onboard .dots i.on{background:var(--spot);width:26px;border-radius:6px}
+
+  .gear{position:fixed;top:14px;left:14px;z-index:30;width:50px;height:50px;border-radius:50%;
+    background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:23px;display:grid;
+    place-items:center;backdrop-filter:blur(4px);transition:transform .2s}
+  .gear:active{transform:rotate(40deg)}
+
+  .panel{width:min(820px,95vw);background:rgba(28,21,38,.74);border:1px solid var(--line);border-radius:26px;
+    padding:clamp(18px,3vmin,36px);max-height:92vh;overflow:auto;backdrop-filter:blur(10px);
+    box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .panel h2{font-family:"Secular One";font-weight:400;font-size:clamp(26px,4.4vmin,42px);margin:0 0 4px}
+  .panel .sub{color:#b3acc4;margin:0 0 20px;font-size:15px}
+  .field{margin:0 0 18px;text-align:right}
+  .label{font-family:"Rubik";font-weight:700;font-size:13.5px;color:#cabfe0;margin:0 0 9px;letter-spacing:.02em}
+  .seg{display:flex;gap:8px;flex-wrap:wrap}
+  .seg button{flex:1;min-width:120px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+    border-radius:14px;padding:14px 10px;font-family:"Rubik";font-weight:700;font-size:15px;transition:all .15s;color:#ddd6ea}
+  .seg button.on{background:var(--change);border-color:var(--change);color:#fff;box-shadow:0 6px 16px rgba(226,49,73,.35)}
+  .seg.sm button{min-width:84px;padding:11px 8px;font-size:14px}
+  .seg button small{display:block;font-weight:500;font-size:11.5px;opacity:.82;margin-top:3px}
+
+  .players{display:grid;gap:10px}
+  .prow{display:flex;gap:10px;align-items:center}
+  .prow .idx{width:32px;height:32px;border-radius:50%;background:rgba(246,231,180,.16);color:var(--spot);
+    display:grid;place-items:center;font-family:"Rubik";font-weight:700;font-size:13px;flex:0 0 auto}
+  .prow input{flex:1;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+    color:#fff;font-family:"Heebo";font-size:16px;text-align:right;min-height:var(--tap)}
+  .prow input:focus{outline:none;border-color:var(--spot)}
+  .prow .del{width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--line);
+    font-size:18px;color:#e7889a;flex:0 0 auto}
+  .addp{margin-top:10px;width:100%}
+
+  /* HOME */
+  #home .burst{width:clamp(120px,18vmin,180px);height:clamp(120px,18vmin,180px);border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, var(--change2), var(--change) 70%);display:grid;place-items:center;
+    margin-bottom:clamp(8px,2.5vmin,22px);box-shadow:0 14px 40px rgba(226,49,73,.5), inset 0 -6px 18px rgba(0,0,0,.25);
+    animation:beat 2.4s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.05) rotate(-4deg)}}
+  #home .burst span{font-family:"Secular One";color:#fff;font-size:clamp(22px,3.4vmin,32px);text-shadow:0 2px 0 rgba(0,0,0,.18)}
+  #home .title{font-size:clamp(74px,21vmin,200px);text-shadow:0 6px 0 rgba(0,0,0,.32)}
+  #home .title .dot{color:var(--change)}
+  #home .tag{max-width:660px;margin:14px auto 28px;color:#e9e3d4;font-size:clamp(15px,2.2vmin,21px);line-height:1.55}
+
+  /* INTRO / CAST */
+  #intro .who,#cast .who{font-family:"Secular One";font-size:clamp(30px,6.5vmin,72px);margin:8px 0;line-height:1.05}
+  .roleline{font-size:clamp(16px,2.6vmin,24px);color:#e9e3d4;margin:5px 0}
+  .roleline b{color:var(--spot)}
+  .framecard{width:min(760px,94vw);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:22px;
+    padding:clamp(18px,3vmin,32px);backdrop-filter:blur(6px);margin:8px 0}
+  .framecard .place{font-family:"Secular One";font-size:clamp(26px,5vmin,48px);color:#fff;margin:0 0 6px}
+  .framecard .rel{font-size:clamp(16px,2.6vmin,23px);color:#cfc8da;margin:0 0 16px}
+  .framecard .starts{font-size:clamp(17px,2.8vmin,26px);margin:6px 0}
+  .framecard .starts b{color:var(--spot);font-family:"Secular One"}
+  .seedline{background:rgba(246,231,180,.12);border:1px dashed rgba(246,231,180,.4);border-radius:14px;
+    padding:14px 18px;margin-top:14px;font-size:clamp(15px,2.3vmin,20px)}
+  .seedline .lbl{font-family:"Rubik";font-weight:700;font-size:12px;color:var(--spot);display:block;margin-bottom:4px}
+
+  /* GAME CARDS */
+  .cards2{display:flex;gap:clamp(14px,2.6vmin,30px);flex-wrap:wrap;justify-content:center;width:100%;max-width:1120px}
+  .gcard{flex:1 1 340px;max-width:520px;min-height:clamp(230px,38vh,390px);border-radius:var(--r);background:#fff;color:var(--ink);
+    display:flex;flex-direction:column;overflow:hidden;position:relative;
+    box-shadow:0 22px 60px rgba(0,0,0,.55),0 0 70px -18px var(--glow,rgba(246,231,180,.35)),0 0 0 1px rgba(255,255,255,.09);
+    transform-origin:50% 90%;animation:card-deal .6s cubic-bezier(.2,.9,.25,1.2) both}
+  .b-set{--glow:rgba(120,150,190,.4)} .b-style{--glow:rgba(140,47,201,.45)} .b-lang{--glow:rgba(23,134,166,.45)}
+  .b-body{--glow:rgba(44,158,91,.45)} .b-guess{--glow:rgba(224,138,30,.5)}
+  .gcard:nth-child(2){animation-delay:.12s}
+  .gcard .band{color:#fff;padding:15px 22px;display:flex;align-items:center;gap:10px;font-family:"Rubik";font-weight:900;
+    font-size:clamp(15px,2.3vmin,22px);letter-spacing:.02em}
+  .gcard .band .cdot{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.9);flex:0 0 auto}
+  .gcard .band .lbl{flex:1;text-align:right} .gcard .band .ic{font-size:clamp(20px,3vmin,30px)}
+  .gcard .body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(16px,3vmin,34px);position:relative;z-index:1}
+  .gcard .t{font-family:"Secular One";font-size:clamp(28px,5.4vmin,58px);line-height:1.04;margin:0;color:var(--ink)}
+  .gcard .rule{width:54px;height:4px;border-radius:2px;background:currentColor;opacity:.85;margin:13px 0;align-self:flex-end}
+  .gcard .d{font-size:clamp(15px,2.5vmin,23px);color:#4d4659;line-height:1.45;margin:0;max-width:92%;align-self:flex-end;text-align:right}
+  .gcard .wm{position:absolute;left:6%;bottom:-6%;font-family:"Secular One";font-size:clamp(150px,30vmin,300px);
+    color:rgba(28,23,38,.05);line-height:.8;z-index:0;pointer-events:none}
+  .gcard .foot{position:absolute;bottom:12px;right:18px;font-family:"Rubik";font-weight:700;font-size:11px;
+    letter-spacing:.05em;color:rgba(28,23,38,.25);z-index:2}
+  .b-set .band{background:var(--set)} .b-set .rule{color:var(--set)}
+  .b-style .band{background:var(--style)} .b-style .rule{color:var(--style)}
+  .b-lang .band{background:var(--lang)} .b-lang .rule{color:var(--lang)}
+  .b-body .band{background:var(--body)} .b-body .rule{color:var(--body)}
+  .b-guess .band{background:var(--guess)} .b-guess .rule{color:var(--guess)}
+
+  /* PLAY */
+  #play{justify-content:flex-start;padding-top:0}
+  .timebar{position:absolute;top:0;left:0;right:0;height:10px;background:rgba(255,255,255,.07);z-index:5}
+  .timebar .fill{height:100%;width:100%;background:var(--ok);transition:background .5s linear;box-shadow:0 0 16px currentColor}
+  .playtop{margin-top:30px;width:100%;max-width:1120px}
+  .smallcards{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
+  .scard{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:13px 20px 13px 16px;
+    text-align:right;min-width:210px;border-right:5px solid #fff;backdrop-filter:blur(3px)}
+  .scard.set{border-right-color:var(--set)} .scard.style{border-right-color:var(--style)}
+  .scard.lang{border-right-color:var(--lang)} .scard.body{border-right-color:var(--body)}
+  .scard.guess{border-right-color:var(--guess)}
+  .scard .k{font-family:"Rubik";font-weight:700;font-size:12px;color:#b3acc4}
+  .scard .v{font-family:"Secular One";font-size:clamp(18px,2.8vmin,27px);margin-top:2px}
+  .scard .vd{font-size:13.5px;color:#cfc8da;margin-top:3px;line-height:1.35}
+  .guide{margin:6px auto 0;max-width:760px;font-size:clamp(15px,2.2vmin,20px);color:var(--spot);min-height:1.5em;font-weight:700}
+
+  .ringtimer{position:relative;width:clamp(150px,28vmin,290px);aspect-ratio:1;display:grid;place-items:center;margin:1.2vmin auto .5vmin}
+  .ringtimer::before{content:"";position:absolute;inset:0;border-radius:50%;
+    background:conic-gradient(var(--tcol,var(--ok)) calc(var(--p)*360deg), rgba(255,255,255,.09) 0);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));
+    mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));
+    transition:--p 1s linear;filter:drop-shadow(0 0 14px var(--tcol,var(--ok)))}
+  .ringtimer.warn::before{animation:countdown-urgent 1s ease-in-out infinite}
+  .clock{font-family:"Secular One";font-size:clamp(48px,11vmin,110px);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+  .clock.warn{color:var(--change2);animation:countdown-urgent 1s ease-in-out infinite}
+  .perform{font-size:clamp(15px,2.5vmin,23px);color:#e9e3d4;margin-bottom:8px}
+  .perform b{color:var(--spot)}
+  .ringcount{font-family:"Rubik";font-weight:900;color:var(--change);font-size:clamp(14px,2vmin,19px);min-height:1.4em}
+  .playctrl{margin-top:auto;margin-bottom:10px;width:100%}
+  .swapbtn{font-family:"Secular One";background:var(--change);color:#fff;font-size:clamp(28px,6.5vmin,64px);
+    padding:.4em 1em;border-radius:28px;box-shadow:0 10px 0 #8c1322,0 20px 42px rgba(226,49,73,.45);transition:transform .07s,box-shadow .07s}
+  .swapbtn:active{transform:translateY(7px);box-shadow:0 3px 0 #8c1322}
+  .autohint{color:#b3acc4;font-size:clamp(14px,2vmin,18px);margin-top:2px}
+
+  /* COUNTDOWN overlay */
+  #count{position:fixed;inset:0;z-index:58;display:none;align-items:center;justify-content:center;background:rgba(10,7,16,.86);backdrop-filter:blur(6px)}
+  #count.go{display:flex}
+  #count .n{font-family:"Secular One";font-size:clamp(120px,40vmin,420px);color:var(--spot);text-shadow:0 8px 0 rgba(0,0,0,.4)}
+  #count .n.pop{animation:swap-pop .9s cubic-bezier(.2,1.5,.3,1)}
+
+  /* SWAP burst */
+  #flash{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;pointer-events:none}
+  #flash.go{display:flex}
+  #flash .fx{font-family:"Secular One";color:var(--gold);font-size:clamp(70px,22vmin,260px);
+    text-shadow:0 6px 0 #7a1226,0 0 40px var(--change2);transform:scale(0) rotate(-12deg);position:relative;z-index:2}
+  #flash.go .fx{animation:swap-pop .6s cubic-bezier(.2,1.5,.3,1) forwards}
+  #flash .star{position:absolute;width:clamp(300px,72vmin,860px);aspect-ratio:1;z-index:1;transform:scale(0) rotate(-24deg);opacity:.96}
+  #flash.go .star{animation:star-pop .65s cubic-bezier(.2,1.4,.3,1) forwards}
+  #flash .star svg{width:100%;height:100%;filter:drop-shadow(0 20px 44px rgba(0,0,0,.5))}
+  @keyframes star-pop{0%{transform:scale(0) rotate(-24deg)}55%{transform:scale(1.12) rotate(2deg)}100%{transform:scale(1) rotate(-4deg)}}
+  .flashbg{position:fixed;inset:0;z-index:55;opacity:0;display:none}
+  .flashbg.go{display:block;animation:swap-flash .5s ease-out both}
+  .is-shaking{animation:screen-shake .42s cubic-bezier(.36,.07,.19,.97) both}
+
+  /* toasts */
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(150%);z-index:45;width:min(680px,92vw);
+    border-radius:18px;padding:16px 20px;display:flex;gap:14px;align-items:center;text-align:right;
+    box-shadow:0 18px 50px rgba(0,0,0,.55);transition:transform .35s cubic-bezier(.2,1.2,.4,1);backdrop-filter:blur(8px)}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast .hi{font-size:30px;flex:0 0 auto}
+  .toast p{margin:0;font-size:clamp(15px,2vmin,20px);line-height:1.45;flex:1}
+  .toast .hx{font-family:"Rubik";font-weight:700;font-size:11px;display:block;margin-bottom:3px;letter-spacing:.04em}
+  #hint{background:rgba(28,21,38,.94);border:1px solid rgba(246,231,180,.45)} #hint p{color:#f3eddf} #hint .hx{color:var(--spot)}
+  #topic{background:rgba(40,26,12,.95);border:1px solid rgba(224,138,30,.6)} #topic p{color:#ffe6c4} #topic .hx{color:#ffbf6b}
+
+  /* SCORE / ROUNDEND */
+  .scorer{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:16px;margin:0 0 14px;text-align:right}
+  .scorer .nm{font-family:"Secular One";font-size:clamp(20px,3vmin,28px);margin:0 0 12px;text-align:center}
+  .crit{display:flex;gap:8px;flex-wrap:wrap}
+  .crit button{flex:1;min-width:140px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;
+    padding:13px 10px;font-family:"Rubik";font-weight:700;font-size:14px;color:#ddd6ea;transition:all .15s;min-height:var(--tap)}
+  .crit button.on{background:var(--ok);border-color:var(--ok);color:#fff}
+  .crit button small{display:block;font-weight:500;font-size:11px;opacity:.85;margin-top:3px}
+  .honor{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+  .honor button{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:18px;
+    font-family:"Secular One";font-size:clamp(18px,2.6vmin,24px);transition:all .15s;min-height:var(--tap)}
+  .honor button.on{background:var(--spot);color:var(--ink);border-color:var(--spot)}
+  #roundend .rebig{font-family:"Secular One";font-size:clamp(40px,9vmin,96px);color:var(--spot);margin:6px 0}
+  #roundend .applause{font-size:clamp(46px,11vmin,110px)}
+
+  /* SCOREBOARD */
+  .board{width:min(640px,94vw);display:grid;gap:10px}
+  .brow{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+    border-radius:16px;padding:14px 18px;backdrop-filter:blur(3px)}
+  .brow .rank{font-family:"Secular One";font-size:22px;color:var(--spot);width:34px;text-align:center}
+  .brow .bn{flex:1;font-size:clamp(17px,2.4vmin,22px);font-weight:700;text-align:right}
+  .brow .tok{font-family:"Secular One";font-size:clamp(22px,3vmin,30px);color:var(--change)}
+  .brow.lead{border-color:var(--spot);box-shadow:0 0 0 1px var(--spot) inset}
+
+  /* WINNER */
+  #winner .crown,#partyend .crown{font-size:clamp(60px,14vmin,130px);animation:winner-cheer .9s cubic-bezier(.2,1.4,.3,1)}
+  #winner .wname{font-family:"Secular One";font-size:clamp(44px,11vmin,120px);color:var(--spot);margin:6px 0;text-shadow:0 4px 0 rgba(0,0,0,.3)}
+  #partyend .wname{font-family:"Secular One";font-size:clamp(34px,8vmin,72px);color:var(--spot);margin:6px 0}
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+  .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:2px;opacity:0;animation:confetti-fall linear forwards}
+
+  /* GUESS MODE */
+  #guessIntro .who,#guessScore .who{font-family:"Secular One";font-size:clamp(28px,6vmin,64px);margin:8px 0;line-height:1.08}
+  .secretwrap{width:min(760px,94vw);margin:14px 0}
+  .secretcard{background:#fff;color:var(--ink);border-radius:var(--r);padding:clamp(20px,4vmin,42px);position:relative;overflow:hidden;
+    box-shadow:0 22px 60px rgba(0,0,0,.55),0 0 80px -14px rgba(224,138,30,.55),0 0 0 1px rgba(255,255,255,.09);text-align:center}
+  .secretcard .sk{font-family:"Rubik";font-weight:700;font-size:13px;color:var(--guess);letter-spacing:.08em;margin-bottom:8px}
+  .secretcard .sv{font-family:"Secular One";font-size:clamp(28px,6.6vmin,60px);line-height:1.08;transition:filter .25s}
+  .secretcard .sd{color:#4d4659;font-size:clamp(15px,2.4vmin,21px);margin-top:10px;line-height:1.5;transition:filter .25s}
+  .secretcard.blurred .sv,.secretcard.blurred .sd{filter:blur(22px);user-select:none}
+  .secretcard .eye{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:clamp(38px,8vmin,72px)}
+  .secretcard.blurred .eye{display:flex}
+  .holdhint{color:#b3acc4;font-size:clamp(13px,2vmin,17px);margin-top:10px}
+  .guessverdict{display:grid;gap:14px;grid-template-columns:1fr 1fr;width:min(620px,92vw);margin-top:20px}
+  .guessverdict button{border-radius:var(--r);padding:26px 14px;font-family:"Secular One";font-size:clamp(22px,4vmin,38px);
+    border:1px solid var(--line);background:rgba(255,255,255,.05);transition:transform .45s var(--spring)}
+  .guessverdict button:active{transform:scale(.95);transition-duration:.08s}
+  .guessverdict .yes{background:linear-gradient(160deg,#3cc47a -20%,var(--ok) 60%);box-shadow:0 8px 0 #1c6e3e,0 16px 34px rgba(44,158,91,.4)}
+  .guessverdict .no{background:rgba(255,255,255,.06)}
+
+  /* BIG SCREEN mode */
+  body.bigscreen{font-size:19px}
+  body.bigscreen .scard{min-width:260px}
+  body.bigscreen .scard .v{font-size:clamp(24px,4vmin,42px)}
+  body.bigscreen .scard .vd{font-size:clamp(15px,2.2vmin,22px)}
+  body.bigscreen .clock{font-size:clamp(64px,14vmin,150px)}
+  body.bigscreen .ringtimer{width:clamp(190px,36vmin,380px)}
+  body.bigscreen .guide{font-size:clamp(18px,2.8vmin,27px)}
+  body.bigscreen .swapbtn{font-size:clamp(36px,8vmin,84px)}
+  body.bigscreen .gcard .t{font-size:clamp(34px,6.6vmin,74px)}
+  body.bigscreen .gcard .d{font-size:clamp(17px,3vmin,28px)}
+  body.bigscreen .perform{font-size:clamp(18px,3vmin,28px)}
+  body.bigscreen #flash .fx{font-size:clamp(90px,28vmin,340px)}
+
+  /* CARD EDITOR */
+  .catchips{display:flex;gap:8px;flex-wrap:wrap}
+  .catchips button{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+    border-radius:999px;padding:11px 16px;font-family:"Rubik";font-weight:700;font-size:14px;color:#ddd6ea;transition:all .15s}
+  .catchips button i{width:11px;height:11px;border-radius:50%;background:var(--cc)}
+  .catchips button.on{background:var(--cc);border-color:var(--cc);color:#fff}
+  .catchips button.on i{background:rgba(255,255,255,.85)}
+  .edrow{display:grid;gap:10px;margin-top:12px}
+  .edrow input{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+    color:#fff;font-family:"Heebo";font-size:16px;text-align:right;min-height:var(--tap)}
+  .edrow input:focus{outline:none;border-color:var(--spot)}
+  .customlist{display:grid;gap:8px;margin-top:16px;max-height:32vh;overflow:auto;padding-left:4px}
+  .crow{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);
+    border-radius:14px;padding:10px 14px;text-align:right}
+  .crow .cc{width:9px;height:38px;border-radius:5px;flex:0 0 auto}
+  .crow .ct{flex:1;min-width:0}
+  .crow .ct b{display:block;font-family:"Secular One";font-weight:400;font-size:16px}
+  .crow .ct span{font-size:13px;color:#b3acc4}
+  .crow .del{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:16px;color:#e7889a;flex:0 0 auto}
+  .emptyc{color:#8a7fa6;font-size:14px;text-align:center;padding:14px 0}
+
+  /* settings */
+  #settings{position:fixed;inset:0;z-index:40;background:rgba(8,5,14,.7);display:none;align-items:center;justify-content:center;padding:18px}
+  #settings.open{display:flex}
+  .close{position:absolute;top:14px;left:14px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.1);font-size:20px}
+  #voiceSel{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:13px;color:#fff;font-family:Heebo;font-size:15px;min-height:var(--tap)}
+
+  /* ===== motion kit (designer) ===== */
+  @keyframes spotlight-breathe{0%,100%{transform:translateX(-50%) scale(1);opacity:.85}50%{transform:translateX(-50%) scale(1.05);opacity:1}}
+  @keyframes swap-flash{0%{opacity:0}18%{opacity:.85}100%{opacity:0}}
+  @keyframes swap-pop{0%{transform:scale(0) rotate(-12deg);opacity:0}45%{transform:scale(1.25) rotate(4deg);opacity:1}68%{transform:scale(.92) rotate(-2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+  @keyframes screen-shake{0%,100%{transform:translate3d(0,0,0)}10%{transform:translate3d(-8px,4px,0) rotate(-.6deg)}30%{transform:translate3d(7px,-5px,0) rotate(.5deg)}50%{transform:translate3d(-5px,6px,0) rotate(-.4deg)}70%{transform:translate3d(6px,-3px,0) rotate(.3deg)}90%{transform:translate3d(-3px,2px,0)}}
+  @keyframes card-deal{0%{transform:perspective(900px) rotateY(80deg) translateY(26px) scale(.85);opacity:0;filter:blur(10px)}60%{transform:perspective(900px) rotateY(-8deg) translateY(0) scale(1.04);opacity:1;filter:blur(0)}100%{transform:perspective(900px) rotateY(0) translateY(0) scale(1);opacity:1;filter:blur(0)}}
+  @keyframes countdown-urgent{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.16);opacity:.8}}
+  @keyframes confetti-fall{0%{transform:translate(0,-10vh) rotate(0);opacity:0}10%{opacity:1}100%{transform:translate(var(--dx,0),110vh) rotate(var(--rot,720deg));opacity:1}}
+  @keyframes winner-cheer{0%{transform:scale(0) rotate(-20deg)}55%{transform:scale(1.2) rotate(8deg)}75%{transform:scale(.95) rotate(-4deg)}100%{transform:scale(1) rotate(0)}}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+    .stagebg::before{animation:none}
+    .confetti{display:none}
+  }
+  body.noanim *{animation:none !important;transition:none !important}
+  body.noanim .confetti{display:none}
+  @media (max-height:560px){ #home .title{font-size:clamp(54px,15vmin,120px)} #home .burst{margin-bottom:8px} }
+</style>
+</head>
+<body>
+<div class="stagebg"></div>
+<div class="grain"></div>
+
+<!-- ONBOARDING -->
+<div id="onboard">
+  <div class="ob on" data-i="0">
+    <div class="obic">🎭</div>
+    <h3>ברוכים הבאים למהמותן</h3>
+    <p>משחק אלתור לחבורה. <b>לא צריך להיות מצחיק</b> — צריך רק להגיב מהר. המנחה הדיגיטלי יוביל אתכם בכל צעד.</p>
+  </div>
+  <div class="ob" data-i="1">
+    <div class="obic">🃏</div>
+    <h3>שולפים מצב</h3>
+    <p>בכל סיבוב המנחה נותן לכם <b>מקום, דמויות ואילוץ</b>, ואומר מי מתחיל. אתם פשוט פותחים סצנה קצרה.</p>
+  </div>
+  <div class="ob" data-i="2">
+    <div class="obic">🔔</div>
+    <h3>"החלפה!"</h3>
+    <p>באמצע הסצנה המנחה יצעק <b>"החלפה!"</b> — ואז מוחקים את המשפט האחרון ומחליפים במשהו אחר לגמרי. זה כל הקטע. זה תמיד מצחיק.</p>
+  </div>
+  <div class="ob" data-i="3">
+    <div class="obic">💡</div>
+    <h3>תקועים? יש עזרה</h3>
+    <p>כפתור <b>רמז</b>, כפתור <b>נושא חדש</b> שזורק טוויסט לסצנה, וכפתור <b>תקוע?</b> שנותן לכם משפט פתיחה. אף אחד לא נשאר לבד על הבמה.</p>
+  </div>
+  <div class="ob" data-i="4">
+    <div class="obic">🕵️</div>
+    <h3>ניחוש וקלפים משלכם</h3>
+    <p>הפעילו את חבילת <b>הניחוש</b> — אחד מנחש, כולם רומזים. וב<b>עורך הקלפים</b> תוסיפו בדיחות פנימיות משלכם, ואפילו תשתפו אותן עם חברים.</p>
+  </div>
+  <div class="dots" id="obDots"></div>
+  <div class="row">
+    <button class="ghost" onclick="skipOnboard()">דלג</button>
+    <button class="big" id="obNext" onclick="nextOnboard()">הבא</button>
+  </div>
+</div>
+
+<div class="app">
+  <button class="gear" onclick="openSettings()" aria-label="הגדרות">⚙️</button>
+
+  <!-- HOME -->
+  <section class="screen active" id="home">
+    <div class="burst"><span>החלפה!</span></div>
+    <div class="eyebrow">המנחה הדיגיטלי · משחק אלתור</div>
+    <h1 class="display title">מהמותן<span class="dot">.</span></h1>
+    <p class="tag">הוא מוביל אתכם צעד-צעד, סופר את הזמן, וזורק "החלפה!". גם אם אתם לא טובים באלתור — תיהנו, וזה יהיה קל.</p>
+    <div class="row"><button class="big" onclick="goSetup()">בואו נשחק</button></div>
+    <div class="row" style="margin-top:18px">
+      <span class="pill">🤖 מנחה אוטומטי</span><span class="pill">🕵️ מצב ניחוש</span>
+      <span class="pill">🖥️ מסך גדול</span><span class="pill">✏️ קלפים משלכם</span>
+      <span class="pill">🧒 גרסת ילדים</span><span class="pill">👥 2–8 שחקנים</span>
+    </div>
+    <button class="ghost" style="margin-top:20px" onclick="openOnboard(true)">איך משחקים?</button>
+  </section>
+
+  <!-- SETUP -->
+  <section class="screen" id="setup">
+    <div class="panel">
+      <h2>מי משחק?</h2>
+      <p class="sub">הזינו שמות, בחרו איך אתם רוצים לשחק, ומתחילים.</p>
+      <div class="field">
+        <div class="label">השחקנים</div>
+        <div class="players" id="players"></div>
+        <button class="ghost addp" onclick="addPlayer()">+ הוסף שחקן</button>
+      </div>
+      <div class="field">
+        <div class="label">מצב מנחה</div>
+        <div class="seg" id="modeSeg">
+          <button data-mode="auto" class="on">🤖 אוטומטי<small>האפליקציה מנחה לבד עם קול</small></button>
+          <button data-mode="manual">🎬 ידני<small>אחד מכם הבמאי עם כפתורים</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">סגנון משחק</div>
+        <div class="seg" id="scoredSeg">
+          <button data-s="party" class="on">🎉 חגיגה<small>בלי ניקוד — רק בשביל הצחוק</small></button>
+          <button data-s="scored">🏆 עם ניקוד<small>אסימונים ומנצח</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">רמה</div>
+        <div class="seg" id="levelSeg">
+          <button data-l="easy" class="on">🌱 מתחילים<small>עוד הכוונה, פחות לחץ, משפטי פתיחה</small></button>
+          <button data-l="reg">🔥 רגיל<small>קצב מלא</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">קהל</div>
+        <div class="seg" id="kidsSeg">
+          <button data-k="off" class="on">🎉 רגיל<small>14+</small></button>
+          <button data-k="on">🧒 ילדים<small>תוכן מותאם, בלי ניקוד, זמן רגוע</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">מצב צוות / גיבוש (HR)</div>
+        <div class="seg" id="teamSeg">
+          <button data-team="off" class="on">👥 רגיל</button>
+          <button data-team="on">🏢 מצב צוות<small>תחקיר לסיכום + שם ארגון</small></button>
+        </div>
+        <input id="companyInput" type="text" placeholder="שם הארגון (לא חובה)" oninput="S.company=this.value" style="display:none;width:100%;margin-top:10px;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:13px 15px;color:#fff;font-family:Heebo;font-size:16px;text-align:right;min-height:var(--tap)" aria-label="שם הארגון">
+      </div>
+      <div class="field">
+        <div class="label">חבילות אילוצים</div>
+        <div class="seg sm" id="packSeg">
+          <button data-pack="style" class="on">🎭 סגנון</button>
+          <button data-pack="lang" class="on">💬 שפה</button>
+          <button data-pack="body" class="on">🤸 גוף</button>
+          <button data-pack="guess">🕵️ ניחוש</button>
+        </div>
+        <button class="ghost" style="margin-top:10px;width:100%" onclick="openEditor()">✏️ עורך הקלפים — הוסיפו קלפים משלכם</button>
+      </div>
+      <div class="field">
+        <div class="label">תצוגה</div>
+        <div class="seg sm" id="bigSeg">
+          <button data-big="off" class="on">📱 רגילה</button>
+          <button data-big="on">🖥️ מסך גדול / הופעה<small>טקסט ענק, מותאם לטלוויזיה</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">אורך סצנה</div>
+        <div class="seg sm" id="timeSeg">
+          <button data-t="60">60 שניות</button>
+          <button data-t="90" class="on">90 שניות</button>
+          <button data-t="120">120 שניות</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="ghost" onclick="show('home')">חזרה</button>
+        <button class="big" onclick="startGame()">להתחיל!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUND INTRO -->
+  <section class="screen" id="intro">
+    <div class="eyebrow" id="introRnum">סיבוב 1</div>
+    <div class="who" id="introWho">מתכוננים…</div>
+    <div class="roleline">על הבמה: <b id="introPerf">—</b></div>
+    <div class="roleline" id="introDirLine">במאי: <b id="introDir">—</b></div>
+    <div class="row" style="margin-top:26px"><button class="big" onclick="drawCards()">שלוף קלפים</button></div>
+  </section>
+
+  <!-- DRAW -->
+  <section class="screen" id="draw">
+    <div class="cards2" id="drawCards"></div>
+    <div class="row" style="margin-top:24px">
+      <button class="ghost" onclick="reDraw()">🔀 שלוף שוב</button>
+      <button class="ghost hintb" id="drawHintBtn" onclick="openerHint()">💡 רמז לפתיחה</button>
+      <button class="big" onclick="goCast()">המשך ←</button>
+    </div>
+  </section>
+
+  <!-- CAST / FRAMING -->
+  <section class="screen" id="cast">
+    <div class="eyebrow">המנחה ממסגר את הסצנה</div>
+    <div class="framecard">
+      <div class="place" id="castPlace">—</div>
+      <div class="rel" id="castRel">—</div>
+      <div class="starts">מתחיל/ה: <b id="castStarter">—</b></div>
+      <div class="seedline" id="castSeed" style="display:none">
+        <span class="lbl">משפט פתיחה מוכן (לא חובה):</span>
+        <span id="castSeedTxt">—</span>
+      </div>
+    </div>
+    <div class="roleline" id="castCon">האילוץ: —</div>
+    <div class="row" style="margin-top:22px">
+      <button class="ghost" onclick="show('draw')">חזרה</button>
+      <button class="big" onclick="beginCountdown()">3, 2, 1 — אקשן!</button>
+    </div>
+  </section>
+
+  <!-- GUESS INTRO -->
+  <section class="screen" id="guessIntro">
+    <div class="eyebrow" id="guessRnum">סיבוב ניחוש</div>
+    <div class="who" id="guessTitle">—</div>
+    <div class="roleline"><b id="guessGuesser">—</b> — תסתכלו הצידה / צאו לרגע! 🙈</div>
+    <div class="roleline" style="color:#cfc8da" id="guessCrowd">כל השאר: החזיקו את הקלף כדי לראות את הסוד</div>
+    <div class="secretwrap">
+      <div class="secretcard blurred" id="secretCard">
+        <div class="sk" id="secretKind">🕵️ הסוד</div>
+        <div class="sv" id="secretVal">—</div>
+        <div class="sd" id="secretDesc">—</div>
+        <div class="eye">🙈</div>
+      </div>
+      <div class="holdhint">👆 לחצו והחזיקו את הקלף כדי לחשוף — עוזבים והוא מסתתר</div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="ghost" onclick="show('intro')">חזרה</button>
+      <button class="big" onclick="beginGuessCountdown()">המנחש חוזר — אקשן!</button>
+    </div>
+  </section>
+
+  <!-- GUESS SCORE -->
+  <section class="screen" id="guessScore">
+    <div class="applause" id="guessEmoji" style="font-size:clamp(46px,11vmin,110px)">🎯</div>
+    <div class="who" id="guessResult">—</div>
+    <div class="muted" id="guessResultSub"></div>
+    <div class="panel" id="hinterPanel" style="margin-top:20px;display:none">
+      <h2 style="font-size:clamp(20px,3vmin,30px)">מי היה הרומז הכי חד?</h2>
+      <p class="sub">רמז מבריק בלי "להלשין" = אסימון (אפשר לדלג).</p>
+      <div class="honor" id="hinterGrid"></div>
+    </div>
+    <div class="row" style="margin-top:24px">
+      <button class="big" onclick="applyGuessScore()">המשך</button>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section class="screen" id="play">
+    <div class="timebar"><div class="fill" id="timefill"></div></div>
+    <div class="playtop"><div class="smallcards" id="playCards"></div></div>
+    <div class="guide" id="guide"></div>
+    <div class="ringtimer" id="ringtimer" style="--p:1"><div class="clock" id="clock">90</div></div>
+    <div class="perform">על הבמה: <b id="playPerf">—</b></div>
+    <div class="ringcount" id="ringcount"></div>
+    <div class="playctrl">
+      <div id="manualCtrl" style="display:none">
+        <div class="row"><button class="swapbtn" onclick="manualSwap()">🔔 החלפה!</button></div>
+        <div class="row" style="margin-top:12px">
+          <button class="ghost topicb" onclick="throwTopic()">🎲 נושא חדש</button>
+          <button class="ghost stuckb" onclick="stuck()">😅 תקוע?</button>
+          <button class="ghost hintb" onclick="sceneHint()">💡 רמז</button>
+          <button class="ghost" onclick="freeze()">❄️ פריז!</button>
+          <button class="ghost" onclick="endScene()">⏹️ סיים</button>
+        </div>
+      </div>
+      <div id="autoCtrl" style="display:none">
+        <div class="autohint">🤖 המנחה מנהל את הסצנה… הקשיבו ל"החלפה!"</div>
+        <div class="row" style="margin-top:10px">
+          <button class="ghost topicb" onclick="throwTopic()">🎲 נושא חדש</button>
+          <button class="ghost stuckb" onclick="stuck()">😅 תקוע?</button>
+          <button class="ghost hintb" onclick="sceneHint()">💡 רמז</button>
+          <button class="ghost" onclick="endScene()">⏹️ סיים מוקדם</button>
+        </div>
+      </div>
+      <div id="guessCtrl" style="display:none">
+        <div class="guessverdict" style="margin:0 auto">
+          <button class="yes" onclick="guessSuccess()">🎯 ניחש/ה נכון!</button>
+          <button class="no" onclick="endScene()">⏱️ ויתור / נגמר הזמן</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCORE -->
+  <section class="screen" id="score">
+    <div class="panel">
+      <h2>ניקוד</h2>
+      <p class="sub" id="scoreSub">מתגמלים תגובה לאילוץ — לא "מי הכי מצחיק".</p>
+      <div id="scoreBody"></div>
+      <div class="row" style="margin-top:8px"><button class="big" onclick="applyScore()">המשך</button></div>
+    </div>
+  </section>
+
+  <!-- ROUND END (party) -->
+  <section class="screen" id="roundend">
+    <div class="applause">👏</div>
+    <div class="rebig">כל הכבוד!</div>
+    <div class="muted" id="roundendSub"></div>
+    <div class="row" style="margin-top:26px">
+      <button class="ghost" onclick="endGameNow()">סיים משחק</button>
+      <button class="big" onclick="nextRound()">סיבוב הבא</button>
+    </div>
+  </section>
+
+  <!-- SCOREBOARD -->
+  <section class="screen" id="scoreboard">
+    <h2 class="display" style="font-size:clamp(30px,6vmin,52px);margin:0 0 6px">לוח תוצאות</h2>
+    <p class="muted" id="boardSub" style="margin:0 0 20px"></p>
+    <div class="board" id="board"></div>
+    <div class="row" style="margin-top:24px">
+      <button class="ghost" onclick="endGameNow()">סיים משחק</button>
+      <button class="big" onclick="nextRound()">סיבוב הבא</button>
+    </div>
+  </section>
+
+  <!-- WINNER -->
+  <section class="screen" id="winner">
+    <div class="crown">👑</div><div class="eyebrow">המנצח/ת</div>
+    <div class="wname" id="winName">—</div><div class="muted" id="winSub"></div>
+    <div class="row" style="margin-top:28px">
+      <button class="ghost" onclick="show('scoreboard');renderBoard()">לוח מלא</button>
+      <button class="big" onclick="newGame()">משחק חדש</button>
+    </div>
+  </section>
+
+  <!-- DEBRIEF (team mode) -->
+  <section class="screen" id="debrief">
+    <div class="panel" style="text-align:right">
+      <h2 style="text-align:center">💬 תחקיר צוות</h2>
+      <p class="sub" style="text-align:center">רגע לפני סיום — שיחה קצרה שמחברת את מה שקרה במשחק לעבודה שלכם. בחרו שאלה או שתיים.</p>
+      <div id="debriefBody"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="ghost" onclick="renderDebrief()">🔀 שאלות אחרות</button>
+        <button class="big" onclick="finalEnd()">סיום</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTY END -->
+  <section class="screen" id="partyend">
+    <div class="crown">🎉</div>
+    <div class="wname">תודה ששיחקתם!</div>
+    <div class="muted" id="partyendSub"></div>
+    <div class="row" style="margin-top:28px"><button class="big" onclick="newGame()">משחק חדש</button></div>
+  </section>
+</div>
+
+<!-- overlays -->
+<div class="flashbg" id="flashbg"></div>
+<div id="flash">
+  <div class="star"><svg viewBox="0 0 200 200"><polygon points="100,2 118,42 158,22 148,66 196,64 160,96 198,122 152,126 168,170 126,150 118,198 100,160 82,198 74,150 32,170 48,126 2,122 40,96 4,64 52,66 42,22 82,42"
+    fill="#e23149" stroke="#ff5066" stroke-width="3"/></svg></div>
+  <div class="fx" id="flashTxt">החלפה!</div>
+</div>
+<div id="count"><div class="n" id="countN">3</div></div>
+<div class="toast" id="hint" onclick="hideHint()"><span class="hi">💡</span><p><span class="hx" id="hintKind">רמז</span><span id="hintTxt"></span></p></div>
+<div class="toast" id="topic" onclick="hideTopic()"><span class="hi">🎲</span><p><span class="hx">נושא חדש!</span><span id="topicTxt"></span></p></div>
+<div class="confetti" id="confetti"></div>
+
+<!-- card editor -->
+<div id="editor" style="position:fixed;inset:0;z-index:42;background:rgba(8,5,14,.7);display:none;align-items:center;justify-content:center;padding:18px">
+  <div class="panel" style="position:relative">
+    <button class="close" onclick="closeEditor()" aria-label="סגור">✕</button>
+    <h2>✏️ עורך הקלפים</h2>
+    <p class="sub">הוסיפו קלפים משלכם — בדיחות פנימיות, מקומות מהמשרד, אילוצים מטורפים. נשמר במכשיר.</p>
+    <div class="field">
+      <div class="label">קטגוריה</div>
+      <div class="catchips" id="edCat">
+        <button data-c="set" style="--cc:var(--set)" class="on"><i></i>📍 במה</button>
+        <button data-c="style" style="--cc:var(--style)"><i></i>🎭 סגנון</button>
+        <button data-c="lang" style="--cc:var(--lang)"><i></i>💬 שפה</button>
+        <button data-c="body" style="--cc:var(--body)"><i></i>🤸 גוף</button>
+      </div>
+    </div>
+    <div class="edrow">
+      <input id="edTitle" type="text" maxlength="40" placeholder="כותרת הקלף (למשל: המטבחון במשרד)">
+      <input id="edDesc" type="text" maxlength="90" placeholder="תיאור קצר (למשל: שניים רבים על החלב האחרון)">
+    </div>
+    <div class="row" style="margin-top:14px"><button class="big" style="font-size:clamp(18px,3vmin,26px)" onclick="addCustomCard()">+ הוסף קלף</button></div>
+    <div class="label" style="margin-top:18px">הקלפים שלכם (<span id="edCount">0</span>)</div>
+    <div class="customlist" id="customList"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="ghost" onclick="exportCustom()">📤 ייצוא (העתקה)</button>
+      <button class="ghost" onclick="importCustom()">📥 ייבוא</button>
+    </div>
+    <p class="sub" style="margin:10px 0 0;font-size:12.5px;text-align:center">ייצוא מעתיק את החבילה כטקסט — שלחו בוואטסאפ לחברים, והם יעשו "ייבוא".</p>
+  </div>
+</div>
+
+<!-- settings -->
+<div id="settings">
+  <div class="panel" style="position:relative">
+    <button class="close" onclick="closeSettings()" aria-label="סגור">✕</button>
+    <h2>הגדרות</h2>
+    <p class="sub">הקול, הסאונד, הרמזים והנגישות.</p>
+    <div class="field">
+      <div class="label">פרסונת המנחה</div>
+      <div class="seg sm" id="personaSeg">
+        <button data-p="compere" class="on">📣 הקומפר<small>אנרגטי, מרים</small></button>
+        <button data-p="cynic">🎩 הציני<small>יבש, שולט</small></button>
+        <button data-p="manic">🤪 המשוגע<small>מהיר, פרוע</small></button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="label">קול (TTS)</div>
+      <div class="seg sm" id="ttsSeg"><button data-tts="on" class="on">🔊 דיבור פעיל</button><button data-tts="off">🔇 כבוי</button></div>
+      <div class="label" style="margin-top:12px">קול עברי במכשיר</div>
+      <select id="voiceSel"></select>
+      <p class="sub" style="margin:8px 0 0;font-size:12.5px">משתמש בקול המובנה של הדפדפן (עובד אופליין). לקול טבעי במיוחד אפשר לחבר בעתיד מנוע ענן.</p>
+    </div>
+    <div class="field"><div class="label">רמזים ועזרה</div>
+      <div class="seg sm" id="hintsSeg"><button data-h="on" class="on">💡 מופעלים</button><button data-h="off">🚫 כבויים</button></div></div>
+    <div class="field"><div class="label">אפקטים קוליים</div>
+      <div class="seg sm" id="sfxSeg"><button data-sfx="on" class="on">🔔 פעילים</button><button data-sfx="off">🔕 כבויים</button></div></div>
+    <div class="field"><div class="label">הנפשות (נגישות)</div>
+      <div class="seg sm" id="motionSeg"><button data-m="on" class="on">✨ מלאות</button><button data-m="off">🧘 מופחתות</button></div></div>
+    <div class="row"><button class="ghost" onclick="testVoice()">🎤 בדוק קול</button><button class="big" onclick="closeSettings()">סגור</button></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   מהמותן — אפליקציית PWA (קובץ עצמאי, עברית RTL, אופליין)
+   v2 — מצב ניחוש, מסך גדול, עורך קלפים, טבעת טיימר
+   [title, desc, hint]
+   ============================================================ */
+const DATA = {
+  set: [
+    ["חדר מיון","שני אחים שמתחרים על תשומת לב","פתחו כשאתם כבר רבים מי 'באמת' דואג יותר — בלי הסברים, ישר לתוך הריב."],
+    ["טסט נהיגה","בוחן קפדן ונבחן בהיסטריה","התניעו מיד; תנו לבוחן להגיב לטעות הראשונה שלכם."],
+    ["חתונה","האקס של הכלה והשושבין","פתחו ברגע מביך: מרימים כוסית — ואז נופל סוד."],
+    ["מעלית תקועה","מנכ\"ל והעובד שפיטר אתמול","לחצו על הכפתור, שום דבר לא קורה — ומכאן הכל מתפרק."],
+    ["ספארי","מדריך טיולים ותייר שבטוח שהוא קוסם","הצביעו על 'חיה' רחוקה ותנו לתייר להגיב בטירוף."],
+    ["משרד עורך דין","זוג מתגרש שעדיין מאוהב ולא מודה","פתחו בחתימה על מסמך — ותנו לרגש לפרוץ באמצע."],
+    ["חנות גלידה","לקוח שלא מחליט ועובד שמאבד שפיות","טעם ראשון, ספק — ומשם העובד מתחיל להישבר."],
+    ["קבר של פרעה","שני שודדי קברים פחדנים","לחישות בחושך. מישהו שמע רעש."],
+    ["ראיון עבודה","מראיין ומועמד שזה הבוס שלו לשעבר","לחיצת יד אחת — ומבט הלם של הכרה."],
+    ["ספינת חלל","שני אסטרונאוטים, לאחד נגמר החמצן","ספירה לאחור — ואז נורת אזהרה אדומה."],
+    ["מכון כושר","מאמן אישי ומתאמן שמשקר על הכושר שלו","הרימו 'משקל כבד' מדומיין והתחילו לשקר על המספרים."],
+    ["בית קפה","דייט ראשון מ-Tinder ששניהם זייפו בפרופיל","פתחו במשפט שובר קרח — ששניכם יודעים שהוא שקר."],
+    ["תא בכלא","אסיר ותיק ואסיר חדש ביום הראשון","הוותיק מסביר 'חוקים', החדש מפחד מכל רעש."],
+    ["חנות חיות","מוכר ולקוח שרוצה להחזיר ברווז","הניחו את הברווז על הדלפק: 'אני רוצה להחזיר.'"],
+    ["קבלה במלון","פקיד ואורח שבטוח שהזמין סוויטה","'יש לי הזמנה לסוויטה' — והפקיד לא מוצא כלום."],
+    ["מסעדת יוקרה","מלצר וסועד שגילה שאין לו ארנק","ההזמנה הסתיימה — והיד נכנסת לכיס הריק."],
+    ["כיתה","מורה מחליף ותלמיד שמנהל את הכיתה","המורה המחליף נכנס, התלמיד כבר 'מנהל' את המקום."],
+    ["לוויה","שני זרים שבכו על האדם הלא נכון","שניכם בוכים — ואז מגלים שזה האדם הלא נכון."]
+  ],
+  style: [
+    ["טלנובלה","דרמה מוגזמת, מבטים ארוכים, סודות משפחתיים","האטו הכל; מבט דרמטי למרחק אחרי כל גילוי."],
+    ["סרט אקשן","משפטי מחץ ציניים באמצע אסון, פיזיקה מוגזמת","זרקו משפט מחץ ציני אחד בדיוק באמצע הפיצוץ."],
+    ["סרט טבע","שחקן אחד מקריין בלחישה את השני כחיה נדירה","לחשו על השותף כאילו הוא חיה נדירה שאתם צדים."],
+    ["מחזמר","כל משפט שני נפתח לשיר דרמטי, עם תנועות ריקוד","כשעולה רגש — תשירו אותו, אל תגידו אותו."],
+    ["סרט אימה","מוזיקת מתח קולית, החלטות גרועות בכוונה","קבלו בכוונה החלטה גרועה, ועשו מוזיקת מתח בפה."],
+    ["פילם נואר","דיבור איטי ופסימי, מונולוג פנימי בקול","דברו לאט ופסימי, עם מונולוג פנימי בקול רם."],
+    ["ערוץ קניות","התלהבות מטורפת מחפץ הכי יומיומי","התלהבו בטירוף מהחפץ הכי משעמם בעולם."],
+    ["אנימה","צעקות שמות מתקפות, דרמטיות קיצונית","צעקו שמות מתקפות ותגזימו בכל רגש קטן."],
+    ["שייקספיר","שפה גבוהה ומליצית מהמאה ה-16","שפה גבוהה: 'התואיל, אדוני, להגיש לי המלח?'"],
+    ["ריאליטי טראש","פניות למצלמה כדי לרכל על השני","פנו ל'מצלמה' כדי לרכל על השותף שלכם."],
+    ["סרט אילם","בלי מילים, רק הבעות; מישהו מקריא כרטיסיות","בלי מילים — הכל בהבעות ובתנועות גדולות."],
+    ["דוקו פשע","קריין דרמטי משחזר \"מה השתבש\"","קריינו דרמטי: 'וכאן בדיוק הכל השתבש.'"]
+  ],
+  lang: [
+    ["לפי הא\"ב","כל משפט מתחיל באות הבאה בסדר הא\"ב","זכרו רק את האות הבאה — לא משפט שלם מראש."],
+    ["מילה אחת","בונים משפט מילה-מילה לסירוגין","מילה אחת כל אחד; הקשיבו ובנו ביחד."],
+    ["רק שאלות","אסור משפט חיווי","ענו על שאלה בשאלה. אל תיכנעו לחיווי."],
+    ["שלוש מילים","בחרו 3 מילים, רק הן מותרות","אותן 3 מילים — שנו טון ומשמעות בכל פעם."],
+    ["מתורגמן","שחקן א' ג'יבריש רגשי, שחקן ב' מתרגם","הג'יבריש רגשי; המתרגם ממציא בביטחון מלא."],
+    ["חרוזים","כל משפט מתחרז עם הקודם של השותף","סיימו משפט במילה קלה לחריזה לשותף."],
+    ["סלנג דור Z","שתי מילות סלנג מוגזמות בכל משפט","שתי מילות סלנג מוגזמות בכל משפט, בלי בושה."],
+    ["בלי האות י'","אסורה לחלוטין","חשבו לאט; החליפו מילים עם י' בנרדפות."],
+    ["הד","חזרו על המילה האחרונה 3 פעמים בקול דועך","חזרו על המילה האחרונה שלוש פעמים, דועך."],
+    ["פוליטיקאי","אסור לענות ישירות, רק להסיט ולדבר בסיסמאות","אל תענו — הסיטו מיד לסיסמה ריקה."],
+    ["תיקון עצמי","אומרים משפט ואז 'מתקנים' להפוך","אמרו משפט, ואז 'לא, להפך' — והפכו אותו."],
+    ["גוף שלישי","מדברים על עצמם רק בגוף שלישי","דברו על עצמכם בשמכם, כמו פרשן חיצוני."]
+  ],
+  body: [
+    ["מריונטות","קפואים; צופים מזיזים את הגוף, אתם רק מדברים","תנו לגוף להיגרר, והגיבו במילים למה שעושים לכם."],
+    ["עמודי תמיכה","נתקעת? טפח לצופה והוא צועק את המילה הבאה","נתקעתם? טפחו לצופה — והוא נותן את המילה הבאה."],
+    ["תסריט עיוור","5 פתקים מהקהל, שלב כל אחד כשורה","שלבו כל פתק כשורה לגיטימית, בלי להסביר אותו."],
+    ["משחק הספר","ספר אקראי, בכל תור הקרא ממנו משפט","הקריאו משפט מהספר כאילו הוא חלק טבעי מהשיחה."],
+    ["סטטוס הפוך","אחד מלך, השני עלוב; באמצע מתחלפים","התחילו בקיצון — מלך מול עלוב — ואז התחלפו חד."],
+    ["בלי קשר עין","אסור להביט, אבל הישארו צמודים","הישארו צמודים אבל אל תביטו — זה מצחיק מעצמו."],
+    ["סלואו-מושן","תנועה איטית קיצונית, דיבור רגיל","גוף איטי קיצוני, דיבור רגיל — הניגוד הוא הקטע."],
+    ["מגע קבוע","נגיעה בנקודה אחת כל הזמן; ניתוק משנה מציאות","געו בנקודה אחת; אם ניתקתם — המציאות משתנה."],
+    ["מראה","שחקן ב' מחקה כל תנועה של א', תוך כדי ויכוח","חקו כל תנועה במדויק — תוך כדי ויכוח מילולי."],
+    ["סטטוס גוף","אחד גבוה ושתלטן, השני נמוך וכנוע — פיזית","אחד מתנשא פיזית, השני מתכווץ — בלי לומר זאת."]
+  ]
+};
+const CAT = {
+  set:{label:"במה",ic:"📍",ltr:"ב"}, style:{label:"סגנון",ic:"🎭",ltr:"ס"},
+  lang:{label:"שפה",ic:"💬",ltr:"ש"}, body:{label:"גוף",ic:"🤸",ltr:"ג"},
+  guess:{label:"ניחוש",ic:"🕵️",ltr:"נ"}
+};
+
+/* קלפי ניחוש — משנים מבנה סיבוב: מנחש אחד, השאר רומזים */
+const GUESS = [
+  {t:"מי אני",d:"המנחש לא יודע מי הוא. רומזים בשאלות והתנהגות — בלי לומר את השם!",k:"הזהות הסודית",
+   s:["דוד בן-גוריון","סופרמן","נטע ברזילי","הארי פוטר","אלברט איינשטיין","בת הים הקטנה","גל גדות","סנטה קלאוס","שרלוק הולמס","המלכה אליזבת"]},
+  {t:"תכונות מסיבה",d:"למנחש הגיע אורח עם תכונה הזויה. נחשו את התכונה מההתנהגות!",k:"התכונה ההזויה",
+   s:["בטוח שהוא רובוט","מאוהב בכיסא","חושב שכולם אקסים שלו","מפחד ממילים ארוכות","בטוח שהוא בלש סמוי","חייב לגעת בתקרה כל דקה","משוכנע שהרצפה לבה","מדבר עם הנעליים שלו"]},
+  {t:"מאחר לעבודה",d:"המנחש איחר לעבודה. רומזים בפנטומימה למה — בלי מילים!",k:"סיבת האיחור",
+   s:["חטפה אותך חללית","הכלב אכל את המפתחות","נתקעת בג'קוזי בקניון","רדפת אחרי יען","התחתנת בטעות","נרדמת בסופר","הצלת חתול מעץ ונתקעת שם","השתתפת במרוץ סמוי"]},
+  {t:"החפץ הנעלם",d:"משחקים סצנה שלמה סביב חפץ — בלי לומר מה הוא. המנחש מגלה!",k:"החפץ",
+   s:["מברשת שיניים","מגהץ","דבק פלסטי","פלאפון שבור","מטרייה הפוכה","שלט טלוויזיה","קומקום","כרית נוי"]},
+  {t:"וידוי",d:"המנחש 'חטא' במשהו. רומזים מה החטא — בעקיפין בלבד!",k:"החטא",
+   s:["אכלת את האוכל של כולם מהמקרר","מכרת את רכב החברה","החלפת את הקפה בנטול","שיקרת שאתה יודע אקסל","גנבת עציץ מהלובי","ענית 'בסדר' לבוס בלי לקרוא את המייל"]},
+  {t:"הפשע המושלם",d:"המנחש הוא בלש. רמזו על הנשק, המקום והמניע — בהתנהגות בלבד!",k:"תיק החקירה",
+   s:["בננה · במטבחון · קנאה בקידום","מקלדת · בחניון · ויכוח על חנייה","עציץ · בישיבת צוות · שעמום","מגב · במעלית · חוב של 20 שקל","שקית קרח · בלובי · ריב על המזגן","טוסטר · בחדר ישיבות · בדיחה שנפלה רע"]}
+];
+
+/* קלפים מותאמים אישית (נשמרים במכשיר) */
+let CUSTOM=[];
+function loadCustom(){ try{ CUSTOM=JSON.parse(localStorage.getItem("mehamoten_custom")||"[]"); }catch(e){ CUSTOM=[]; } }
+function saveCustom(){ try{ localStorage.setItem("mehamoten_custom",JSON.stringify(CUSTOM)); }catch(e){} }
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+/* גרסת ילדים — קלפים שמסוננים החוצה */
+const KIDS_BLOCK=new Set(["חתונה","משרד עורך דין","בית קפה","לוויה","תא בכלא","סלנג דור Z"]);
+function pool(cat){
+  const ext=CUSTOM.filter(c=>c.cat===cat).map(c=>[esc(c.t),esc(c.d),"קלף שלכם — לכו על זה בביטחון מלא!"]);
+  let all=(DATA[cat]||[]).concat(ext);
+  if(S.kids) all=all.filter(c=>!KIDS_BLOCK.has(c[0]));
+  return all;
+}
+const TIPS = [
+  "כן, ו... — קבלו כל הצעה של השותף ובנו עליה. לעולם אל תחסמו.",
+  "ספציפי תמיד מנצח: 'פודל חרדתי בן 11' עדיף על 'כלב'.",
+  "מצאתם דבר מצחיק? תעצימו אותו במדרגות, שוב ושוב.",
+  "תגובה חזקה מיוזמה — תנו לשותף להוביל ופשוט הגיבו.",
+  "בחרו בחירה ברורה ולכו עליה עד הסוף. ביטחון מצחיק יותר מהיסוס.",
+  "זכרו רעיון מההתחלה — חזרה אליו בסוף (קולבק) מפוצצת את הקהל."
+];
+const TOPICS = [
+  "פתאום נכנס שוטר ושואל מה קורה כאן","עכשיו הסצנה הופכת למיוזיקל","מתחיל גשם פתאומי וחזק",
+  "אחד מכם מגלה סוד גדול — עכשיו","הטלפון מצלצל. מי זה?!","פתאום אתם מאחרים למשהו דחוף",
+  "נכנסת דמות שלישית מפתיעה — דמיינו אותה","משהו מתפוצץ ברקע!","מסתבר שאחד מכם מאוהב בשני",
+  "פתאום אתם בכלל בחלל","חיית המחמד שלכם נעלמה","מישהו אומר את האמת שאסור היה לומר",
+  "מגיע אורח לא קרוא","אתם מגלים שאתם תקועים ביחד","הזמן אוזל — חייבים להחליט עכשיו!",
+  "פתאום כולם מדברים בלחש","אחד מכם בעצם משקר כל הזמן","הרגע הזה — בעצם הכל חלום"
+];
+const OPENERS = [
+  "לא ייאמן שזה קורה דווקא עכשיו.","טוב, אני חייב לספר לך משהו.","חיכיתי לרגע הזה כל היום.",
+  "אתה לא תאמין מה קרה לי הבוקר.","אנחנו לא יכולים להישאר כאן.","תקשיב, אין לנו הרבה זמן.",
+  "ידעתי שאמצא אותך פה.","רגע — שמעת את זה גם?"
+];
+
+const PERSONA = {
+  compere:{ name:"הקומפר",
+    intro:n=>`גבירותיי ורבותיי! ${n}, עלו לבמה!`,
+    frame:(p,r,s)=>`אתם ${r}. המקום: ${p}. ${s}, את/ה מתחיל/ה!`,
+    draw:(s,c)=>`הבמה: ${s}. והאילוץ: ${c}. קדימה!`,
+    swap:["החלפה!","החלפה! תפתיעו אותי!","החלפה — עכשיו!","שוב! החלפה!"],
+    topic:t=>`נושא חדש! ${t}`,
+    timeup:["נגמר הזמן! מחיאות כפיים!","וזהו! איזה יופי!","סיימנו! כל הכבוד!"],
+    test:"שלום! אני המנחה שלכם הערב. מוכנים לאלתר?"},
+  cynic:{ name:"הציני",
+    intro:n=>`טוב. ${n}, בואו נגמור עם זה.`,
+    frame:(p,r,s)=>`אתם ${r}, ב${p}. ${s} מתחיל. שיהיה בהצלחה.`,
+    draw:(s,c)=>`${s}. אילוץ: ${c}. אתם תזדקקו לזה.`,
+    swap:["החלפה. נו, באמת.","החלפה. נסו שוב.","החלפה. זה היה צפוי.","החלפה. הפעם תתאמצו."],
+    topic:t=>`ובכן, ${t}. בבקשה.`,
+    timeup:["נגמר. סוף סוף.","זהו. הספיק לי.","נגמר הזמן. מזל."],
+    test:"כן, כן. אני המנחה. בואו נראה אתכם."},
+  manic:{ name:"המשוגע",
+    intro:n=>`וואו וואו וואו! ${n}! קדימה קדימה קדימה!`,
+    frame:(p,r,s)=>`${p}!! אתם ${r}!! ${s} — יאללה תתחיל!!`,
+    draw:(s,c)=>`${s}!! והאילוץ — ${c}!! בוםם!`,
+    swap:["החלפה החלפה החלפה!","החלפה! יאללה!","בום! החלפה!","החלפה!! עוד!!"],
+    topic:t=>`טוויסט!! ${t}!!`,
+    timeup:["בוםם! נגמר!","טררםם! זהו!","ספיד! נגמר הזמן!"],
+    test:"הייי! אני המנחה הכי משוגע שיש! קדימהה!"}
+};
+
+const DEBRIEF = [
+  {theme:"הקשבה ו\"כן, ו...\"", qs:["מתי הרגשתם שבאמת הקשבתם לשותף ובניתם על ההצעה שלו?","איפה בעבודה אנחנו נוטים לחסום רעיונות במקום להגיד 'כן, ו...'?"]},
+  {theme:"גמישות מול אי-ודאות", qs:["איך הרגיש כש\"החלפה!\" שינתה לכם פתאום את הכיוון?","מה זה מלמד על איך אנחנו מגיבים לשינויים לא צפויים בעבודה?"]},
+  {theme:"ביטחון לטעות", qs:["איך הרגיש לטעות מול כולם — ולצחוק מזה יחד?","מה היה משתנה אם היינו מרגישים בטוחים ככה גם בישיבות צוות?"]},
+  {theme:"שיתוף פעולה וגיבוי", qs:["מי \"הציל\" אתכם על הבמה, ואיך?","איפה ביום-יום אנחנו יכולים לגבות אחד את השני יותר?"]},
+  {theme:"נוכחות וחיבור", qs:["מה גיליתם על חבר/ה לצוות שלא ידעתם קודם?","איך נשמר את האנרגיה והפתיחות האלה גם אחרי המפגש?"]}
+];
+
+const S = {
+  players:["","",""], mode:"auto", scored:false, level:"easy", kids:false, team:false, company:"", packs:["style","lang","body"], sceneLen:90,
+  scores:{}, directorIdx:0, round:0, dirCounts:{}, curDir:"", curPerf:[], starter:"",
+  set:null, con:null, conCat:null, rings:0, topics:0,
+  settings:{persona:"compere", tts:true, sfx:true, hints:true, motion:true, voiceURI:""}
+};
+const WIN_TOKENS = 15;
+let tipIdx = 0;
+
+function save(){ try{ localStorage.setItem("mehamoten2", JSON.stringify(S)); }catch(e){} }
+function load(){ try{ const r=localStorage.getItem("mehamoten2"); if(r) Object.assign(S, JSON.parse(r)); }catch(e){} }
+
+const $ = s=>document.querySelector(s);
+const rand = a=>a[Math.floor(Math.random()*a.length)];
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $("#"+id).classList.add("active"); }
+function activeP(){ return S.players.map(p=>p.trim()).filter(Boolean); }
+
+// AUDIO
+let AC=null;
+function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return AC; }
+function tone(freq,dur,type="sine",vol=.4,slideTo=null){
+  if(!S.settings.sfx) return; const c=ac(); if(!c) return;
+  const o=c.createOscillator(), g=c.createGain(); o.type=type; o.frequency.value=freq;
+  if(slideTo) o.frequency.linearRampToValueAtTime(slideTo, c.currentTime+dur);
+  g.gain.setValueAtTime(vol,c.currentTime); g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);
+  o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+dur);
+}
+function sfxBell(){ tone(880,.12,"triangle",.5); setTimeout(()=>tone(1320,.5,"triangle",.4),60); }
+function sfxSwap(){ tone(180,.18,"sawtooth",.5,520); setTimeout(()=>tone(660,.3,"square",.4),120); }
+function sfxStart(){ tone(523,.12,"triangle",.4); setTimeout(()=>tone(784,.25,"triangle",.4),120); }
+function sfxEnd(){ tone(784,.15,"triangle",.4); setTimeout(()=>tone(523,.15,"triangle",.4),140); setTimeout(()=>tone(392,.4,"triangle",.4),300); }
+function sfxTick(){ tone(1000,.04,"square",.18); }
+function sfxHint(){ tone(1180,.09,"sine",.3); setTimeout(()=>tone(1560,.12,"sine",.25),70); }
+function sfxTopic(){ tone(420,.1,"triangle",.4,720); setTimeout(()=>tone(900,.18,"triangle",.35),100); }
+function sfxCount(){ tone(700,.12,"square",.4); }
+
+// TTS
+let VOICES=[];
+function loadVoices(){
+  if(!("speechSynthesis" in window)) return;
+  VOICES = speechSynthesis.getVoices();
+  const sel=$("#voiceSel"); if(!sel) return;
+  const he=VOICES.filter(v=>/he|iw/i.test(v.lang)); const list=he.length?he:VOICES;
+  sel.innerHTML = list.map(v=>`<option value="${v.voiceURI}">${v.name} (${v.lang})</option>`).join("") || `<option value="">אין קולות זמינים</option>`;
+  if(S.settings.voiceURI) sel.value=S.settings.voiceURI; else if(he[0]){ sel.value=he[0].voiceURI; S.settings.voiceURI=he[0].voiceURI; }
+}
+if("speechSynthesis" in window){ speechSynthesis.onvoiceschanged=loadVoices; }
+function speak(text){
+  if(!S.settings.tts || !text || !("speechSynthesis" in window)) return;
+  try{ speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text); u.lang="he-IL";
+    const v=VOICES.find(x=>x.voiceURI===S.settings.voiceURI); if(v) u.voice=v;
+    u.rate={compere:1.05,cynic:.95,manic:1.25}[S.settings.persona]||1;
+    u.pitch={compere:1.1,cynic:.9,manic:1.3}[S.settings.persona]||1;
+    u.volume=1; speechSynthesis.speak(u);
+  }catch(e){}
+}
+function persona(){ return PERSONA[S.settings.persona]||PERSONA.compere; }
+
+// ONBOARDING
+let obIdx=0; const OB_LAST=4;
+function renderObDots(){ $("#obDots").innerHTML=[0,1,2,3,4].map(i=>`<i class="${i===obIdx?'on':''}"></i>`).join(""); }
+function openOnboard(force){
+  if(!force){ try{ if(localStorage.getItem("mehamoten_seen")) return false; }catch(e){} }
+  obIdx=0; showOb(); $("#onboard").classList.add("open"); return true;
+}
+function showOb(){ document.querySelectorAll("#onboard .ob").forEach(o=>o.classList.toggle("on", +o.dataset.i===obIdx));
+  renderObDots(); $("#obNext").textContent = obIdx>=OB_LAST?"מתחילים!":"הבא"; }
+function nextOnboard(){ if(obIdx<OB_LAST){ obIdx++; showOb(); } else skipOnboard(); }
+function skipOnboard(){ try{ localStorage.setItem("mehamoten_seen","1"); }catch(e){} $("#onboard").classList.remove("open"); ac(); }
+
+// HINTS / TOPIC
+let hintT=null, topicT=null;
+function applyHintsVis(){ const on=S.settings.hints; const e=$("#drawHintBtn"); if(e) e.style.display=on?"":"none"; }
+function showHint(kind,text){ if(!S.settings.hints) return;
+  $("#hintKind").textContent=kind; $("#hintTxt").textContent=text; $("#hint").classList.add("show");
+  sfxHint(); speak(text); if(hintT) clearTimeout(hintT); hintT=setTimeout(hideHint,7000); }
+function hideHint(){ $("#hint").classList.remove("show"); }
+function openerHint(){ if(S.set) showHint("רמז לפתיחה", S.set[2]); }
+function sceneHint(){ if(S.con && Math.random()<0.55) showHint("איך לנצח את האילוץ", S.con[2]);
+  else { showHint("טיפ אלתור", TIPS[tipIdx%TIPS.length]); tipIdx++; } }
+function stuck(){ const line=rand(OPENERS);
+  showHint("תקוע? תגיד את זה", '"'+line+'"');
+}
+function showTopicToast(text){ $("#topicTxt").textContent=text; $("#topic").classList.add("show");
+  if(topicT) clearTimeout(topicT); topicT=setTimeout(hideTopic,6000); }
+function hideTopic(){ $("#topic").classList.remove("show"); }
+function throwTopic(){ if(!sceneRunning) return; S.topics++; const t=rand(TOPICS);
+  showTopicToast(t); sfxTopic(); speak(persona().topic(t)); }
+
+// NAV / SETUP
+function goSetup(){ renderPlayers(); syncSetupUI(); show("setup"); ac(); }
+function renderPlayers(){
+  $("#players").innerHTML = S.players.map((p,i)=>`
+    <div class="prow"><div class="idx">${i+1}</div>
+      <input type="text" value="${(p||"").replace(/"/g,'&quot;')}" placeholder="שחקן ${i+1}" oninput="onName(${i},this.value)" aria-label="שם שחקן ${i+1}">
+      ${S.players.length>2?`<button class="del" onclick="delPlayer(${i})" aria-label="הסר">✕</button>`:""}</div>`).join("");
+}
+function onName(i,v){ S.players[i]=v; }
+function addPlayer(){ if(S.players.length>=8) return; S.players.push(""); renderPlayers(); }
+function delPlayer(i){ if(S.players.length<=2) return; S.players.splice(i,1); renderPlayers(); }
+function syncSetupUI(){
+  $("#modeSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.mode===S.mode));
+  $("#scoredSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.s==="scored")===S.scored));
+  $("#levelSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.l===S.level));
+  $("#kidsSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.k==="on")===!!S.kids));
+  $("#teamSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.team==="on")===S.team));
+  const ci=$("#companyInput"); ci.style.display=S.team?"":"none"; ci.value=S.company||"";
+  $("#packSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",S.packs.includes(b.dataset.pack)));
+  $("#timeSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",+b.dataset.t===S.sceneLen));
+  $("#bigSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.big==="on")===!!S.big));
+}
+$("#modeSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.mode=b.dataset.mode;syncSetupUI();});
+$("#scoredSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.scored=b.dataset.s==="scored";syncSetupUI();});
+$("#levelSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.level=b.dataset.l;syncSetupUI();});
+$("#kidsSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  S.kids=b.dataset.k==="on";
+  if(S.kids){ S.scored=false; if(S.sceneLen<120) S.sceneLen=120; }
+  syncSetupUI();});
+$("#teamSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.team=b.dataset.team==="on";syncSetupUI();});
+$("#packSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  const p=b.dataset.pack,i=S.packs.indexOf(p); if(i>=0){if(S.packs.length>1)S.packs.splice(i,1);}else S.packs.push(p); syncSetupUI();});
+$("#timeSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.sceneLen=+b.dataset.t;syncSetupUI();});
+$("#bigSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  S.big=b.dataset.big==="on"; document.body.classList.toggle("bigscreen",S.big); syncSetupUI(); save();
+  try{ if(S.big && !document.fullscreenElement) document.documentElement.requestFullscreen();
+       else if(!S.big && document.fullscreenElement) document.exitFullscreen(); }catch(err){} });
+
+/* ===== CARD EDITOR ===== */
+let edCat="set";
+$("#edCat").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return;
+  edCat=b.dataset.c; $("#edCat").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); });
+function openEditor(){ renderCustom(); $("#editor").style.display="flex"; }
+function closeEditor(){ $("#editor").style.display="none"; }
+function addCustomCard(){
+  const t=$("#edTitle").value.trim(), d=$("#edDesc").value.trim();
+  if(!t){ $("#edTitle").focus(); return; }
+  CUSTOM.push({cat:edCat,t,d}); saveCustom();
+  $("#edTitle").value=""; $("#edDesc").value=""; $("#edTitle").focus(); renderCustom(); sfxHint();
+}
+function delCustomCard(i){ CUSTOM.splice(i,1); saveCustom(); renderCustom(); }
+function exportCustom(){
+  if(!CUSTOM.length){ alert("אין עדיין קלפים לייצוא — הוסיפו קודם קלף."); return; }
+  const txt="מהמותן-קלפים:"+JSON.stringify(CUSTOM);
+  const done=()=>alert("הועתק! שלחו את הטקסט לחברים — הם ידביקו אותו ב'ייבוא'.");
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(()=>prompt("העתיקו את הטקסט:",txt));
+  else prompt("העתיקו את הטקסט:",txt);
+}
+function importCustom(){
+  const txt=prompt("הדביקו כאן את טקסט הקלפים שקיבלתם:"); if(!txt) return;
+  try{
+    const raw=txt.replace(/^מהמותן-קלפים:/,"").trim();
+    const arr=JSON.parse(raw);
+    if(!Array.isArray(arr)) throw 0;
+    let added=0;
+    arr.forEach(c=>{ if(c&&c.t&&CAT[c.cat]&&c.cat!=="guess"&&!CUSTOM.some(x=>x.cat===c.cat&&x.t===c.t)){ CUSTOM.push({cat:c.cat,t:String(c.t).slice(0,40),d:String(c.d||"").slice(0,90)}); added++; } });
+    saveCustom(); renderCustom();
+    alert(added?`נוספו ${added} קלפים! 🎉`:"לא נמצאו קלפים חדשים בטקסט.");
+  }catch(e){ alert("הטקסט לא זוהה — ודאו שהעתקתם את כולו."); }
+}
+function renderCustom(){
+  $("#edCount").textContent=CUSTOM.length;
+  const cols={set:"var(--set)",style:"var(--style)",lang:"var(--lang)",body:"var(--body)"};
+  $("#customList").innerHTML = CUSTOM.length ? CUSTOM.map((c,i)=>
+    `<div class="crow"><div class="cc" style="background:${cols[c.cat]||"var(--set)"}"></div>
+     <div class="ct"><b>${esc(c.t)}</b><span>${CAT[c.cat]?CAT[c.cat].label:""}${c.d?" · "+esc(c.d):""}</span></div>
+     <button class="del" onclick="delCustomCard(${i})" aria-label="מחק">✕</button></div>`).join("")
+    : `<div class="emptyc">עדיין אין קלפים משלכם — הוסיפו את הראשון!</div>`;
+}
+
+// GAME FLOW
+function startGame(){
+  const ps=activeP();
+  if(S.kids) S.scored=false;
+  if(S.mode==="auto" && ps.length<2){ alert("במצב אוטומטי צריך לפחות 2 שחקנים עם שמות."); return; }
+  if(S.mode==="manual" && ps.length<3){ alert("במצב ידני צריך לפחות 3 שחקנים (במאי + 2 מאלתרים)."); return; }
+  S.scores={}; S.dirCounts={}; ps.forEach(p=>{S.scores[p]=0;S.dirCounts[p]=0;});
+  S.round=0; S.directorIdx=0; guessRound=false; guessWin=false; save(); nextRound();
+}
+function rolesForRound(){
+  const ps=activeP(), n=ps.length;
+  if(S.mode==="auto") return {dir:"", perf:[ps[S.directorIdx%n], ps[(S.directorIdx+1)%n]], ps};
+  const dir=ps[S.directorIdx%n], perf=[]; let k=1;
+  while(perf.length<2 && k<=n){ const c=ps[(S.directorIdx+k)%n]; if(c!==dir && !perf.includes(c)) perf.push(c); k++; }
+  return {dir, perf, ps};
+}
+function nextRound(){
+  S.round++; const {dir,perf}=rolesForRound();
+  S.curDir=dir; S.curPerf=perf; S.starter=rand(perf);
+  $("#introRnum").textContent="סיבוב "+S.round+(S.company?" · "+S.company:"");
+  $("#introPerf").textContent=perf.join("  •  ");
+  if(S.mode==="manual"){ $("#introDirLine").style.display=""; $("#introDir").textContent=dir; $("#introWho").textContent=dir+", אתה הבמאי"; }
+  else { $("#introDirLine").style.display="none"; $("#introWho").textContent="המנחה מוכן"; }
+  show("intro"); speak(persona().intro(perf.join(" ו"))); save();
+}
+function buildCard(cat,card){
+  return `<div class="gcard ${cat} b-${cat}">
+    <div class="band"><span class="cdot"></span><span class="lbl">${CAT[cat].label}</span><span class="ic">${CAT[cat].ic}</span></div>
+    <div class="body"><h3 class="t">${card[0]}</h3><div class="rule"></div><p class="d">${card[1]}</p>
+    <div class="wm">${CAT[cat].ltr}</div><div class="foot">מהמותן</div></div></div>`;
+}
+function drawCards(){
+  const cat=rand(S.packs);
+  if(cat==="guess"){ setupGuessRound(); return; }
+  guessRound=false; guessWin=false;
+  S.set=rand(pool("set")); S.conCat=cat; S.con=rand(pool(cat));
+  $("#drawCards").innerHTML = buildCard("set",S.set)+buildCard(cat,S.con);
+  applyHintsVis(); show("draw"); sfxStart(); speak(persona().draw(S.set[0],S.con[0]));
+}
+
+/* ===== GUESS ROUND ===== */
+let guessRound=false, guessWin=false, hinterPick=null;
+function setupGuessRound(){
+  const g=rand(GUESS); const secret=rand(g.s);
+  S.guess={t:g.t,d:g.d,k:g.k,secret}; S.guesser=S.starter||activeP()[0];
+  guessRound=true; guessWin=false;
+  $("#guessRnum").textContent="סיבוב "+S.round+" · ניחוש";
+  $("#guessTitle").textContent=g.t;
+  $("#guessGuesser").textContent=S.guesser;
+  $("#secretKind").textContent="🕵️ "+g.k;
+  $("#secretVal").textContent=secret;
+  $("#secretDesc").textContent=g.d;
+  $("#secretCard").classList.add("blurred");
+  show("guessIntro"); sfxStart();
+  speak(`סיבוב ניחוש! ${S.guesser}, בלי להסתכל על המסך! כל השאר — תציצו בסוד.`);
+}
+let holdT=null;
+(function(){ const sc=$("#secretCard");
+  sc.addEventListener("pointerdown",e=>{ e.preventDefault(); holdT=setTimeout(()=>sc.classList.remove("blurred"),280); });
+  ["pointerup","pointerleave","pointercancel"].forEach(ev=>sc.addEventListener(ev,()=>{ clearTimeout(holdT); sc.classList.add("blurred"); }));
+})();
+function beginGuessCountdown(){ beginCountdown(); }
+function guessSuccess(){ guessWin=true; endScene(); }
+function finishGuess(win){
+  $("#guessEmoji").textContent=win?"🎯":"⏱️";
+  $("#guessResult").textContent=win?`${S.guesser} ניחש/ה נכון!`:"הזמן נגמר!";
+  $("#guessResultSub").textContent=`הסוד היה: ${S.guess.secret}`+(win?"":" — אולי בפעם הבאה 😅");
+  if(win){ sfxBell(); miniConfetti(); speak(`${S.guesser} ניחש נכון! כל הכבוד!`); if(S.scored) S.scores[S.guesser]=(S.scores[S.guesser]||0)+2; }
+  else { sfxEnd(); speak(`נגמר הזמן! הסוד היה: ${S.guess.secret}`); }
+  const hp=$("#hinterPanel"); hinterPick=null;
+  if(S.scored){ hp.style.display="";
+    const hinters=activeP().filter(p=>p!==S.guesser);
+    $("#hinterGrid").innerHTML=hinters.map((p,i)=>`<button data-h="${i}">${p}</button>`).join("");
+  } else hp.style.display="none";
+  show("guessScore");
+}
+$("#hinterGrid").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return;
+  $("#hinterGrid").querySelectorAll("button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  hinterPick=activeP().filter(p=>p!==S.guesser)[+b.dataset.h]; });
+function applyGuessScore(){
+  if(S.scored && hinterPick) S.scores[hinterPick]=(S.scores[hinterPick]||0)+1;
+  guessRound=false; hinterPick=null; advanceRound();
+  if(S.scored){ renderBoard(); $("#boardSub").textContent=`סיבוב ${S.round} הסתיים`; show("scoreboard"); }
+  else { $("#roundendSub").textContent=`סיבוב ${S.round} הסתיים · מוכנים לעוד?`; show("roundend"); miniConfetti(); }
+}
+function reDraw(){ drawCards(); }
+function goCast(){
+  $("#castPlace").textContent=S.set[0];
+  $("#castRel").textContent=S.set[1];
+  $("#castStarter").textContent=S.starter;
+  $("#castCon").textContent="האילוץ: "+S.con[0]+" — "+S.con[1];
+  const seed=$("#castSeed");
+  if(S.level==="easy"){ seed.style.display=""; $("#castSeedTxt").textContent='"'+rand(OPENERS)+'"'; }
+  else seed.style.display="none";
+  show("cast");
+  speak(persona().frame(S.set[0], S.set[1], S.starter));
+}
+
+// COUNTDOWN -> SCENE
+function beginCountdown(){
+  ac(); let n=3; const ov=$("#count"), el=$("#countN");
+  ov.classList.add("go"); el.textContent=n; el.classList.add("pop"); sfxCount(); speak("שלוש");
+  const iv=setInterval(()=>{
+    n--; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+    if(n>0){ el.textContent=n; sfxCount(); speak(n===2?"שתיים":"אחת"); }
+    else { el.textContent="אקשן!"; sfxStart(); speak("אקשן!"); clearInterval(iv);
+      setTimeout(()=>{ ov.classList.remove("go"); startScene(); }, 700); }
+  },1000);
+}
+
+let timer=null, swapT=null, topicAutoT=null, elapsed=0, sceneRunning=false;
+/* Wake Lock — שהמסך לא ייכבה באמצע סצנה */
+let wakeLock=null;
+async function keepAwake(on){
+  try{
+    if(on && "wakeLock" in navigator){ wakeLock=await navigator.wakeLock.request("screen"); }
+    else if(!on && wakeLock){ await wakeLock.release(); wakeLock=null; }
+  }catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && sceneRunning) keepAwake(true); });
+function startScene(){
+  elapsed=0; S.rings=0; S.topics=0; sceneRunning=true;
+  if(guessRound){
+    $("#playCards").innerHTML =
+      `<div class="scard guess"><div class="k">🕵️ ניחוש · ${S.guess.k}</div><div class="v">${S.guess.t}</div><div class="vd">${S.guess.d}</div></div>`;
+    $("#playPerf").innerHTML=`<b>${S.guesser}</b> מנחש/ת · כל השאר רומזים`;
+    $("#guide").textContent="רומזים חופשי — רק אסור להגיד את הסוד!";
+    $("#manualCtrl").style.display="none"; $("#autoCtrl").style.display="none"; $("#guessCtrl").style.display="";
+  } else {
+    $("#playCards").innerHTML =
+      `<div class="scard set"><div class="k">📍 במה</div><div class="v">${S.set[0]}</div><div class="vd">${S.set[1]}</div></div>`+
+      `<div class="scard ${S.conCat}"><div class="k">${CAT[S.conCat].ic} ${CAT[S.conCat].label}</div><div class="v">${S.con[0]}</div><div class="vd">${S.con[1]}</div></div>`;
+    $("#playPerf").textContent=S.curPerf.join("  •  ");
+    $("#guide").textContent = (S.mode==="manual"? "במאי: כשנהיה צפוי — לחץ 🔔 החלפה!" : "המנחה מוביל — הקשיבו ל\"החלפה!\" ול\"נושא חדש\"");
+    $("#manualCtrl").style.display=S.mode==="manual"?"":"none";
+    $("#autoCtrl").style.display=S.mode==="auto"?"":"none";
+    $("#guessCtrl").style.display="none";
+  }
+  $("#ringcount").textContent="";
+  updateClock(); show("play"); sfxStart(); keepAwake(true);
+  if(timer) clearInterval(timer); timer=setInterval(tick,1000);
+  if(S.mode==="auto" && !guessRound){ scheduleAutoSwap(); scheduleAutoTopic(); }
+}
+function updateClock(){
+  const left=Math.max(0,S.sceneLen-elapsed); const clk=$("#clock"); clk.textContent=left;
+  const frac=left/S.sceneLen; const fill=$("#timefill"); fill.style.width=(frac*100)+"%";
+  const col=frac>.5?"var(--ok)":frac>.2?"var(--guess)":"var(--change)";
+  fill.style.background=col;
+  const rt=$("#ringtimer");
+  rt.style.setProperty("--p",frac); rt.style.setProperty("--tcol",col);
+  rt.classList.toggle("warn", left<=10 && left>0);
+  clk.classList.toggle("warn", left<=10 && left>0);
+}
+function tick(){ if(!sceneRunning) return; elapsed++; updateClock();
+  const left=S.sceneLen-elapsed; if(left<=5 && left>0) sfxTick(); if(elapsed>=S.sceneLen) endScene(); }
+function nextGap(){
+  const frac=elapsed/S.sceneLen; const easy=S.level==="easy"||S.kids;
+  if(frac<0.78){ let base=(easy?16:13)-(frac/0.78)*(easy?8:7); return Math.max(easy?6:4, base+(Math.random()*4-2)); }
+  return (easy?3.5:2.5)+Math.random()*2;
+}
+function scheduleAutoSwap(){
+  if(!sceneRunning || S.mode!=="auto") return;
+  const startQuiet=S.sceneLen*((S.level==="easy"||S.kids)?0.33:0.22);
+  const delay= elapsed<startQuiet ? (startQuiet-elapsed)+Math.random()*2 : nextGap();
+  swapT=setTimeout(()=>{ if(!sceneRunning) return; if(S.sceneLen-elapsed<=1) return; doSwap(); scheduleAutoSwap(); }, delay*1000);
+}
+function scheduleAutoTopic(){
+  if(!sceneRunning || S.mode!=="auto") return;
+  // הזרקת נושא אחת-שתיים באמצע, כדי שהקהל לא יצטרך ליזום
+  const first=S.sceneLen*0.45 + (Math.random()*6-3);
+  topicAutoT=setTimeout(function fire(){
+    if(!sceneRunning) return; if(S.sceneLen-elapsed>8){ throwTopic(); }
+    if(S.sceneLen-elapsed>20){ topicAutoT=setTimeout(fire, (18+Math.random()*8)*1000); }
+  }, Math.max(2,first-elapsed)*1000);
+}
+function manualSwap(){ doSwap(); }
+function doSwap(){ if(!sceneRunning) return; S.rings++;
+  $("#ringcount").textContent=`🔔 החלפות בסיבוב: ${S.rings}`; flashSwap(false); sfxSwap(); speak(rand(persona().swap)); }
+function freeze(){ if(!sceneRunning) return; $("#flashTxt").textContent="פריז!"; flashSwap(true);
+  tone(440,.1,"square",.4); setTimeout(()=>tone(330,.3,"square",.4),120);
+  speak("פריז! החליפו שחקן ופתחו סצנה חדשה מאותה תנוחה!"); setTimeout(()=>{$("#flashTxt").textContent="החלפה!";},1000); }
+function flashSwap(isFreeze){
+  const bg=$("#flashbg"), fl=$("#flash"), app=$(".app");
+  bg.classList.remove("go"); fl.classList.remove("go"); void bg.offsetWidth;
+  bg.style.background=isFreeze?"var(--lang)":"var(--change)"; bg.classList.add("go"); fl.classList.add("go");
+  if(S.settings.motion){ app.classList.remove("is-shaking"); void app.offsetWidth; app.classList.add("is-shaking"); }
+  setTimeout(()=>{bg.classList.remove("go");fl.classList.remove("go");app.classList.remove("is-shaking");},620);
+}
+function endScene(){
+  if(!sceneRunning && elapsed===0) return; sceneRunning=false;
+  if(timer) clearInterval(timer); if(swapT) clearTimeout(swapT); if(topicAutoT) clearTimeout(topicAutoT);
+  hideHint(); hideTopic(); $("#timefill").style.width="0%"; keepAwake(false);
+  if(guessRound){ finishGuess(guessWin); return; }
+  sfxEnd(); speak(rand(persona().timeup));
+  setTimeout(()=>{ if(S.scored) buildScore(); else roundEnd(); }, 700);
+}
+
+// SCORING (scored mode)
+let scoreState={};
+function buildScore(){
+  const body=$("#scoreBody");
+  if(S.mode==="manual"){
+    $("#scoreSub").textContent='הבמאי מחלק אסימונים — עד 3 לכל מאלתר.'; scoreState={};
+    body.innerHTML = S.curPerf.map((p,pi)=>{ scoreState[p]={yes:false,loyal:false,pivot:false};
+      return `<div class="scorer"><div class="nm">${p}</div><div class="crit" data-player="${pi}">
+        <button data-c="yes">כן, ו...<small>זרם, לא חסם</small></button>
+        <button data-c="loyal">נאמנות לאילוץ<small>שמר על החוק</small></button>
+        <button data-c="pivot">הפניית פרסה<small>הגיב מהר להחלפה</small></button></div></div>`; }).join("");
+    body.querySelectorAll(".crit").forEach(grp=>{ const p=S.curPerf[+grp.dataset.player];
+      grp.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const c=b.dataset.c;
+        scoreState[p][c]=!scoreState[p][c]; b.classList.toggle("on",scoreState[p][c]);}); });
+  } else {
+    $("#scoreSub").textContent='מי הגיב הכי מהר לאילוצים? תנו כבוד (אפשר לדלג).'; scoreState={honor:null};
+    body.innerHTML=`<div class="honor" id="honorGrid">`+S.curPerf.map((p,i)=>`<button data-h="${i}">${p}</button>`).join("")+`</div>`;
+    $("#honorGrid").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+      $("#honorGrid").querySelectorAll("button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); scoreState.honor=S.curPerf[+b.dataset.h];});
+  }
+  show("score");
+}
+function applyScore(){
+  if(S.mode==="manual"){ S.curPerf.forEach(p=>{const s=scoreState[p];let a=0;if(s.yes)a++;if(s.loyal)a++;if(s.pivot)a++;S.scores[p]=(S.scores[p]||0)+a;}); }
+  else if(scoreState.honor){ S.scores[scoreState.honor]=(S.scores[scoreState.honor]||0)+1; }
+  advanceRound(); renderBoard();
+  const top=Math.max(0,...Object.values(S.scores));
+  const allDir=S.mode==="manual" && activeP().every(p=>(S.dirCounts[p]||0)>=2);
+  $("#boardSub").textContent= top>=WIN_TOKENS?`מישהו הגיע ל-${WIN_TOKENS}!`: allDir?"כולם היו במאי פעמיים!":`סיבוב ${S.round} הסתיים`;
+  show("scoreboard");
+}
+function roundEnd(){ // party (no score)
+  advanceRound();
+  $("#roundendSub").textContent = `סיבוב ${S.round} הסתיים · מוכנים לעוד?`;
+  show("roundend"); miniConfetti();
+}
+function advanceRound(){
+  if(S.curDir) S.dirCounts[S.curDir]=(S.dirCounts[S.curDir]||0)+1;
+  S.directorIdx=(S.directorIdx+1)%activeP().length; save();
+}
+function renderBoard(){
+  const arr=activeP().map(p=>({p,t:S.scores[p]||0})).sort((a,b)=>b.t-a.t); const max=arr.length?arr[0].t:0;
+  $("#board").innerHTML=arr.map((r,i)=>`<div class="brow ${r.t===max&&max>0?'lead':''}" style="animation:fade .45s ease ${i*0.07}s both">
+    <div class="rank">${i+1}</div><div class="bn">${r.p}</div><div class="tok">${r.t}</div></div>`).join("");
+}
+function endGameNow(){ if(S.team){ renderDebrief(); show("debrief"); } else finalEnd(); }
+function finalEnd(){ if(S.scored) declareWinner(); else { $("#partyendSub").textContent=`${S.round} סיבובים של צחוק${S.company?" עם "+S.company:""}. עד הפעם הבאה!`; show("partyend"); bigConfetti(); sfxBell(); } }
+function renderDebrief(){
+  const picks=[...DEBRIEF].sort(()=>Math.random()-0.5).slice(0,3);
+  $("#debriefBody").innerHTML=picks.map(d=>`<div class="scorer"><div class="nm" style="font-size:clamp(17px,2.4vmin,22px);color:var(--spot)">${d.theme}</div>`+
+    d.qs.map(q=>`<p style="margin:7px 0;font-size:clamp(15px,2.2vmin,19px);color:#e9e3d4;line-height:1.5">• ${q}</p>`).join("")+`</div>`).join("");
+}
+function declareWinner(){
+  const arr=activeP().map(p=>({p,t:S.scores[p]||0})).sort((a,b)=>b.t-a.t); const w=arr[0];
+  $("#winName").textContent=w?w.p:"—"; $("#winSub").textContent=w?`עם ${w.t} אסימונים`:"";
+  show("winner"); bigConfetti(); sfxBell(); setTimeout(sfxBell,250); speak(`${w?w.p:""} מנצח/ת! כל הכבוד!`);
+}
+function spawnConfetti(n){
+  if(!S.settings.motion) return; const c=$("#confetti"); const cols=["#e23149","#ff5066","#f6e7b4","#8c2fc9","#1786a6","#2c9e5b","#e08a1e"];
+  c.innerHTML="";
+  for(let i=0;i<n;i++){ const s=document.createElement("i"); s.style.left=Math.random()*100+"vw"; s.style.background=cols[i%cols.length];
+    s.style.animationDuration=(2.4+Math.random()*1.8)+"s"; s.style.animationDelay=(Math.random()*0.6)+"s";
+    s.style.setProperty("--rot",(Math.random()*900-200)+"deg");
+    s.style.setProperty("--dx",(Math.random()*36-18)+"vw"); c.appendChild(s); }
+  setTimeout(()=>{c.innerHTML="";},6500);
+}
+function miniConfetti(){ spawnConfetti(36); }
+function bigConfetti(){ spawnConfetti(80); }
+function newGame(){ $("#confetti").innerHTML=""; show("setup"); }
+
+// SETTINGS
+function openSettings(){ syncSettingsUI(); loadVoices(); $("#settings").classList.add("open"); ac(); }
+function closeSettings(){ S.settings.voiceURI=$("#voiceSel").value||S.settings.voiceURI; save(); $("#settings").classList.remove("open"); }
+function syncSettingsUI(){
+  $("#personaSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.p===S.settings.persona));
+  $("#ttsSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.tts==="on")===S.settings.tts));
+  $("#hintsSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.h==="on")===S.settings.hints));
+  $("#sfxSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.sfx==="on")===S.settings.sfx));
+  $("#motionSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.m==="on")===S.settings.motion));
+}
+$("#personaSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.settings.persona=b.dataset.p;syncSettingsUI();save();});
+$("#ttsSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.settings.tts=b.dataset.tts==="on";syncSettingsUI();save();});
+$("#hintsSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.settings.hints=b.dataset.h==="on";syncSettingsUI();applyHintsVis();save();});
+$("#sfxSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.settings.sfx=b.dataset.sfx==="on";syncSettingsUI();save();});
+$("#motionSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.settings.motion=b.dataset.m==="on";document.body.classList.toggle("noanim",!S.settings.motion);syncSettingsUI();save();});
+function testVoice(){ sfxBell(); speak(persona().test); }
+
+// INIT
+(function init(){
+  load(); loadCustom();
+  if(!S.players||S.players.length<2) S.players=["","",""];
+  if(!S.settings) S.settings={persona:"compere",tts:true,sfx:true,hints:true,motion:true,voiceURI:""};
+  if(S.settings.hints===undefined) S.settings.hints=true;
+  if(S.settings.motion===undefined) S.settings.motion=true;
+  if(!S.packs||!S.packs.length) S.packs=["style","lang","body"];
+  S.packs=S.packs.filter(p=>p==="guess"||DATA[p]);
+  if(!S.packs.length) S.packs=["style","lang","body"];
+  if(S.big===undefined) S.big=false;
+  if(S.kids===undefined) S.kids=false;
+  document.body.classList.toggle("noanim",!S.settings.motion);
+  document.body.classList.toggle("bigscreen",!!S.big);
+  loadVoices(); applyHintsVis(); show("home"); openOnboard(false);
+})();
+
+// service worker
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+</script>
+</body>
+</html>
