@@ -8,7 +8,10 @@
 <meta property="og:title" content="מהמותן. — הצוות שלכם, מהמותן">
 <meta property="og:description" content="חוויית גיבוש שבונה אמון, תקשורת וגמישות, תוך כדי צחוק.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="brand/hero.png">
+<meta property="og:image" content="https://mehamoten.onrender.com/brand/hero.png">
+<meta property="og:url" content="https://mehamoten.onrender.com/">
+<link rel="icon" type="image/svg+xml" href="app/icons/favicon.svg">
+<link rel="apple-touch-icon" href="app/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@300;400;500;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,7 +38,7 @@
   --maxw:1180px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:90px}
+html{font-size:17.5px;scroll-behavior:smooth;scroll-padding-top:90px}
 body{
   font-family:'Heebo',system-ui,sans-serif;
   background:var(--stage);
@@ -114,7 +117,7 @@ section{position:relative;z-index:1}
 .hero h1 .hl{position:relative;white-space:nowrap;
   background:linear-gradient(120deg,#ff5066 10%,#ff7a45 55%,#f6e7b4 110%);
   -webkit-background-clip:text;background-clip:text;color:transparent}
-.hero .sub{margin-top:22px;font-size:1.18rem;color:var(--muted);max-width:560px}
+.hero .sub{margin-top:22px;font-size:1.28rem;color:var(--muted);max-width:560px}
 .hero-ctas{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
 .hero-note{margin-top:18px;font-size:.9rem;color:var(--muted-2);font-family:'Rubik',sans-serif}
 .hero-note b{color:var(--gold);font-weight:600}
@@ -155,7 +158,7 @@ section{position:relative;z-index:1}
 .trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.018)}
 .trust-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;padding:26px 0}
 .pill{display:inline-flex;align-items:center;gap:10px;padding:11px 20px;border-radius:999px;
-  background:var(--card);border:1px solid var(--line);font-family:'Rubik',sans-serif;font-weight:500;font-size:.95rem}
+  background:var(--card);border:1px solid var(--line);font-family:'Rubik',sans-serif;font-weight:500;font-size:1.05rem}
 .pill .ico{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
 .pill svg{width:18px;height:18px}
 
@@ -163,15 +166,15 @@ section{position:relative;z-index:1}
 .sec-head{max-width:720px;margin:0 auto 56px}
 .sec-head.center{text-align:center}
 .sec-head h2{font-size:clamp(1.9rem,3.6vw,2.7rem);margin:14px 0 16px;color:var(--ink)}
-.sec-head p{color:var(--muted);font-size:1.08rem}
+.sec-head p{color:var(--muted);font-size:1.16rem}
 
 /* ---------- Problem ---------- */
 .problem-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.pain{display:flex;gap:16px;padding:26px;border-radius:var(--radius);background:var(--card);border:1px solid var(--line)}
+.pain{display:flex;gap:18px;padding:30px;border-radius:var(--radius);background:var(--card);border:1px solid var(--line)}
 .pain .x{width:40px;height:40px;border-radius:11px;flex-shrink:0;display:grid;place-items:center;
   background:rgba(226,49,73,.14);color:var(--red-bright);font-size:1.3rem;font-weight:700}
-.pain h4{font-family:'Heebo';font-weight:700;font-size:1.08rem;margin-bottom:5px}
-.pain p{color:var(--muted);font-size:.96rem}
+.pain h4{font-family:'Heebo';font-weight:700;font-size:1.3rem;margin-bottom:8px}
+.pain p{color:var(--muted);font-size:1.06rem;line-height:1.6}
 
 /* ---------- How it works ---------- */
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative}
@@ -182,12 +185,12 @@ section{position:relative;z-index:1}
   -webkit-text-stroke:1.5px rgba(246,231,180,.4);line-height:1;margin-bottom:14px}
 .step .s-ico{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;margin-bottom:16px}
 .step h3{font-size:1.3rem;margin-bottom:8px}
-.step p{color:var(--muted);font-size:1rem}
+.step p{color:var(--muted);font-size:1.06rem}
 .debrief{margin-top:34px;display:flex;gap:16px;align-items:flex-start;padding:24px 28px;border-radius:var(--radius);
   background:linear-gradient(120deg,rgba(140,47,201,.12),rgba(23,134,166,.1));border:1px solid var(--line)}
 .debrief .b-ico{width:46px;height:46px;border-radius:12px;background:rgba(246,231,180,.12);display:grid;place-items:center;flex-shrink:0}
 .debrief h4{font-family:'Heebo';font-weight:700;margin-bottom:4px}
-.debrief p{color:var(--muted);font-size:.98rem}
+.debrief p{color:var(--muted);font-size:1.06rem}
 
 /* ---------- Benefits (bento) ---------- */
 .bcards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -204,7 +207,7 @@ section{position:relative;z-index:1}
 .bcard:hover::after{opacity:1}
 .bcard .b-ico{width:56px;height:56px;border-radius:15px;display:grid;place-items:center;margin-bottom:18px}
 .bcard h3{font-size:1.28rem;margin-bottom:10px}
-.bcard p{color:var(--muted);font-size:.98rem}
+.bcard p{color:var(--muted);font-size:1.06rem}
 .b-ico svg{width:26px;height:26px}
 
 /* ---------- Why improv ---------- */
@@ -230,7 +233,7 @@ section{position:relative;z-index:1}
 .pkg .price{font-family:'Secular One';font-size:1.9rem;color:var(--ink);margin-bottom:4px}
 .pkg .price small{font-family:'Rubik';font-size:.85rem;color:var(--muted-2);font-weight:400}
 .pkg ul{list-style:none;margin:18px 0 26px;display:flex;flex-direction:column;gap:11px}
-.pkg li{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:.96rem}
+.pkg li{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:1.04rem}
 .pkg li svg{width:18px;height:18px;flex-shrink:0;margin-top:3px;color:var(--green)}
 .pkg .btn{margin-top:auto;width:100%}
 
@@ -238,7 +241,7 @@ section{position:relative;z-index:1}
 .tcards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
 .tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 28px;position:relative}
 .tcard .qm{font-family:'Secular One';font-size:3rem;color:rgba(226,49,73,.4);line-height:.6;height:26px}
-.tcard p{color:var(--ink);font-size:1.02rem;margin:8px 0 20px;font-style:italic}
+.tcard p{color:var(--ink);font-size:1.09rem;margin:8px 0 20px;font-style:italic}
 .tcard .who{display:flex;align-items:center;gap:12px}
 .tcard .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--teal));display:grid;place-items:center;
   font-family:'Secular One';color:#fff;font-size:1.1rem}
@@ -257,12 +260,12 @@ section{position:relative;z-index:1}
 .faq{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .25s}
 .faq[open]{border-color:rgba(246,231,180,.3)}
 .faq summary{cursor:pointer;list-style:none;padding:22px 26px;display:flex;justify-content:space-between;align-items:center;gap:16px;
-  font-family:'Heebo';font-weight:700;font-size:1.08rem}
+  font-family:'Heebo';font-weight:700;font-size:1.2rem}
 .faq summary::-webkit-details-marker{display:none}
 .faq summary .plus{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;flex-shrink:0;
   font-size:1.2rem;color:var(--gold);transition:transform .25s}
 .faq[open] summary .plus{transform:rotate(45deg)}
-.faq .ans{padding:0 26px 24px;color:var(--muted);font-size:1rem}
+.faq .ans{padding:0 26px 24px;color:var(--muted);font-size:1.08rem}
 
 /* ---------- Final CTA + form ---------- */
 .cta-band{background:linear-gradient(120deg,rgba(226,49,73,.16),rgba(140,47,201,.14));border:1px solid var(--line);
@@ -344,6 +347,7 @@ section{position:relative;z-index:1}
   .reveal{opacity:1;transform:none}
 }
 </style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"מהמותן","description":"מנחה דיגיטלי למשחק אלתור לגיבוש צוותים — בעברית, בלי הכנה, על כל מסך.","brand":{"@type":"Brand","name":"מהמותן"},"url":"https://mehamoten.onrender.com/","offers":{"@type":"AggregateOffer","priceCurrency":"ILS","lowPrice":"450","highPrice":"9000"}}</script>
 </head>
 <body>
 
@@ -385,7 +389,7 @@ section{position:relative;z-index:1}
           צפו איך זה עובד
         </a>
       </div>
-      <p class="hero-note">מתאים לצוותים של <b>5–200</b> · אונליין, בכיתה או היברידי · עברית מלאה</p>
+      <p class="hero-note">מתאים לצוותים של <b><span dir="ltr">5–200</span></b> · אונליין, בכיתה או היברידי · עברית מלאה</p>
     </div>
 
     <div class="hero-visual reveal">
@@ -411,7 +415,7 @@ section{position:relative;z-index:1}
 <!-- ============ TRUST STRIP ============ -->
 <section class="trust">
   <div class="wrap trust-row reveal">
-    <span class="pill"><span class="ico" style="background:rgba(44,158,91,.16)"><svg viewBox="0 0 24 24" fill="none" stroke="#2c9e5b" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>מתאים לצוותים של 5–200</span>
+    <span class="pill"><span class="ico" style="background:rgba(44,158,91,.16)"><svg viewBox="0 0 24 24" fill="none" stroke="#2c9e5b" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>מתאים לצוותים של <span dir="ltr">5–200</span></span>
     <span class="pill"><span class="ico" style="background:rgba(246,231,180,.16)"><svg viewBox="0 0 24 24" fill="none" stroke="#f6e7b4" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>ללא הכנה מראש</span>
     <span class="pill"><span class="ico" style="background:rgba(23,134,166,.16)"><svg viewBox="0 0 24 24" fill="none" stroke="#1786a6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg></span>עברית מלאה</span>
     <span class="pill"><span class="ico" style="background:rgba(140,47,201,.16)"><svg viewBox="0 0 24 24" fill="none" stroke="#8c2fc9" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>בכל מכשיר</span>
@@ -593,38 +597,28 @@ section{position:relative;z-index:1}
 <section class="section-pad">
   <div class="wrap">
     <div class="sec-head center reveal">
-      <span class="eyebrow">מה אומרים</span>
-      <h2>צוותים שכבר שלפו מהמותן</h2>
-      <p>ביקורות אמיתיות יוטמעו לאחר הפיילוטים הראשונים.</p>
+      <span class="eyebrow">מבצע השקה</span>
+      <h2>היו בין הארגונים הראשונים</h2>
+      <p>מהמותן בשלב הפיילוטים — וזה בדיוק הרגע שבו הכי משתלם להצטרף.</p>
     </div>
     <div class="tcards">
       <div class="tcard reveal">
-        <span class="ph-note">טקסט לדוגמה — יוחלף</span>
-        <div class="qm">"</div>
-        <p>"תוך עשר דקות <b>כל הצוות צחק יחד</b> — כולל אנשים שאף פעם לא פותחים את הפה בישיבות. ההשפעה על האווירה אחרי זה הייתה מורגשת."</p>
-        <div class="who"><div class="av">ד</div><div><b>שם לדוגמה</b><span>סמנכ"לית משאבי אנוש, חברת לדוגמה</span></div></div>
+        <div class="qm" style="font-size:2.2rem;height:auto;color:inherit">🎁</div>
+        <h3 style="font-size:1.35rem;margin:10px 0 10px">50% הנחה לחלוצים</h3>
+        <p style="font-style:normal">עשרת הארגונים הראשונים מקבלים סדנה מונחית בחצי מחיר — והמחיר מוקפא לשנתיים.</p>
       </div>
       <div class="tcard reveal">
-        <span class="ph-note">טקסט לדוגמה — יוחלף</span>
-        <div class="qm">"</div>
-        <p>"חיפשנו פעילות גיבוש לצוות היברידי בלי לוגיסטיקה מסובכת. מהמותן עבד מושלם גם דרך הזום — וזה <b>הדבר היחיד שכולם ביקשו לחזור עליו</b>."</p>
-        <div class="who"><div class="av">מ</div><div><b>שם לדוגמה</b><span>מנהל פיתוח ארגוני, חברת לדוגמה</span></div></div>
+        <div class="qm" style="font-size:2.2rem;height:auto;color:inherit">🤝</div>
+        <h3 style="font-size:1.35rem;margin:10px 0 10px">ליווי אישי מלא</h3>
+        <p style="font-style:normal">מפגש הכנה, ליווי בסדנה הראשונה ותחקיר מסכם — ישירות מהצוות שבנה את המוצר.</p>
       </div>
       <div class="tcard reveal">
-        <span class="ph-note">טקסט לדוגמה — יוחלף</span>
-        <div class="qm">"</div>
-        <p>"השתמשנו בזה ב-Onboarding של קבוצת מצטרפים חדשים. שבירת הקרח שבדרך כלל לוקחת שבועות <b>קרתה בחצי שעה</b>."</p>
-        <div class="who"><div class="av">ת</div><div><b>שם לדוגמה</b><span>ראש תחום למידה ופיתוח, חברת לדוגמה</span></div></div>
+        <div class="qm" style="font-size:2.2rem;height:auto;color:inherit">🛠️</div>
+        <h3 style="font-size:1.35rem;margin:10px 0 10px">משפיעים על המוצר</h3>
+        <p style="font-style:normal">קלפים מותאמים לארגון שלכם בחינם — והפיצ'רים הבאים נבנים לפי הפידבק שלכם.</p>
       </div>
     </div>
-    <div class="logos reveal">
-      <p class="lbl">חברות שכבר התנסו (פלייסהולדר ללוגואים)</p>
-      <div class="logo-row">
-        <div class="logo-ph">לוגו לקוח</div><div class="logo-ph">לוגו לקוח</div>
-        <div class="logo-ph">לוגו לקוח</div><div class="logo-ph">לוגו לקוח</div>
-        <div class="logo-ph">לוגו לקוח</div>
-      </div>
-    </div>
+    <div class="logos reveal" style="margin-top:38px"><a href="#contact" class="btn btn-primary">אני רוצה להיות פיילוט ←</a></div>
   </div>
 </section>
 
@@ -659,7 +653,11 @@ section{position:relative;z-index:1}
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>הצעת מחיר ללא התחייבות</li>
         </ul>
       </div>
-      <form class="form" id="demoForm">
+      <form class="form" id="demoForm" action="https://formsubmit.co/latsdoai@gmail.com" method="POST">
+        <input type="hidden" name="_subject" value="ליד חדש מאתר מהמותן!">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://mehamoten.onrender.com/?sent=1">
         <div class="fg"><label for="name">שם מלא</label><input type="text" id="name" name="name" placeholder="ישראל ישראלי" required></div>
         <div class="fg"><label for="company">שם החברה</label><input type="text" id="company" name="company" placeholder="שם הארגון" required></div>
         <div class="fg"><label for="email">אימייל</label><input type="email" id="email" name="email" placeholder="you@company.co.il" required></div>
@@ -675,7 +673,6 @@ section{position:relative;z-index:1}
         <button type="submit" class="btn btn-primary">שלחו ונתאם דמו</button>
         <p class="priv">בלחיצה אתם מסכימים שניצור איתכם קשר. לא נשתף את הפרטים שלכם.</p>
         <div class="form-msg" id="formMsg">תודה! קיבלנו את הפנייה וניצור קשר בהקדם לתיאום דמו.</div>
-        <p class="dev-note">הערת מפתח: הטופס לתצוגה בלבד — יש לחבר ל-CRM או לשליחת מייל אל latsdoai@gmail.com.</p>
       </form>
     </div>
   </div>
@@ -700,8 +697,8 @@ section{position:relative;z-index:1}
     <div class="footer-bottom">
       <span>© 2026 מהמותן. כל הזכויות שמורות.</span>
       <div class="footer-links">
-        <a href="#">מדיניות פרטיות</a>
-        <a href="#">תנאי שימוש</a>
+        <a href="app/privacy.html">מדיניות פרטיות</a>
+        <a href="terms.html">תנאי שימוש</a>
       </div>
     </div>
   </div>
@@ -728,9 +725,11 @@ if(dw&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
 // safety net: never leave content hidden
 setTimeout(function(){document.querySelectorAll('.reveal:not(.in)').forEach(function(el){el.classList.add('in')})},1200);
 
-// form (non-functional demo)
-var f=document.getElementById('demoForm');
-f&&f.addEventListener('submit',function(ev){ev.preventDefault();document.getElementById('formMsg').style.display='block';f.querySelector('button').textContent='נשלח ✓';});
+// form: thank-you after FormSubmit redirect
+if(location.search.indexOf('sent=1')>-1){
+  var fm=document.getElementById('formMsg'); if(fm) fm.style.display='block';
+  setTimeout(function(){var c=document.getElementById('contact'); c&&c.scrollIntoView({behavior:'smooth'});},400);
+}
 </script>
 </body>
 </html>

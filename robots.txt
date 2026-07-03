@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mehamoten.onrender.com/sitemap.xml
