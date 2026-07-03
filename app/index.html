@@ -38,7 +38,7 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
   .stagebg::before{content:"";position:absolute;left:50%;top:-18%;transform:translateX(-50%);
     width:140vw;height:115vh;transform-origin:50% 0%;
-    background:radial-gradient(ellipse 46% 60% at 50% 0%, rgba(246,231,180,.16), rgba(246,231,180,.05) 42%, transparent 66%);
+    background:radial-gradient(ellipse 46% 60% at 50% 0%, rgba(246,231,180,.21), rgba(246,231,180,.07) 42%, transparent 66%);
     pointer-events:none;animation:spotlight-breathe 7s ease-in-out infinite}
   .stagebg::after{content:"";position:absolute;inset:0;
     background:radial-gradient(ellipse 80% 70% at 50% 38%, transparent 55%, rgba(0,0,0,.55) 100%);pointer-events:none}
@@ -140,10 +140,16 @@
   .seedline .lbl{font-family:"Rubik";font-weight:700;font-size:12px;color:var(--spot);display:block;margin-bottom:4px}
 
   /* GAME CARDS */
-  .cards2{display:flex;gap:clamp(14px,2.6vmin,30px);flex-wrap:wrap;justify-content:center;width:100%;max-width:1120px}
+  .cards2{display:flex;gap:clamp(14px,2.6vmin,30px);flex-wrap:wrap;justify-content:center;width:100%;max-width:1120px;position:relative}
+  .cards2::after{content:"";position:absolute;left:50%;bottom:calc(-1*clamp(24px,5vmin,54px));transform:translateX(-50%);
+    width:min(880px,84vw);height:clamp(30px,7vmin,70px);z-index:-1;
+    background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(246,231,180,.20), rgba(226,49,73,.06) 55%, transparent 75%);
+    filter:blur(8px)}
+  .cards2 .gcard:first-child{--tilt:1.4deg}
+  .cards2 .gcard:nth-child(2){--tilt:-1.8deg}
   .gcard{flex:1 1 340px;max-width:520px;min-height:clamp(230px,38vh,390px);border-radius:var(--r);background:#fff;color:var(--ink);
     display:flex;flex-direction:column;overflow:hidden;position:relative;
-    box-shadow:0 22px 60px rgba(0,0,0,.55),0 0 70px -18px var(--glow,rgba(246,231,180,.35)),0 0 0 1px rgba(255,255,255,.09);
+    box-shadow:0 26px 64px rgba(0,0,0,.6),0 0 100px -8px var(--glow,rgba(246,231,180,.4)),0 0 0 1px rgba(255,255,255,.09);
     transform-origin:50% 90%;animation:card-deal .6s cubic-bezier(.2,.9,.25,1.2) both}
   .b-set{--glow:rgba(120,150,190,.4)} .b-style{--glow:rgba(140,47,201,.45)} .b-lang{--glow:rgba(23,134,166,.45)}
   .b-body{--glow:rgba(44,158,91,.45)} .b-guess{--glow:rgba(224,138,30,.5)}
@@ -327,7 +333,7 @@
   @keyframes swap-flash{0%{opacity:0}18%{opacity:.85}100%{opacity:0}}
   @keyframes swap-pop{0%{transform:scale(0) rotate(-12deg);opacity:0}45%{transform:scale(1.25) rotate(4deg);opacity:1}68%{transform:scale(.92) rotate(-2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
   @keyframes screen-shake{0%,100%{transform:translate3d(0,0,0)}10%{transform:translate3d(-8px,4px,0) rotate(-.6deg)}30%{transform:translate3d(7px,-5px,0) rotate(.5deg)}50%{transform:translate3d(-5px,6px,0) rotate(-.4deg)}70%{transform:translate3d(6px,-3px,0) rotate(.3deg)}90%{transform:translate3d(-3px,2px,0)}}
-  @keyframes card-deal{0%{transform:perspective(900px) rotateY(80deg) translateY(26px) scale(.85);opacity:0;filter:blur(10px)}60%{transform:perspective(900px) rotateY(-8deg) translateY(0) scale(1.04);opacity:1;filter:blur(0)}100%{transform:perspective(900px) rotateY(0) translateY(0) scale(1);opacity:1;filter:blur(0)}}
+  @keyframes card-deal{0%{transform:perspective(900px) rotateY(80deg) translateY(26px) scale(.85) rotate(0deg);opacity:0;filter:blur(10px)}60%{transform:perspective(900px) rotateY(-8deg) translateY(0) scale(1.04) rotate(var(--tilt,0deg));opacity:1;filter:blur(0)}100%{transform:perspective(900px) rotateY(0) translateY(0) scale(1) rotate(var(--tilt,0deg));opacity:1;filter:blur(0)}}
   @keyframes countdown-urgent{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.16);opacity:.8}}
   @keyframes confetti-fall{0%{transform:translate(0,-10vh) rotate(0);opacity:0}10%{opacity:1}100%{transform:translate(var(--dx,0),110vh) rotate(var(--rot,720deg));opacity:1}}
   @keyframes winner-cheer{0%{transform:scale(0) rotate(-20deg)}55%{transform:scale(1.2) rotate(8deg)}75%{transform:scale(.95) rotate(-4deg)}100%{transform:scale(1) rotate(0)}}
@@ -487,6 +493,7 @@
 
   <!-- DRAW -->
   <section class="screen" id="draw">
+    <div class="eyebrow" id="drawRnum" style="margin-bottom:2.2vmin">הבמה והאילוץ שלכם</div>
     <div class="cards2" id="drawCards"></div>
     <div class="row" style="margin-top:24px">
       <button class="ghost" onclick="reDraw()">🔀 שלוף שוב</button>
@@ -1090,6 +1097,7 @@ function drawCards(){
   if(cat==="guess"){ setupGuessRound(); return; }
   guessRound=false; guessWin=false;
   S.set=rand(pool("set")); S.conCat=cat; S.con=rand(pool(cat));
+  $("#drawRnum").textContent="סיבוב "+S.round+" · הבמה והאילוץ שלכם";
   $("#drawCards").innerHTML = buildCard("set",S.set)+buildCard(cat,S.con);
   applyHintsVis(); show("draw"); sfxStart(); speak(persona().draw(S.set[0],S.con[0]));
 }

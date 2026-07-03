@@ -719,4 +719,18 @@ document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
 
 // live demo word cycling (the product is the demo)
 var demoWords=['מחזמר','רק שאלות','סרט אימה','מילה אחת','טלנובלה','סלואו-מושן','שייקספיר','חרוזים'];
-var dw=document.ge
+var dw=document.getElementById('demoWord'),dwi=0;
+if(dw&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  setInterval(function(){dwi=(dwi+1)%demoWords.length;dw.textContent=demoWords[dwi];
+    dw.classList.remove('flip');void dw.offsetWidth;dw.classList.add('flip');},3200);
+}
+
+// safety net: never leave content hidden
+setTimeout(function(){document.querySelectorAll('.reveal:not(.in)').forEach(function(el){el.classList.add('in')})},1200);
+
+// form (non-functional demo)
+var f=document.getElementById('demoForm');
+f&&f.addEventListener('submit',function(ev){ev.preventDefault();document.getElementById('formMsg').style.display='block';f.querySelector('button').textContent='נשלח ✓';});
+</script>
+</body>
+</html>
