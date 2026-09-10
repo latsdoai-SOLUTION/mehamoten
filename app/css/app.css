@@ -1,0 +1,406 @@
+/* ============================================================
+   מהמותן — עיצוב האפליקציה (v2.0)
+   מערכת עיצוב "במה": כהה, אדום החלפה, זהב זרקור.
+   ============================================================ */
+:root{
+  --ink:#1c1726; --paper:#efe9dd; --stage:#100c17; --stage2:#1e1729; --spot:#f6e7b4;
+  --change:#e23149; --change2:#ff5066; --style:#8c2fc9; --lang:#1786a6; --body:#2c9e5b;
+  --guess:#e08a1e; --set:#3c4a5c; --line:rgba(255,255,255,.14); --ok:#2c9e5b; --gold:#f6e7b4;
+  --tap:54px; --r:22px;
+  --spring:linear(0, 1.12 55%, .96 75%, 1.02 88%, 1);
+}
+@property --p{syntax:'<number>';inherits:false;initial-value:1}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;color:#fff;font-family:"Heebo",system-ui,sans-serif;overflow:hidden;background:var(--stage);
+  -webkit-font-smoothing:antialiased;user-select:none;font-size:17px}
+.stagebg{position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(60% 42% at 50% 108%, rgba(226,49,73,.17), transparent 70%),
+  radial-gradient(42% 40% at 88% -12%, rgba(140,47,201,.14), transparent 70%),
+  radial-gradient(36% 34% at 6% 16%, rgba(23,134,166,.09), transparent 70%),
+  var(--stage)}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.055;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.stagebg::before{content:"";position:absolute;left:50%;top:-18%;transform:translateX(-50%);
+  width:140vw;height:115vh;transform-origin:50% 0%;
+  background:radial-gradient(ellipse 46% 60% at 50% 0%, rgba(246,231,180,.21), rgba(246,231,180,.07) 42%, transparent 66%);
+  pointer-events:none;animation:spotlight-breathe 7s ease-in-out infinite}
+.stagebg::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 70% at 50% 38%, transparent 55%, rgba(0,0,0,.55) 100%);pointer-events:none}
+button{font-family:inherit;cursor:pointer;border:none;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--spot);outline-offset:3px}
+.app{position:fixed;inset:0}
+[hidden]{display:none !important}
+input,textarea,select{-webkit-user-select:text;user-select:text}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;
+  justify-content:flex-start;justify-content:safe center;padding:max(20px,3.2vmin);text-align:center;animation:fade .4s ease;overflow:auto;
+  padding-top:max(20px, env(safe-area-inset-top));padding-bottom:max(20px, env(safe-area-inset-bottom))}
+.screen.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.display{font-family:"Secular One",sans-serif;font-weight:400;line-height:.95}
+.muted{color:#cfc8da}
+.eyebrow{font-family:"Rubik",sans-serif;font-weight:700;letter-spacing:.2em;color:var(--spot);font-size:clamp(11px,1.7vmin,14px)}
+.pill{font-family:"Rubik",sans-serif;font-weight:700;font-size:clamp(12px,1.6vmin,15px);background:rgba(255,255,255,.07);
+  border:1px solid var(--line);padding:9px 16px;border-radius:999px;backdrop-filter:blur(3px);color:#fff}
+a.pill{text-decoration:none}
+
+.big{font-family:"Secular One",sans-serif;background:linear-gradient(160deg,var(--change2) -20%,var(--change) 55%);color:#fff;font-size:clamp(23px,4.6vmin,44px);
+  padding:.55em 1.25em;border-radius:999px;min-height:var(--tap);
+  box-shadow:0 9px 0 #9c1626,0 18px 38px rgba(226,49,73,.4),inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .45s var(--spring),box-shadow .45s var(--spring)}
+.big:active{transform:translateY(6px) scale(.97);box-shadow:0 3px 0 #9c1626,0 8px 18px rgba(226,49,73,.3);transition-duration:.08s}
+.big.sm{font-size:clamp(18px,3vmin,26px)}
+a.big{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:.4em}
+.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;font-family:"Rubik",sans-serif;
+  font-weight:700;padding:13px 24px;font-size:clamp(14px,1.9vmin,18px);min-height:var(--tap);color:#fff;
+  transition:background .15s;backdrop-filter:blur(3px);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:.4em}
+.ghost:active{background:rgba(255,255,255,.14)}
+.ghost.hintb{color:var(--spot);border-color:rgba(246,231,180,.35)}
+.ghost.topicb{color:#ffd9a3;border-color:rgba(224,138,30,.45)}
+.ghost.stuckb{color:#9fe3ff;border-color:rgba(23,134,166,.5)}
+.ghost.goldb{color:var(--spot);border-color:rgba(246,231,180,.4)}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center}
+.spacer{height:8px}
+
+/* ---------- אונבורדינג ---------- */
+#onboard{position:fixed;inset:0;z-index:70;background:var(--stage);display:none;flex-direction:column;
+  align-items:center;justify-content:center;padding:8vmin 6vw;text-align:center}
+#onboard.open{display:flex}
+#onboard .ob{max-width:560px;display:none;animation:fade .4s}
+#onboard .ob.on{display:block}
+#onboard .obic{font-size:clamp(56px,16vmin,120px);margin-bottom:10px}
+#onboard h3{font-family:"Secular One",sans-serif;font-weight:400;font-size:clamp(28px,6vmin,52px);margin:0 0 14px}
+#onboard p{font-size:clamp(16px,2.6vmin,22px);color:#e9e3d4;line-height:1.6;margin:0 auto;max-width:480px}
+#onboard .dots{display:flex;gap:9px;justify-content:center;margin:26px 0}
+#onboard .dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .25s}
+#onboard .dots i.on{background:var(--spot);width:26px;border-radius:6px}
+
+/* ---------- כפתורים צפים ---------- */
+.gear{position:fixed;top:max(14px, env(safe-area-inset-top));left:max(14px, env(safe-area-inset-left));z-index:30;width:50px;height:50px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:23px;display:grid;
+  place-items:center;backdrop-filter:blur(4px);transition:transform .2s}
+.gear:active{transform:rotate(40deg)}
+.homebtn{position:fixed;top:max(14px, env(safe-area-inset-top));right:max(14px, env(safe-area-inset-right));z-index:30;width:50px;height:50px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:21px;display:none;
+  place-items:center;backdrop-filter:blur(4px)}
+body.ingame .homebtn{display:grid}
+
+/* ---------- פאנל ---------- */
+.panel{width:min(820px,95vw);background:rgba(28,21,38,.74);border:1px solid var(--line);border-radius:26px;
+  padding:clamp(18px,3vmin,36px);max-height:92vh;max-height:calc(100dvh - 36px);overflow:auto;backdrop-filter:blur(10px);
+  box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.panel h2{font-family:"Secular One",sans-serif;font-weight:400;font-size:clamp(26px,4.4vmin,42px);margin:0 0 4px}
+.panel .sub{color:#b3acc4;margin:0 0 20px;font-size:15px}
+.field{margin:0 0 18px;text-align:right}
+.label{font-family:"Rubik",sans-serif;font-weight:700;font-size:13.5px;color:#cabfe0;margin:0 0 9px;letter-spacing:.02em}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:120px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:14px;padding:14px 10px;font-family:"Rubik",sans-serif;font-weight:700;font-size:15px;transition:all .15s;color:#ddd6ea}
+.seg button.on{background:var(--change);border-color:var(--change);color:#fff;box-shadow:0 6px 16px rgba(226,49,73,.35)}
+.seg.sm button{min-width:84px;padding:11px 8px;font-size:14px}
+.seg button small{display:block;font-weight:500;font-size:11.5px;opacity:.82;margin-top:3px}
+.seg button[disabled]{opacity:.4;pointer-events:none}
+.tinput{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:13px 15px;
+  color:#fff;font-family:"Heebo",sans-serif;font-size:16px;text-align:right;min-height:var(--tap)}
+.tinput:focus{outline:none;border-color:var(--spot)}
+
+.players{display:grid;gap:10px}
+.prow{display:flex;gap:10px;align-items:center}
+.prow .idx{width:32px;height:32px;border-radius:50%;background:rgba(246,231,180,.16);color:var(--spot);
+  display:grid;place-items:center;font-family:"Rubik",sans-serif;font-weight:700;font-size:13px;flex:0 0 auto}
+.prow input{flex:1;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+  color:#fff;font-family:"Heebo",sans-serif;font-size:16px;text-align:right;min-height:var(--tap);min-width:0}
+.prow input:focus{outline:none;border-color:var(--spot)}
+.prow .del{width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--line);
+  font-size:18px;color:#e7889a;flex:0 0 auto}
+.addp{margin-top:10px;width:100%}
+
+/* ---------- בית ---------- */
+#home .burst{width:clamp(120px,18vmin,180px);height:clamp(120px,18vmin,180px);border-radius:50%;
+  background:radial-gradient(circle at 38% 32%, var(--change2), var(--change) 70%);display:grid;place-items:center;
+  margin-bottom:clamp(8px,2.5vmin,22px);box-shadow:0 14px 40px rgba(226,49,73,.5), inset 0 -6px 18px rgba(0,0,0,.25);
+  animation:beat 2.4s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.05) rotate(-4deg)}}
+#home .burst span{font-family:"Secular One",sans-serif;color:#fff;font-size:clamp(22px,3.4vmin,32px);text-shadow:0 2px 0 rgba(0,0,0,.18)}
+#home .title{font-size:clamp(74px,21vmin,200px);text-shadow:0 6px 0 rgba(0,0,0,.32);margin:0}
+#home .title .dot{color:var(--change)}
+#home .tag{max-width:660px;margin:14px auto 28px;color:#e9e3d4;font-size:clamp(15px,2.2vmin,21px);line-height:1.55}
+.installbar{display:none;margin-top:16px}
+.installbar.on{display:flex}
+
+/* ---------- פתיח סיבוב / מסגור ---------- */
+#intro .who,#cast .who{font-family:"Secular One",sans-serif;font-size:clamp(30px,6.5vmin,72px);margin:8px 0;line-height:1.05}
+.roleline{font-size:clamp(16px,2.6vmin,24px);color:#e9e3d4;margin:5px 0}
+.roleline b{color:var(--spot)}
+.framecard{width:min(760px,94vw);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:22px;
+  padding:clamp(18px,3vmin,32px);backdrop-filter:blur(6px);margin:8px 0}
+.framecard .place{font-family:"Secular One",sans-serif;font-size:clamp(26px,5vmin,48px);color:#fff;margin:0 0 6px}
+.framecard .rel{font-size:clamp(16px,2.6vmin,23px);color:#cfc8da;margin:0 0 16px}
+.framecard .starts{font-size:clamp(17px,2.8vmin,26px);margin:6px 0}
+.framecard .starts b{color:var(--spot);font-family:"Secular One",sans-serif}
+.seedline{background:rgba(246,231,180,.12);border:1px dashed rgba(246,231,180,.4);border-radius:14px;
+  padding:14px 18px;margin-top:14px;font-size:clamp(15px,2.3vmin,20px)}
+.seedline .lbl{font-family:"Rubik",sans-serif;font-weight:700;font-size:12px;color:var(--spot);display:block;margin-bottom:4px}
+
+/* ---------- קלפי משחק ---------- */
+.cards2{display:flex;gap:clamp(14px,2.6vmin,30px);flex-wrap:wrap;justify-content:center;width:100%;max-width:1120px;position:relative}
+.cards2::after{content:"";position:absolute;left:50%;bottom:calc(-1*clamp(24px,5vmin,54px));transform:translateX(-50%);
+  width:min(880px,84vw);height:clamp(30px,7vmin,70px);z-index:-1;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(246,231,180,.20), rgba(226,49,73,.06) 55%, transparent 75%);
+  filter:blur(8px)}
+.cards2 .gcard:first-child{--tilt:1.4deg}
+.cards2 .gcard:nth-child(2){--tilt:-1.8deg}
+.gcard{flex:1 1 340px;max-width:520px;min-height:clamp(230px,38vh,390px);border-radius:var(--r);background:#fff;color:var(--ink);
+  display:flex;flex-direction:column;overflow:hidden;position:relative;
+  box-shadow:0 26px 64px rgba(0,0,0,.6),0 0 100px -8px var(--glow,rgba(246,231,180,.4)),0 0 0 1px rgba(255,255,255,.09);
+  transform-origin:50% 90%;animation:card-deal .6s cubic-bezier(.2,.9,.25,1.2) both}
+.b-set{--glow:rgba(120,150,190,.4)} .b-style{--glow:rgba(140,47,201,.45)} .b-lang{--glow:rgba(23,134,166,.45)}
+.b-body{--glow:rgba(44,158,91,.45)} .b-guess{--glow:rgba(224,138,30,.5)}
+.gcard:nth-child(2){animation-delay:.12s}
+.gcard .band{color:#fff;padding:15px 22px;display:flex;align-items:center;gap:10px;font-family:"Rubik",sans-serif;font-weight:900;
+  font-size:clamp(15px,2.3vmin,22px);letter-spacing:.02em}
+.gcard .band .cdot{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.9);flex:0 0 auto}
+.gcard .band .lbl{flex:1;text-align:right} .gcard .band .ic{font-size:clamp(20px,3vmin,30px)}
+.gcard .body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(16px,3vmin,34px);position:relative;z-index:1}
+.gcard .t{font-family:"Secular One",sans-serif;font-weight:400;font-size:clamp(28px,5.4vmin,58px);line-height:1.04;margin:0;color:var(--ink)}
+.gcard .rule{width:54px;height:4px;border-radius:2px;background:currentColor;opacity:.85;margin:13px 0;align-self:flex-end}
+.gcard .d{font-size:clamp(15px,2.5vmin,23px);color:#4d4659;line-height:1.45;margin:0;max-width:92%;align-self:flex-end;text-align:right}
+.gcard .wm{position:absolute;left:6%;bottom:-6%;font-family:"Secular One",sans-serif;font-size:clamp(150px,30vmin,300px);
+  color:rgba(28,23,38,.05);line-height:.8;z-index:0;pointer-events:none}
+.gcard .foot{position:absolute;bottom:12px;right:18px;font-family:"Rubik",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.05em;color:rgba(28,23,38,.25);z-index:2}
+.b-set .band{background:var(--set)} .b-set .rule{color:var(--set)}
+.b-style .band{background:var(--style)} .b-style .rule{color:var(--style)}
+.b-lang .band{background:var(--lang)} .b-lang .rule{color:var(--lang)}
+.b-body .band{background:var(--body)} .b-body .rule{color:var(--body)}
+.b-guess .band{background:var(--guess)} .b-guess .rule{color:var(--guess)}
+
+/* ---------- מסך הסצנה ---------- */
+#play{justify-content:flex-start;padding-top:0}
+.timebar{position:absolute;top:env(safe-area-inset-top);left:0;right:0;height:10px;background:rgba(255,255,255,.07);z-index:5}
+.timebar .fill{height:100%;width:100%;background:var(--ok);transition:background .5s linear;box-shadow:0 0 16px currentColor}
+.playtop{margin-top:30px;width:100%;max-width:1120px}
+.smallcards{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
+.scard{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:13px 20px 13px 16px;
+  text-align:right;min-width:210px;border-right:5px solid #fff;backdrop-filter:blur(3px)}
+.scard.set{border-right-color:var(--set)} .scard.style{border-right-color:var(--style)}
+.scard.lang{border-right-color:var(--lang)} .scard.body{border-right-color:var(--body)}
+.scard.guess{border-right-color:var(--guess)}
+.scard .k{font-family:"Rubik",sans-serif;font-weight:700;font-size:12px;color:#b3acc4}
+.scard .v{font-family:"Secular One",sans-serif;font-size:clamp(18px,2.8vmin,27px);margin-top:2px}
+.scard .vd{font-size:13.5px;color:#cfc8da;margin-top:3px;line-height:1.35}
+.guide{margin:6px auto 0;max-width:760px;font-size:clamp(15px,2.2vmin,20px);color:var(--spot);min-height:1.5em;font-weight:700}
+
+.ringtimer{position:relative;width:clamp(150px,28vmin,290px);aspect-ratio:1;display:grid;place-items:center;margin:1.2vmin auto .5vmin}
+.ringtimer::before{content:"";position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(var(--tcol,var(--ok)) calc(var(--p)*360deg), rgba(255,255,255,.09) 0);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));
+  transition:--p 1s linear;filter:drop-shadow(0 0 14px var(--tcol,var(--ok)))}
+.ringtimer.warn::before{animation:countdown-urgent 1s ease-in-out infinite}
+.ringtimer.paused::before{opacity:.45;transition:none}
+.clock{font-family:"Secular One",sans-serif;font-size:clamp(48px,11vmin,110px);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.clock.warn{color:var(--change2);animation:countdown-urgent 1s ease-in-out infinite}
+.clock.paused{opacity:.55}
+.perform{font-size:clamp(15px,2.5vmin,23px);color:#e9e3d4;margin-bottom:8px}
+.perform b{color:var(--spot)}
+.ringcount{font-family:"Rubik",sans-serif;font-weight:900;color:var(--change);font-size:clamp(14px,2vmin,19px);min-height:1.4em}
+.playctrl{margin-top:auto;margin-bottom:10px;width:100%}
+.swapbtn{font-family:"Secular One",sans-serif;background:var(--change);color:#fff;font-size:clamp(28px,6.5vmin,64px);
+  padding:.4em 1em;border-radius:28px;box-shadow:0 10px 0 #8c1322,0 20px 42px rgba(226,49,73,.45);transition:transform .07s,box-shadow .07s}
+.swapbtn:active{transform:translateY(7px);box-shadow:0 3px 0 #8c1322}
+.autohint{color:#b3acc4;font-size:clamp(14px,2vmin,18px);margin-top:2px}
+.keyhint{display:none;color:#8a7fa6;font-size:12px;font-family:"Rubik",sans-serif;margin-top:8px}
+@media (hover:hover) and (pointer:fine){.keyhint{display:block}}
+.pausedbanner{display:none;background:rgba(246,231,180,.14);border:1px solid rgba(246,231,180,.45);color:var(--spot);
+  border-radius:14px;padding:8px 16px;font-family:"Rubik",sans-serif;font-weight:700;margin:4px auto}
+.pausedbanner.on{display:inline-block}
+
+/* ---------- ספירה לאחור ---------- */
+#count{position:fixed;inset:0;z-index:58;display:none;align-items:center;justify-content:center;background:rgba(10,7,16,.86);backdrop-filter:blur(6px)}
+#count.go{display:flex}
+#count .n{font-family:"Secular One",sans-serif;font-size:clamp(120px,40vmin,420px);color:var(--spot);text-shadow:0 8px 0 rgba(0,0,0,.4)}
+#count .n.pop{animation:swap-pop .9s cubic-bezier(.2,1.5,.3,1)}
+
+/* ---------- פיצוץ החלפה ---------- */
+#flash{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;pointer-events:none}
+#flash.go{display:flex}
+#flash .fx{font-family:"Secular One",sans-serif;color:var(--gold);font-size:clamp(70px,22vmin,260px);
+  text-shadow:0 6px 0 #7a1226,0 0 40px var(--change2);transform:scale(0) rotate(-12deg);position:relative;z-index:2}
+#flash.go .fx{animation:swap-pop .6s cubic-bezier(.2,1.5,.3,1) forwards}
+#flash .star{position:absolute;width:clamp(300px,72vmin,860px);aspect-ratio:1;z-index:1;transform:scale(0) rotate(-24deg);opacity:.96}
+#flash.go .star{animation:star-pop .65s cubic-bezier(.2,1.4,.3,1) forwards}
+#flash .star svg{width:100%;height:100%;filter:drop-shadow(0 20px 44px rgba(0,0,0,.5))}
+@keyframes star-pop{0%{transform:scale(0) rotate(-24deg)}55%{transform:scale(1.12) rotate(2deg)}100%{transform:scale(1) rotate(-4deg)}}
+.flashbg{position:fixed;inset:0;z-index:55;opacity:0;display:none}
+.flashbg.go{display:block;animation:swap-flash .5s ease-out both}
+.is-shaking{animation:screen-shake .42s cubic-bezier(.36,.07,.19,.97) both}
+
+/* ---------- טוסטים ---------- */
+.toast{cursor:pointer;position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(150%);z-index:45;width:min(680px,92vw);
+  border-radius:18px;padding:16px 20px;display:flex;gap:14px;align-items:center;text-align:right;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);transition:transform .35s cubic-bezier(.2,1.2,.4,1);backdrop-filter:blur(8px)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast .hi{font-size:30px;flex:0 0 auto}
+.toast p{margin:0;font-size:clamp(15px,2vmin,20px);line-height:1.45;flex:1}
+.toast .hx{font-family:"Rubik",sans-serif;font-weight:700;font-size:11px;display:block;margin-bottom:3px;letter-spacing:.04em}
+#hint{background:rgba(28,21,38,.94);border:1px solid rgba(246,231,180,.45)} #hint p{color:#f3eddf} #hint .hx{color:var(--spot)}
+#topic{background:rgba(40,26,12,.95);border:1px solid rgba(224,138,30,.6)} #topic p{color:#ffe6c4} #topic .hx{color:#ffbf6b}
+#update{background:rgba(20,40,30,.96);border:1px solid rgba(44,158,91,.6);z-index:80;cursor:pointer} #update p{color:#d9f5e3}
+#update .hx{color:#7be0a4}
+
+/* ---------- ניקוד / סוף סיבוב ---------- */
+.scorer{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:16px;margin:0 0 14px;text-align:right}
+.scorer .nm{font-family:"Secular One",sans-serif;font-size:clamp(20px,3vmin,28px);margin:0 0 12px;text-align:center}
+.crit{display:flex;gap:8px;flex-wrap:wrap}
+.crit button{flex:1;min-width:140px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;
+  padding:13px 10px;font-family:"Rubik",sans-serif;font-weight:700;font-size:14px;color:#ddd6ea;transition:all .15s;min-height:var(--tap)}
+.crit button.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.crit button small{display:block;font-weight:500;font-size:11px;opacity:.85;margin-top:3px}
+.honor{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.honor button{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:18px;
+  font-family:"Secular One",sans-serif;font-size:clamp(18px,2.6vmin,24px);transition:all .15s;min-height:var(--tap)}
+.honor button.on{background:var(--spot);color:var(--ink);border-color:var(--spot)}
+#roundend .rebig{font-family:"Secular One",sans-serif;font-size:clamp(40px,9vmin,96px);color:var(--spot);margin:6px 0}
+.applause{font-size:clamp(46px,11vmin,110px)}
+
+/* ---------- לוח תוצאות ---------- */
+.board{width:min(640px,94vw);display:grid;gap:10px}
+.brow{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:16px;padding:14px 18px;backdrop-filter:blur(3px)}
+.brow .rank{font-family:"Secular One",sans-serif;font-size:22px;color:var(--spot);width:34px;text-align:center}
+.brow .bn{flex:1;font-size:clamp(17px,2.4vmin,22px);font-weight:700;text-align:right}
+.brow .tok{font-family:"Secular One",sans-serif;font-size:clamp(22px,3vmin,30px);color:var(--change)}
+.brow.lead{border-color:var(--spot);box-shadow:0 0 0 1px var(--spot) inset}
+
+/* ---------- מנצח / סיום ---------- */
+.crown{font-size:clamp(60px,14vmin,130px);animation:winner-cheer .9s cubic-bezier(.2,1.4,.3,1)}
+#winner .wname{font-family:"Secular One",sans-serif;font-size:clamp(44px,11vmin,120px);color:var(--spot);margin:6px 0;text-shadow:0 4px 0 rgba(0,0,0,.3)}
+#partyend .wname{font-family:"Secular One",sans-serif;font-size:clamp(34px,8vmin,72px);color:var(--spot);margin:6px 0}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:2px;opacity:0;animation:confetti-fall linear forwards}
+
+/* ---------- סיכום מפגש ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:14px 0}
+.stat{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center}
+.stat .n{font-family:"Secular One",sans-serif;font-size:clamp(26px,4.5vmin,44px);color:var(--spot);line-height:1}
+.stat .l{font-family:"Rubik",sans-serif;font-weight:700;font-size:12px;color:#b3acc4;margin-top:6px}
+.sumlist{text-align:right;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin:10px 0}
+.sumlist h4{margin:0 0 8px;font-family:"Rubik",sans-serif;font-size:13px;color:var(--spot);letter-spacing:.04em}
+.sumlist p{margin:4px 0;font-size:15px;color:#e9e3d4;line-height:1.5}
+.sumlist .rnd{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.sumlist .rnd:last-child{border-bottom:none}
+.sumlist .rnd .i{font-family:"Secular One",sans-serif;color:var(--spot);min-width:26px}
+.sumlist .rnd .w{flex:1;font-size:14.5px}
+.sumlist .rnd .w small{color:#b3acc4}
+.debq{display:grid;gap:8px}
+.debq button{text-align:right;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+  font-size:clamp(15px,2.2vmin,19px);color:#e9e3d4;line-height:1.45;transition:all .15s;display:flex;gap:10px;align-items:flex-start}
+.debq button::before{content:"○";color:var(--spot);flex:0 0 auto}
+.debq button.on{background:rgba(246,231,180,.12);border-color:rgba(246,231,180,.5)}
+.debq button.on::before{content:"●"}
+
+/* ---------- מצב ניחוש ---------- */
+#guessIntro .who,#guessScore .who{font-family:"Secular One",sans-serif;font-size:clamp(28px,6vmin,64px);margin:8px 0;line-height:1.08}
+.secretwrap{width:min(760px,94vw);margin:14px 0}
+.secretcard{background:#fff;color:var(--ink);border-radius:var(--r);padding:clamp(20px,4vmin,42px);position:relative;overflow:hidden;touch-action:none;-webkit-touch-callout:none;
+  box-shadow:0 22px 60px rgba(0,0,0,.55),0 0 80px -14px rgba(224,138,30,.55),0 0 0 1px rgba(255,255,255,.09);text-align:center;cursor:pointer}
+.secretcard .sk{font-family:"Rubik",sans-serif;font-weight:700;font-size:13px;color:var(--guess);letter-spacing:.08em;margin-bottom:8px}
+.secretcard .sv{font-family:"Secular One",sans-serif;font-size:clamp(28px,6.6vmin,60px);line-height:1.08;transition:filter .25s}
+.secretcard .sd{color:#4d4659;font-size:clamp(15px,2.4vmin,21px);margin-top:10px;line-height:1.5;transition:filter .25s}
+.secretcard.blurred .sv,.secretcard.blurred .sd{filter:blur(22px);user-select:none}
+.secretcard .eye{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:clamp(38px,8vmin,72px)}
+.secretcard.blurred .eye{display:flex}
+.holdhint{color:#b3acc4;font-size:clamp(13px,2vmin,17px);margin-top:10px}
+.guessverdict{display:grid;gap:14px;grid-template-columns:1fr 1fr;width:min(620px,92vw);margin-top:20px}
+.guessverdict button{border-radius:var(--r);padding:26px 14px;font-family:"Secular One",sans-serif;font-size:clamp(22px,4vmin,38px);
+  border:1px solid var(--line);background:rgba(255,255,255,.05);transition:transform .45s var(--spring)}
+.guessverdict button:active{transform:scale(.95);transition-duration:.08s}
+.guessverdict .yes{background:linear-gradient(160deg,#3cc47a -20%,var(--ok) 60%);box-shadow:0 8px 0 #1c6e3e,0 16px 34px rgba(44,158,91,.4)}
+.guessverdict .no{background:rgba(255,255,255,.06)}
+
+/* ---------- מסך גדול ---------- */
+body.bigscreen{font-size:19px}
+body.bigscreen .scard{min-width:260px}
+body.bigscreen .scard .v{font-size:clamp(24px,4vmin,42px)}
+body.bigscreen .scard .vd{font-size:clamp(15px,2.2vmin,22px)}
+body.bigscreen .clock{font-size:clamp(64px,14vmin,150px)}
+body.bigscreen .ringtimer{width:clamp(190px,36vmin,380px)}
+body.bigscreen .guide{font-size:clamp(18px,2.8vmin,27px)}
+body.bigscreen .swapbtn{font-size:clamp(36px,8vmin,84px)}
+body.bigscreen .gcard .t{font-size:clamp(34px,6.6vmin,74px)}
+body.bigscreen .gcard .d{font-size:clamp(17px,3vmin,28px)}
+body.bigscreen .perform{font-size:clamp(18px,3vmin,28px)}
+body.bigscreen #flash .fx{font-size:clamp(90px,28vmin,340px)}
+
+/* ---------- עורך קלפים ---------- */
+.catchips{display:flex;gap:8px;flex-wrap:wrap}
+.catchips button{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:999px;padding:11px 16px;font-family:"Rubik",sans-serif;font-weight:700;font-size:14px;color:#ddd6ea;transition:all .15s}
+.catchips button i{width:11px;height:11px;border-radius:50%;background:var(--cc)}
+.catchips button.on{background:var(--cc);border-color:var(--cc);color:#fff}
+.catchips button.on i{background:rgba(255,255,255,.85)}
+.edrow{display:grid;gap:10px;margin-top:12px}
+.edrow input{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+  color:#fff;font-family:"Heebo",sans-serif;font-size:16px;text-align:right;min-height:var(--tap)}
+.edrow input:focus{outline:none;border-color:var(--spot)}
+.customlist{display:grid;gap:8px;margin-top:16px;max-height:32vh;overflow:auto;padding-left:4px}
+.crow{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:14px;padding:10px 14px;text-align:right}
+.crow .cc{width:9px;height:38px;border-radius:5px;flex:0 0 auto}
+.crow .ct{flex:1;min-width:0}
+.crow .ct b{display:block;font-family:"Secular One",sans-serif;font-weight:400;font-size:16px}
+.crow .ct span{font-size:13px;color:#b3acc4}
+.crow .del{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:16px;color:#e7889a;flex:0 0 auto}
+.emptyc{color:#8a7fa6;font-size:14px;text-align:center;padding:14px 0}
+
+/* ---------- מודאלים ---------- */
+.modal{position:fixed;inset:0;z-index:40;background:rgba(8,5,14,.7);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.open{display:flex}
+.modal .panel{position:relative}
+.close{position:absolute;top:14px;left:14px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.1);font-size:20px}
+#voiceSel{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:13px;color:#fff;font-family:"Heebo",sans-serif;font-size:15px;min-height:var(--tap)}
+.localstats{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;color:#cfc8da;font-size:14px}
+.localstats b{color:var(--spot);font-family:"Secular One",sans-serif;font-weight:400;font-size:20px;margin-inline-start:4px}
+
+/* ---------- הנפשות ---------- */
+@keyframes spotlight-breathe{0%,100%{transform:translateX(-50%) scale(1);opacity:.85}50%{transform:translateX(-50%) scale(1.05);opacity:1}}
+@keyframes swap-flash{0%{opacity:0}18%{opacity:.85}100%{opacity:0}}
+@keyframes swap-pop{0%{transform:scale(0) rotate(-12deg);opacity:0}45%{transform:scale(1.25) rotate(4deg);opacity:1}68%{transform:scale(.92) rotate(-2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes screen-shake{0%,100%{transform:translate3d(0,0,0)}10%{transform:translate3d(-8px,4px,0) rotate(-.6deg)}30%{transform:translate3d(7px,-5px,0) rotate(.5deg)}50%{transform:translate3d(-5px,6px,0) rotate(-.4deg)}70%{transform:translate3d(6px,-3px,0) rotate(.3deg)}90%{transform:translate3d(-3px,2px,0)}}
+@keyframes card-deal{0%{transform:perspective(900px) rotateY(80deg) translateY(26px) scale(.85) rotate(0deg);opacity:0;filter:blur(10px)}60%{transform:perspective(900px) rotateY(-8deg) translateY(0) scale(1.04) rotate(var(--tilt,0deg));opacity:1;filter:blur(0)}100%{transform:perspective(900px) rotateY(0) translateY(0) scale(1) rotate(var(--tilt,0deg));opacity:1;filter:blur(0)}}
+@keyframes countdown-urgent{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.16);opacity:.8}}
+@keyframes confetti-fall{0%{transform:translate(0,-10vh) rotate(0);opacity:0}10%{opacity:1}100%{transform:translate(var(--dx,0),110vh) rotate(var(--rot,720deg));opacity:1}}
+@keyframes winner-cheer{0%{transform:scale(0) rotate(-20deg)}55%{transform:scale(1.2) rotate(8deg)}75%{transform:scale(.95) rotate(-4deg)}100%{transform:scale(1) rotate(0)}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  .stagebg::before{animation:none}
+  .confetti{display:none}
+}
+body.noanim *{animation:none !important;transition:none !important}
+body.noanim .confetti{display:none}
+@media (max-height:560px){ #home .title{font-size:clamp(54px,15vmin,120px)} #home .burst{margin-bottom:8px} }
+@media (max-width:420px){ .guessverdict{grid-template-columns:1fr} .honor{grid-template-columns:1fr} }
+
+/* ---------- רישוי / הצעה למנהלים (v2.1) ---------- */
+.licbox{margin-top:12px;font-size:14px;color:#cfc8da;background:rgba(255,255,255,.04);border:1px dashed var(--line);border-radius:12px;padding:10px 14px;text-align:right;line-height:1.5}
+.licbox.ok{border-style:solid;border-color:rgba(44,158,91,.6);color:#d9f5e3}
+.licbox.warn{border-color:rgba(224,138,30,.7);color:#ffe6c4}
+.licbox b{color:var(--spot)}
+.licbox button{margin-top:6px}
+.badge{font-family:"Rubik",sans-serif;font-size:11px;letter-spacing:.06em;color:#8a7fa6;margin-top:10px}
+.badge[hidden]{display:none}
+.offergrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.offer{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center}
+.offer .op{font-family:"Secular One",sans-serif;font-size:clamp(26px,4.5vmin,40px);color:var(--spot);line-height:1}
+.offer .ot{font-family:"Rubik",sans-serif;font-weight:700;margin-top:6px}
+.offer .od{font-size:13px;color:#b3acc4;margin-top:4px;line-height:1.45}
+.mgrcta{width:min(760px,100%);margin:22px auto 0;background:rgba(246,231,180,.08);border:1px solid rgba(246,231,180,.35);border-radius:18px;padding:14px 18px;text-align:right;font-size:15px;line-height:1.55;color:#e9e3d4}
+.mgrcta b{color:var(--spot)}
+.mgrcta .row{justify-content:flex-start}
+.mgrcta[hidden]{display:none}
+@media (max-width:480px){.offergrid{grid-template-columns:1fr}}
