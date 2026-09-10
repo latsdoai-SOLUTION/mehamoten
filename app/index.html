@@ -22,7 +22,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.1.0">
+<link rel="stylesheet" href="css/app.css?v=2.1.1">
+<script>
+/* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
+   מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
+(function(){
+  function styled(){ try{ return getComputedStyle(document.body).overflow==="hidden"; }catch(e){ return true; } }
+  function heal(){
+    if(styled()) return;
+    try{ if(sessionStorage.getItem("mm_healed")) return; sessionStorage.setItem("mm_healed","1"); }catch(e){}
+    var jobs=[];
+    if(window.caches) jobs.push(caches.keys().then(function(k){return Promise.all(k.map(function(n){return caches.delete(n);}));}));
+    if(navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister();}));}));
+    Promise.all(jobs).catch(function(){}).then(function(){ location.reload(true); });
+  }
+  window.addEventListener("load", function(){ setTimeout(heal, 400); });
+})();
+</script>
 </head>
 <body>
 <div class="stagebg"></div>
@@ -498,7 +514,7 @@
   </div>
 </div>
 
-<script src="js/data.js?v=2.1.0"></script>
-<script src="js/app.js?v=2.1.0"></script>
+<script src="js/data.js?v=2.1.1"></script>
+<script src="js/app.js?v=2.1.1"></script>
 </body>
 </html>
