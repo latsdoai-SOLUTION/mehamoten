@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#14101d">
+<title>מהמותן · אולפן הקלטה</title>
+<style>
+:root{--stage:#14101d;--panel:#1e1729;--line:rgba(255,255,255,.13);--gold:#f6e7b4;--red:#e23149;--dim:#b3a9c9;--ok:#2c9e5b}
+*{box-sizing:border-box}
+body{font-family:Heebo,system-ui,sans-serif;background:var(--stage);color:#f4f0fb;margin:0;padding:0 16px 120px;line-height:1.55}
+.wrap{max-width:920px;margin:0 auto}
+h1{font-size:24px;margin:22px 0 2px}
+.lead{color:var(--dim);font-size:13.5px;margin:0 0 14px}
+.bar{position:sticky;top:0;z-index:9;background:rgba(20,16,29,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin:0 -16px 16px;padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.bar b{font-size:13px;white-space:nowrap}
+.prog{flex:1;min-width:120px;height:8px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+.meter{width:120px;height:10px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;position:relative}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2c9e5b 0%,#2c9e5b 70%,#e08a1e 85%,#e23149 100%)}
+button{background:rgba(255,255,255,.08);border:1px solid var(--line);color:#f4f0fb;border-radius:99px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+button:hover:not(:disabled){background:rgba(246,231,180,.15)}
+button:disabled{opacity:.4;cursor:default}
+button.primary{background:var(--red);border-color:transparent}
+button.rec{background:var(--red);border-color:transparent;min-width:96px}
+button.rec.on{background:#fff;color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.55}}
+select{background:rgba(0,0,0,.32);border:1px solid var(--line);border-radius:9px;padding:6px 10px;color:#fff;font:inherit;font-size:12.5px;max-width:230px}
+label.sw{display:flex;gap:6px;align-items:center;font-size:12.5px;font-weight:700;color:#cabfe0;cursor:pointer}
+h2{font-size:18px;margin:28px 0 4px;color:var(--gold);border-top:1px solid var(--line);padding-top:18px}
+h3{font-size:13px;margin:18px 0 2px;color:#cabfe0}
+.card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin:8px 0;display:flex;gap:14px;align-items:flex-start}
+.card.done{border-color:rgba(44,158,91,.5);background:rgba(44,158,91,.07)}
+.card.silent{border-color:rgba(226,49,73,.6);background:rgba(226,49,73,.09)}
+.card.silent .meta{color:#ff9aa8;font-weight:700}
+.card.active{border-color:var(--gold);box-shadow:0 0 0 1px rgba(246,231,180,.3)}
+.card .num{font-size:11.5px;color:var(--dim);min-width:30px;padding-top:4px}
+.card .mid{flex:1;min-width:0}
+.card .txt{font-size:19px;line-height:1.4}
+.card .how{font-size:12.5px;color:var(--dim);margin-top:4px}
+.card .meta{font-size:11px;color:var(--dim);margin-top:5px;direction:ltr;text-align:left}
+.card .btns{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
+.box{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:13px;padding:13px 16px;margin:0 0 16px;font-size:13.5px}
+.box b{color:var(--gold)}
+.warn{background:rgba(226,49,73,.11);border-color:rgba(226,49,73,.45)}
+code{background:rgba(0,0,0,.35);padding:1px 5px;border-radius:4px;font-size:12px;direction:ltr;display:inline-block}
+kbd{background:rgba(255,255,255,.12);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-size:11.5px;font-family:inherit}
+.hidden{display:none!important}
+@media(max-width:700px){
+  body{padding:0 10px 140px}
+  .bar{gap:8px;padding:8px 10px;margin:0 -10px 12px}
+  .bar b{font-size:12px}
+  .meter{width:70px}
+  .prog{min-width:60px}
+  select{max-width:140px;font-size:12px}
+  h1{font-size:20px;margin:14px 0 2px}
+  .card{flex-wrap:wrap;padding:14px 12px;gap:8px}
+  .card .num{min-width:24px;font-size:13px}
+  .card .txt{font-size:22px;line-height:1.35}
+  .card .how{font-size:13.5px}
+  .card .btns{width:100%;gap:10px;margin-top:6px}
+  .card .btns button{flex:1;padding:14px 10px;font-size:15px;min-height:52px}
+  button.rec{min-width:0}
+  .card .pl{max-width:88px}
+  #help,#tips{font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🎙️ מהמותן · אולפן הקלטה</h1>
+<p class="lead">מקליט ישירות בדפדפן, שומר במכשיר, ומוריד הכל כקבצי WAV מוכנים.</p>
+<div class="box warn hidden" id="phonetip">
+<b>אתה בטלפון.</b> ההקלטות נשמרות בדפדפן של הטלפון בלבד. <b>אל תנקה היסטוריה ואל תסגור בגלישה פרטית</b> לפני שהורדת את ה-ZIP.
+כדאי להקליט קודם את שכבה 1 (ארבעים ושבעה הקטעים הראשונים), להוריד, ורק אז להמשיך.
+</div>
+
+<div class="bar">
+  <button id="mic" class="primary">הפעל מיקרופון</button>
+  <select id="dev" class="hidden"></select>
+  <div class="meter"><i id="lvl"></i></div>
+  <b id="stat">0 / 0</b>
+  <div class="prog"><i id="pi"></i></div>
+  <label class="sw"><input type="checkbox" id="auto" checked> המשך לבא אוטומטית</label>
+  <label class="sw"><input type="checkbox" id="trim" checked> חתוך שקט</label>
+  <button id="check">בדיקת מיקרופון</button>
+  <button id="scan">סרוק הקלטות</button>
+  <button id="zip">הורד הכל</button>
+  <button id="wipe">מחק הכל</button>
+</div>
+
+<div class="box" id="help">
+<b>איך זה עובד</b><br>
+פשוט לוחצים <b>● הקלט</b> על השורה הראשונה. בפעם הראשונה הדפדפן יבקש הרשאה למיקרופון, מאשרים, וזהו. על כל שורה: <b>● הקלט</b> להתחלה, ושוב לעצירה.
+אפשר להאזין, ואם לא יצא טוב פשוט מקליטים שוב על אותה שורה.<br><br>
+<b>מקשים</b>: <kbd>רווח</kbd> מתחיל ועוצר את השורה הנוכחית · <kbd>↓</kbd> ו-<kbd>↑</kbd> לשורה הבאה והקודמת · <kbd>Enter</kbd> מאזין לשורה.<br><br>
+הכל נשמר בדפדפן תוך כדי, אז אפשר לעצור ולחזור מחר. בסוף <b>הורד הכל</b> נותן קובץ ZIP עם כל ההקלטות בשמות הנכונים.<br><br>
+<b>⟨סוגריים משולשים⟩</b> בהסבר = חלק שמשתנה בכל סיבוב ולא מקליטים אותו. הוא ייכנס בין שתי הקלטות.
+</div>
+
+<div class="box" id="tips">
+<b>שלוש עצות שמשנות את התוצאה</b><br>
+1. <b>מרחק קבוע</b> מהמיקרופון, כטפח. אם תתקרב ותתרחק בין קטעים, זה יישמע כמו הקלטות שונות שהודבקו.<br>
+2. <b>שקט בחדר.</b> מאוורר, מזגן ומקרר נשמעים בהקלטה גם אם אתה לא שם לב אליהם.<br>
+3. <b>הסרגל הירוק</b> צריך לקפוץ באמצע. אם הוא נוגע באדום זה מעוות, ואם הוא בקושי זז זה יהיה רועש אחרי הגברה.
+</div>
+
+<div class="box warn hidden" id="devwarn">
+<b>שים לב להתקן שנבחר.</b> <span id="devwarntxt"></span>
+</div>
+
+<div class="box hidden" id="checkbox"><b>בדיקת מיקרופון:</b> <span id="checktxt"></span></div>
+
+<div class="box warn hidden" id="nomic">
+<b>הדפדפן לא נותן גישה למיקרופון.</b><br>
+אם פתחת את הקובץ ישירות מהדיסק במחשב: סגור את הלשונית ובמקום זה <b>דאבל-קליק על <code>record.bat</code></b>.<br>
+אם אתה בטלפון: ודא שהכתובת מתחילה ב-<code>https</code>, ושלא דחית את בקשת ההרשאה. בהגדרות הדפדפן אפשר לאפס הרשאות לאתר.
+</div>
+
+<div id="list"></div>
+</div>
+
+<script>
+const LINES = [{"n":1,"tier":1,"group":"ספירה לאחור","text":"שלוש","how":"ברור וקצבי. אותו טון בדיוק בשלושת המספרים.","file":"count-3"},{"n":2,"tier":1,"group":"ספירה לאחור","text":"שתיים","how":"אותו טון כמו קודם, בלי לעלות.","file":"count-2"},{"n":3,"tier":1,"group":"ספירה לאחור","text":"אחת","how":"אותו טון. המתח נבנה מהקצב, לא מהעוצמה.","file":"count-1"},{"n":4,"tier":1,"group":"ספירה לאחור","text":"אקשן!","how":"כאן כן מתפרץ. קצר, חד, פותח את הסצנה.","file":"count-action"},{"n":5,"tier":1,"group":"עצירת סצנה","text":"קפאו! החליפו שחקן, ופתחו סצנה חדשה מאותה תנוחה.","how":"מילת הפקודה \"קפאו\" חזקה, וההסבר אחריה רגוע יותר. מחליף את \"פריז\" שבקוד, שנקרא כמו העיר.","file":"freeze"},{"n":6,"tier":1,"group":"החלפה · הקומפר","text":"החלפה!","how":"קוטע את הסצנה באמצע. חד וקצר. מנחה של ערב אירוע: חם, בטוח, נהנה מהעבודה.","file":"compere-swap-1"},{"n":7,"tier":1,"group":"החלפה · הקומפר","text":"החלפה! תפתיעו אותי!","how":"קוטע את הסצנה באמצע. חד וקצר. מנחה של ערב אירוע: חם, בטוח, נהנה מהעבודה.","file":"compere-swap-2"},{"n":8,"tier":1,"group":"החלפה · הקומפר","text":"החלפה — עכשיו!","how":"קוטע את הסצנה באמצע. חד וקצר. מנחה של ערב אירוע: חם, בטוח, נהנה מהעבודה.","file":"compere-swap-3"},{"n":9,"tier":1,"group":"החלפה · הקומפר","text":"שוב! החלפה!","how":"קוטע את הסצנה באמצע. חד וקצר. מנחה של ערב אירוע: חם, בטוח, נהנה מהעבודה.","file":"compere-swap-4"},{"n":10,"tier":1,"group":"סוף סיבוב · הקומפר","text":"נגמר הזמן! מחיאות כפיים!","how":"סוגר ומשחרר את המתח. מנחה של ערב אירוע: חם, בטוח, נהנה מהעבודה.","file":"compere-timeup-1"},{"n":11,"tier":1,"group":"סוף סיבוב · הקומפר","text":"וזהו! איזה יופי!","how":"סוגר ומשחרר את המתח. מנחה של ערב אירוע: חם, בטוח, נהנה מהעבודה.","file":"compere-timeup-2"},{"n":12,"tier":1,"group":"סוף סיבוב · הקומפר","text":"סיימנו! כל הכבוד!","how":"סוגר ומשחרר את המתח. מנחה של ערב אירוע: חם, בטוח, נהנה מהעבודה.","file":"compere-timeup-3"},{"n":13,"tier":1,"group":"בדיקת קול · הקומפר","text":"שלום! אני המנחה שלכם הערב. מוכנים לאלתר?","how":"מציג את עצמו בפעם הראשונה. מנחה של ערב אירוע: חם, בטוח, נהנה מהעבודה.","file":"compere-test"},{"n":14,"tier":1,"group":"החלפה · הציני","text":"החלפה. נו, באמת.","how":"קוטע את הסצנה באמצע. חד וקצר. יבש, שטוח, כאילו כבר ראה הכל. בלי לצעוק.","file":"cynic-swap-1"},{"n":15,"tier":1,"group":"החלפה · הציני","text":"החלפה. נסו שוב.","how":"קוטע את הסצנה באמצע. חד וקצר. יבש, שטוח, כאילו כבר ראה הכל. בלי לצעוק.","file":"cynic-swap-2"},{"n":16,"tier":1,"group":"החלפה · הציני","text":"החלפה. זה היה צפוי.","how":"קוטע את הסצנה באמצע. חד וקצר. יבש, שטוח, כאילו כבר ראה הכל. בלי לצעוק.","file":"cynic-swap-3"},{"n":17,"tier":1,"group":"החלפה · הציני","text":"החלפה. הפעם תתאמצו.","how":"קוטע את הסצנה באמצע. חד וקצר. יבש, שטוח, כאילו כבר ראה הכל. בלי לצעוק.","file":"cynic-swap-4"},{"n":18,"tier":1,"group":"סוף סיבוב · הציני","text":"נגמר. סוף סוף.","how":"סוגר ומשחרר את המתח. יבש, שטוח, כאילו כבר ראה הכל. בלי לצעוק.","file":"cynic-timeup-1"},{"n":19,"tier":1,"group":"סוף סיבוב · הציני","text":"זהו. הספיק לי.","how":"סוגר ומשחרר את המתח. יבש, שטוח, כאילו כבר ראה הכל. בלי לצעוק.","file":"cynic-timeup-2"},{"n":20,"tier":1,"group":"סוף סיבוב · הציני","text":"נגמר הזמן. מזל.","how":"סוגר ומשחרר את המתח. יבש, שטוח, כאילו כבר ראה הכל. בלי לצעוק.","file":"cynic-timeup-3"},{"n":21,"tier":1,"group":"בדיקת קול · הציני","text":"כן, כן. אני המנחה. בואו נראה אתכם.","how":"מציג את עצמו בפעם הראשונה. יבש, שטוח, כאילו כבר ראה הכל. בלי לצעוק.","file":"cynic-test"},{"n":22,"tier":1,"group":"החלפה · המשוגע","text":"החלפה החלפה החלפה!","how":"קוטע את הסצנה באמצע. חד וקצר. אנרגיה גבוהה, מהיר, מתפוצץ. אבל עדיין מובן.","file":"manic-swap-1"},{"n":23,"tier":1,"group":"החלפה · המשוגע","text":"החלפה! יאללה!","how":"קוטע את הסצנה באמצע. חד וקצר. אנרגיה גבוהה, מהיר, מתפוצץ. אבל עדיין מובן.","file":"manic-swap-2"},{"n":24,"tier":1,"group":"החלפה · המשוגע","text":"בום! החלפה!","how":"קוטע את הסצנה באמצע. חד וקצר. אנרגיה גבוהה, מהיר, מתפוצץ. אבל עדיין מובן.","file":"manic-swap-3"},{"n":25,"tier":1,"group":"החלפה · המשוגע","text":"החלפה!! עוד!!","how":"קוטע את הסצנה באמצע. חד וקצר. אנרגיה גבוהה, מהיר, מתפוצץ. אבל עדיין מובן.","file":"manic-swap-4"},{"n":26,"tier":1,"group":"סוף סיבוב · המשוגע","text":"בוםם! נגמר!","how":"סוגר ומשחרר את המתח. אנרגיה גבוהה, מהיר, מתפוצץ. אבל עדיין מובן.","file":"manic-timeup-1"},{"n":27,"tier":1,"group":"סוף סיבוב · המשוגע","text":"טררםם! זהו!","how":"סוגר ומשחרר את המתח. אנרגיה גבוהה, מהיר, מתפוצץ. אבל עדיין מובן.","file":"manic-timeup-2"},{"n":28,"tier":1,"group":"סוף סיבוב · המשוגע","text":"ספיד! נגמר הזמן!","how":"סוגר ומשחרר את המתח. אנרגיה גבוהה, מהיר, מתפוצץ. אבל עדיין מובן.","file":"manic-timeup-3"},{"n":29,"tier":1,"group":"בדיקת קול · המשוגע","text":"הייי! אני המנחה הכי משוגע שיש! קדימהה!","how":"מציג את עצמו בפעם הראשונה. אנרגיה גבוהה, מהיר, מתפוצץ. אבל עדיין מובן.","file":"manic-test"},{"n":30,"tier":1,"group":"פתיחת סיבוב · הקומפר","text":"גבירותיי ורבותיי!","how":"הכרזה של מנחה במה. אחרי המילה האחרונה יש שקט קצר — שם ייכנסו השמות. (נאמר לפני ⟨שמות השחקנים⟩)","file":"compere-intro-1"},{"n":31,"tier":1,"group":"פתיחת סיבוב · הקומפר","text":"עלו לבמה!","how":"אחרי השמות. מזמין אותם פנימה, לא פוקד. (נאמר אחרי ⟨שמות השחקנים⟩)","file":"compere-intro-2"},{"n":32,"tier":1,"group":"פתיחת סיבוב · הציני","text":"טוב.","how":"מילה אחת, שטוחה, כאילו נאנח. (נאמר לפני ⟨שמות השחקנים⟩)","file":"cynic-intro-1"},{"n":33,"tier":1,"group":"פתיחת סיבוב · הציני","text":"בואו נגמור עם זה.","how":"בלי התלהבות. זה הקטע. (נאמר אחרי ⟨שמות השחקנים⟩)","file":"cynic-intro-2"},{"n":34,"tier":1,"group":"פתיחת סיבוב · המשוגע","text":"וואו וואו וואו!","how":"מהר ועולה. שלוש פעמים באותה נשימה. (נאמר לפני ⟨שמות השחקנים⟩)","file":"manic-intro-1"},{"n":35,"tier":1,"group":"פתיחת סיבוב · המשוגע","text":"קדימה קדימה קדימה!","how":"דוחף אותם קדימה. (נאמר אחרי ⟨שמות השחקנים⟩)","file":"manic-intro-2"},{"n":36,"tier":1,"group":"הצגת הקלפים","text":"הבמה:","how":"מכריז, ואז עוצר. כמו מגיש פרס. (נאמר לפני ⟨שם הבמה⟩)","file":"draw-a-1"},{"n":37,"tier":1,"group":"הצגת הקלפים","text":"והאילוץ:","how":"ממשיך לאילוץ. אותו קצב. (נאמר אחרי ⟨שם הבמה⟩)","file":"draw-a-2"},{"n":38,"tier":1,"group":"הצגת הקלפים","text":"קדימה!","how":"סוגר את ההצגה ופותח את המשחק.","file":"draw-b-1"},{"n":39,"tier":1,"group":"הצגת התפקידים","text":"אתם","how":"מילה אחת ואז שקט. נשמע טבעי רק אם לא מאריכים אותה. (נאמר לפני ⟨התפקידים⟩)","file":"frame-a-1"},{"n":40,"tier":1,"group":"הצגת התפקידים","text":"המקום:","how":"ממשיך למקום. (נאמר אחרי ⟨התפקידים⟩)","file":"frame-a-2"},{"n":41,"tier":1,"group":"מי מתחיל","text":"מתחילים:","how":"קצר. הנוסח הזה מחליף את “את/ה מתחיל/ה” שבקוד. (נאמר לפני ⟨שם⟩)","file":"frame-b-1"},{"n":42,"tier":1,"group":"נושא חדש","text":"נושא חדש!","how":"הפתעה. זורק טוויסט לאמצע הסצנה. (נאמר לפני ⟨הנושא⟩)","file":"topic-lead-1"},{"n":43,"tier":1,"group":"סיבוב ניחוש","text":"סיבוב ניחוש!","how":"מכריז על שינוי כללים. (נאמר לפני ⟨שם המנחש⟩)","file":"guess-intro-1"},{"n":44,"tier":1,"group":"סיבוב ניחוש","text":"בלי להסתכל על המסך! כל השאר, תציצו בסוד.","how":"הוראה ברורה, קצת קונספירטיבית. החלק השני בלחישה. (נאמר אחרי ⟨שם המנחש⟩)","file":"guess-intro-2"},{"n":45,"tier":1,"group":"ניחוש נכון","text":"ניחש נכון! כל הכבוד!","how":"התלהבות אמיתית. זה רגע ניצחון. (נאמר אחרי ⟨שם⟩)","file":"guess-win-2"},{"n":46,"tier":1,"group":"ניחוש שגוי","text":"נגמר הזמן! הסוד היה:","how":"אכזבה משועשעת, לא נזיפה. (נאמר לפני ⟨הסוד⟩)","file":"guess-lose-1"},{"n":47,"tier":1,"group":"הכרזת מנצח","text":"מנצח! כל הכבוד!","how":"שיא הערב. הכי חם שיש לך. (נאמר אחרי ⟨שם⟩)","file":"winner-2"},{"n":48,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"פתאום נכנס שוטר ושואל מה קורה כאן","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-1"},{"n":49,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"עכשיו הסצנה הופכת למיוזיקל","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-2"},{"n":50,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"מתחיל גשם פתאומי וחזק","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-3"},{"n":51,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"אחד מכם מגלה סוד גדול — עכשיו","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-4"},{"n":52,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"הטלפון מצלצל. מי זה?!","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-5"},{"n":53,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"פתאום אתם מאחרים למשהו דחוף","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-6"},{"n":54,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"נכנסת דמות שלישית מפתיעה — דמיינו אותה","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-7"},{"n":55,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"משהו מתפוצץ ברקע!","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-8"},{"n":56,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"מסתבר שאחד מכם מאוהב בשני","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-9"},{"n":57,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"פתאום אתם בכלל בחלל","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-10"},{"n":58,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"חיית המחמד שלכם נעלמה","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-11"},{"n":59,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"מישהו אומר את האמת שאסור היה לומר","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-12"},{"n":60,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"מגיע אורח לא קרוא","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-13"},{"n":61,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"אתם מגלים שאתם תקועים ביחד","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-14"},{"n":62,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"הזמן אוזל — חייבים להחליט עכשיו!","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-15"},{"n":63,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"פתאום כולם מדברים בלחש","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-16"},{"n":64,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"אחד מכם בעצם משקר כל הזמן","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-17"},{"n":65,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"הרגע הזה — בעצם הכל חלום","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-18"},{"n":66,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"פתאום אחד מכם מדבר רק בחרוזים","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-19"},{"n":67,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"הגעתם לחדשות — שדרו דיווח חי","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-20"},{"n":68,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"אחד מכם מתגלה כסוכן חשאי","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-21"},{"n":69,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"נגמר החשמל — המשיכו בחושך","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-22"},{"n":70,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"קיבלתם מיליון שקל — ועכשיו רבים עליו","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-23"},{"n":71,"tier":2,"group":"נושאים (נאמר אחרי “נושא חדש!”)","text":"פתאום אתם בתוך פרסומת","how":"משפט אחד, ענייני. זה טוויסט באמצע סצנה.","file":"topic-24"},{"n":72,"tier":2,"group":"רמזים","text":"כן, ו... — קבלו כל הצעה של השותף ובנו עליה. לעולם אל תחסמו.","how":"רגוע ומלמד. נאמר בזמן שהם משחקים, אז לא לגנוב את ההצגה.","file":"tip-1"},{"n":73,"tier":2,"group":"רמזים","text":"ספציפי תמיד מנצח: 'פודל חרדתי בן 11' עדיף על 'כלב'.","how":"רגוע ומלמד. נאמר בזמן שהם משחקים, אז לא לגנוב את ההצגה.","file":"tip-2"},{"n":74,"tier":2,"group":"רמזים","text":"מצאתם דבר מצחיק? תעצימו אותו במדרגות, שוב ושוב.","how":"רגוע ומלמד. נאמר בזמן שהם משחקים, אז לא לגנוב את ההצגה.","file":"tip-3"},{"n":75,"tier":2,"group":"רמזים","text":"תגובה חזקה מיוזמה — תנו לשותף להוביל ופשוט הגיבו.","how":"רגוע ומלמד. נאמר בזמן שהם משחקים, אז לא לגנוב את ההצגה.","file":"tip-4"},{"n":76,"tier":2,"group":"רמזים","text":"בחרו בחירה ברורה ולכו עליה עד הסוף. ביטחון מצחיק יותר מהיסוס.","how":"רגוע ומלמד. נאמר בזמן שהם משחקים, אז לא לגנוב את ההצגה.","file":"tip-5"},{"n":77,"tier":2,"group":"רמזים","text":"זכרו רעיון מההתחלה — חזרה אליו בסוף (קולבק) מפוצצת את הקהל.","how":"רגוע ומלמד. נאמר בזמן שהם משחקים, אז לא לגנוב את ההצגה.","file":"tip-6"},{"n":78,"tier":3,"group":"במות · בסיס","text":"חדר מיון","how":"שם מקום. שתי מילים, ברור.","file":"set-1"},{"n":79,"tier":3,"group":"תפקידים · בסיס","text":"שני אחים שמתחרים על תשומת לב","how":"מי הם בסצנה.","file":"roles-1"},{"n":80,"tier":3,"group":"במות · בסיס","text":"טסט נהיגה","how":"שם מקום. שתי מילים, ברור.","file":"set-2"},{"n":81,"tier":3,"group":"תפקידים · בסיס","text":"בוחן קפדן ונבחן בהיסטריה","how":"מי הם בסצנה.","file":"roles-2"},{"n":82,"tier":3,"group":"במות · בסיס","text":"חתונה","how":"שם מקום. שתי מילים, ברור.","file":"set-3"},{"n":83,"tier":3,"group":"תפקידים · בסיס","text":"האקס של הכלה והשושבין","how":"מי הם בסצנה.","file":"roles-3"},{"n":84,"tier":3,"group":"במות · בסיס","text":"מעלית תקועה","how":"שם מקום. שתי מילים, ברור.","file":"set-4"},{"n":85,"tier":3,"group":"תפקידים · בסיס","text":"מנכ\"ל והעובד שפיטר אתמול","how":"מי הם בסצנה.","file":"roles-4"},{"n":86,"tier":3,"group":"במות · בסיס","text":"ספארי","how":"שם מקום. שתי מילים, ברור.","file":"set-5"},{"n":87,"tier":3,"group":"תפקידים · בסיס","text":"מדריך טיולים ותייר שבטוח שהוא קוסם","how":"מי הם בסצנה.","file":"roles-5"},{"n":88,"tier":3,"group":"במות · בסיס","text":"משרד עורך דין","how":"שם מקום. שתי מילים, ברור.","file":"set-6"},{"n":89,"tier":3,"group":"תפקידים · בסיס","text":"זוג מתגרש שעדיין מאוהב ולא מודה","how":"מי הם בסצנה.","file":"roles-6"},{"n":90,"tier":3,"group":"במות · בסיס","text":"חנות גלידה","how":"שם מקום. שתי מילים, ברור.","file":"set-7"},{"n":91,"tier":3,"group":"תפקידים · בסיס","text":"לקוח שלא מחליט ועובד שמאבד שפיות","how":"מי הם בסצנה.","file":"roles-7"},{"n":92,"tier":3,"group":"במות · בסיס","text":"קבר של פרעה","how":"שם מקום. שתי מילים, ברור.","file":"set-8"},{"n":93,"tier":3,"group":"תפקידים · בסיס","text":"שני שודדי קברים פחדנים","how":"מי הם בסצנה.","file":"roles-8"},{"n":94,"tier":3,"group":"במות · בסיס","text":"ראיון עבודה","how":"שם מקום. שתי מילים, ברור.","file":"set-9"},{"n":95,"tier":3,"group":"תפקידים · בסיס","text":"מראיין ומועמד שזה הבוס שלו לשעבר","how":"מי הם בסצנה.","file":"roles-9"},{"n":96,"tier":3,"group":"במות · בסיס","text":"ספינת חלל","how":"שם מקום. שתי מילים, ברור.","file":"set-10"},{"n":97,"tier":3,"group":"תפקידים · בסיס","text":"שני אסטרונאוטים, לאחד נגמר החמצן","how":"מי הם בסצנה.","file":"roles-10"},{"n":98,"tier":3,"group":"במות · בסיס","text":"מכון כושר","how":"שם מקום. שתי מילים, ברור.","file":"set-11"},{"n":99,"tier":3,"group":"תפקידים · בסיס","text":"מאמן אישי ומתאמן שמשקר על הכושר שלו","how":"מי הם בסצנה.","file":"roles-11"},{"n":100,"tier":3,"group":"במות · בסיס","text":"בית קפה","how":"שם מקום. שתי מילים, ברור.","file":"set-12"},{"n":101,"tier":3,"group":"תפקידים · בסיס","text":"דייט ראשון ששניהם זייפו בפרופיל","how":"מי הם בסצנה.","file":"roles-12"},{"n":102,"tier":3,"group":"במות · בסיס","text":"תא בכלא","how":"שם מקום. שתי מילים, ברור.","file":"set-13"},{"n":103,"tier":3,"group":"תפקידים · בסיס","text":"אסיר ותיק ואסיר חדש ביום הראשון","how":"מי הם בסצנה.","file":"roles-13"},{"n":104,"tier":3,"group":"במות · בסיס","text":"חנות חיות","how":"שם מקום. שתי מילים, ברור.","file":"set-14"},{"n":105,"tier":3,"group":"תפקידים · בסיס","text":"מוכר ולקוח שרוצה להחזיר ברווז","how":"מי הם בסצנה.","file":"roles-14"},{"n":106,"tier":3,"group":"במות · בסיס","text":"קבלה במלון","how":"שם מקום. שתי מילים, ברור.","file":"set-15"},{"n":107,"tier":3,"group":"תפקידים · בסיס","text":"פקיד ואורח שבטוח שהזמין סוויטה","how":"מי הם בסצנה.","file":"roles-15"},{"n":108,"tier":3,"group":"במות · בסיס","text":"מסעדת יוקרה","how":"שם מקום. שתי מילים, ברור.","file":"set-16"},{"n":109,"tier":3,"group":"תפקידים · בסיס","text":"מלצר וסועד שגילה שאין לו ארנק","how":"מי הם בסצנה.","file":"roles-16"},{"n":110,"tier":3,"group":"במות · בסיס","text":"כיתה","how":"שם מקום. שתי מילים, ברור.","file":"set-17"},{"n":111,"tier":3,"group":"תפקידים · בסיס","text":"מורה מחליף ותלמיד שמנהל את הכיתה","how":"מי הם בסצנה.","file":"roles-17"},{"n":112,"tier":3,"group":"במות · בסיס","text":"לוויה","how":"שם מקום. שתי מילים, ברור.","file":"set-18"},{"n":113,"tier":3,"group":"תפקידים · בסיס","text":"שני זרים שבכו על האדם הלא נכון","how":"מי הם בסצנה.","file":"roles-18"},{"n":114,"tier":3,"group":"במות · בסיס","text":"סופרמרקט בשישי","how":"שם מקום. שתי מילים, ברור.","file":"set-19"},{"n":115,"tier":3,"group":"תפקידים · בסיס","text":"קופאית זן ולקוח בפאניקה לפני שבת","how":"מי הם בסצנה.","file":"roles-19"},{"n":116,"tier":3,"group":"במות · בסיס","text":"טיול שנתי","how":"שם מקום. שתי מילים, ברור.","file":"set-20"},{"n":117,"tier":3,"group":"תפקידים · בסיס","text":"מורה שסופר ילדים ונהג שאיבד את הדרך","how":"מי הם בסצנה.","file":"roles-20"},{"n":118,"tier":3,"group":"במות · בסיס","text":"מספרה","how":"שם מקום. שתי מילים, ברור.","file":"set-21"},{"n":119,"tier":3,"group":"תפקידים · בסיס","text":"ספר בטוח בעצמו ולקוח שרואה את התוצאה","how":"מי הם בסצנה.","file":"roles-21"},{"n":120,"tier":3,"group":"במות · בסיס","text":"אולם אירועים ריק","how":"שם מקום. שתי מילים, ברור.","file":"set-22"},{"n":121,"tier":3,"group":"תפקידים · בסיס","text":"זמר וטכנאי סאונד — האורחים לא הגיעו","how":"מי הם בסצנה.","file":"roles-22"},{"n":122,"tier":3,"group":"במות · בסיס","text":"משאית גלידה","how":"שם מקום. שתי מילים, ברור.","file":"set-23"},{"n":123,"tier":3,"group":"תפקידים · בסיס","text":"גלידאי אופטימי ומפקח תברואה קפדן","how":"מי הם בסצנה.","file":"roles-23"},{"n":124,"tier":3,"group":"במות · בסיס","text":"חדר בריחה","how":"שם מקום. שתי מילים, ברור.","file":"set-24"},{"n":125,"tier":3,"group":"תפקידים · בסיס","text":"שני חברים תקועים, אחד מקריא הוראות הפוך","how":"מי הם בסצנה.","file":"roles-24"},{"n":126,"tier":3,"group":"במות · משרד כללי","text":"חדר ישיבות","how":"שם מקום.","file":"set-office-1"},{"n":127,"tier":3,"group":"תפקידים · משרד כללי","text":"מנהל שמאריך ומשתתף שחייב לצאת","how":"מי הם בסצנה.","file":"roles-office-1"},{"n":128,"tier":3,"group":"במות · משרד כללי","text":"המטבחון","how":"שם מקום.","file":"set-office-2"},{"n":129,"tier":3,"group":"תפקידים · משרד כללי","text":"מי שגנב את האוכל ומי שאיבד אותו","how":"מי הם בסצנה.","file":"roles-office-2"},{"n":130,"tier":3,"group":"במות · משרד כללי","text":"מעלית המשרד","how":"שם מקום.","file":"set-office-3"},{"n":131,"tier":3,"group":"תפקידים · משרד כללי","text":"מנכ\"ל ועובד חדש שלא יודע שזה המנכ\"ל","how":"מי הם בסצנה.","file":"roles-office-3"},{"n":132,"tier":3,"group":"במות · משרד כללי","text":"פינת הקפה","how":"שם מקום.","file":"set-office-4"},{"n":133,"tier":3,"group":"תפקידים · משרד כללי","text":"שני עמיתים שמרכלים על מי שנכנס עכשיו","how":"מי הם בסצנה.","file":"roles-office-4"},{"n":134,"tier":3,"group":"במות · משרד כללי","text":"ראיון יציאה","how":"שם מקום.","file":"set-office-5"},{"n":135,"tier":3,"group":"תפקידים · משרד כללי","text":"HR ועובד שכבר לא אכפת לו","how":"מי הם בסצנה.","file":"roles-office-5"},{"n":136,"tier":3,"group":"במות · משרד כללי","text":"הדרכת עובד חדש","how":"שם מקום.","file":"set-office-6"},{"n":137,"tier":3,"group":"תפקידים · משרד כללי","text":"חונך ועובד חדש שכבר 'יודע הכל'","how":"מי הם בסצנה.","file":"roles-office-6"},{"n":138,"tier":3,"group":"במות · משרד כללי","text":"יום כיף של החברה","how":"שם מקום.","file":"set-office-7"},{"n":139,"tier":3,"group":"תפקידים · משרד כללי","text":"רכזת רווחה ועובד שלא רצה לבוא","how":"מי הם בסצנה.","file":"roles-office-7"},{"n":140,"tier":3,"group":"במות · משרד כללי","text":"ישיבת תקציב","how":"שם מקום.","file":"set-office-8"},{"n":141,"tier":3,"group":"תפקידים · משרד כללי","text":"סמנכ\"ל כספים ומנהל שמבקש עוד","how":"מי הם בסצנה.","file":"roles-office-8"},{"n":142,"tier":3,"group":"במות · הייטק","text":"סטנדאפ בוקר","how":"שם מקום.","file":"set-hitech-1"},{"n":143,"tier":3,"group":"תפקידים · הייטק","text":"מנהל צוות ומפתח שלא סיים כלום","how":"מי הם בסצנה.","file":"roles-hitech-1"},{"n":144,"tier":3,"group":"במות · הייטק","text":"דמו ללקוח","how":"שם מקום.","file":"set-hitech-2"},{"n":145,"tier":3,"group":"תפקידים · הייטק","text":"איש מכירות ומפתח — הדמו קורס בלייב","how":"מי הם בסצנה.","file":"roles-hitech-2"},{"n":146,"tier":3,"group":"במות · הייטק","text":"ראיון קוד","how":"שם מקום.","file":"set-hitech-3"},{"n":147,"tier":3,"group":"תפקידים · הייטק","text":"מראיין ומועמד שכתב בקורות החיים שהוא יודע הכל","how":"מי הם בסצנה.","file":"roles-hitech-3"},{"n":148,"tier":3,"group":"במות · הייטק","text":"הדפלוי של יום חמישי","how":"שם מקום.","file":"set-hitech-4"},{"n":149,"tier":3,"group":"תפקידים · הייטק","text":"דבאופס וראש צוות בשעה 17:55","how":"מי הם בסצנה.","file":"roles-hitech-4"},{"n":150,"tier":3,"group":"במות · הייטק","text":"ישיבת רטרו","how":"שם מקום.","file":"set-hitech-5"},{"n":151,"tier":3,"group":"תפקידים · הייטק","text":"סקראם מאסטר אופטימי ומפתח מריר","how":"מי הם בסצנה.","file":"roles-hitech-5"},{"n":152,"tier":3,"group":"במות · הייטק","text":"מטבחון הסטארטאפ","how":"שם מקום.","file":"set-hitech-6"},{"n":153,"tier":3,"group":"תפקידים · הייטק","text":"מייסד נלהב ועובד שרק רוצה קפה","how":"מי הם בסצנה.","file":"roles-hitech-6"},{"n":154,"tier":3,"group":"במות · הייטק","text":"פגישת אחד-על-אחד","how":"שם מקום.","file":"set-hitech-7"},{"n":155,"tier":3,"group":"תפקידים · הייטק","text":"מנהלת ועובד שרוצה העלאה ולא מעז","how":"מי הם בסצנה.","file":"roles-hitech-7"},{"n":156,"tier":3,"group":"במות · הייטק","text":"חדר השרתים","how":"שם מקום.","file":"set-hitech-8"},{"n":157,"tier":3,"group":"תפקידים · הייטק","text":"טכנאי ומנכ\"ל שרוצה 'רק לנתק כבל אחד'","how":"מי הם בסצנה.","file":"roles-hitech-8"},{"n":158,"tier":3,"group":"במות · בריאות ורפואה","text":"תחנת אחיות","how":"שם מקום.","file":"set-health-1"},{"n":159,"tier":3,"group":"תפקידים · בריאות ורפואה","text":"אחות ותיקה ומתמחה ביום הראשון","how":"מי הם בסצנה.","file":"roles-health-1"},{"n":160,"tier":3,"group":"במות · בריאות ורפואה","text":"חדר המתנה","how":"שם מקום.","file":"set-health-2"},{"n":161,"tier":3,"group":"תפקידים · בריאות ורפואה","text":"פקידת קבלה ומטופל שבטוח שהוא ראשון בתור","how":"מי הם בסצנה.","file":"roles-health-2"},{"n":162,"tier":3,"group":"במות · בריאות ורפואה","text":"ביקור רופא","how":"שם מקום.","file":"set-health-3"},{"n":163,"tier":3,"group":"תפקידים · בריאות ורפואה","text":"רופא ומטופל שגוגל כבר אבחן אותו","how":"מי הם בסצנה.","file":"roles-health-3"},{"n":164,"tier":3,"group":"במות · בריאות ורפואה","text":"חדר ניתוח (מדומה)","how":"שם מקום.","file":"set-health-4"},{"n":165,"tier":3,"group":"תפקידים · בריאות ורפואה","text":"מנתח ומכשיר שלא מוצא את הכלי","how":"מי הם בסצנה.","file":"roles-health-4"},{"n":166,"tier":3,"group":"במות · בריאות ורפואה","text":"מסירת משמרת","how":"שם מקום.","file":"set-health-5"},{"n":167,"tier":3,"group":"תפקידים · בריאות ורפואה","text":"שתי אחיות, אחת מותשת ואחת נמרצת","how":"מי הם בסצנה.","file":"roles-health-5"},{"n":168,"tier":3,"group":"במות · בריאות ורפואה","text":"בית מרקחת","how":"שם מקום.","file":"set-health-6"},{"n":169,"tier":3,"group":"תפקידים · בריאות ורפואה","text":"רוקח ולקוח עם מרשם לא קריא","how":"מי הם בסצנה.","file":"roles-health-6"},{"n":170,"tier":3,"group":"במות · בריאות ורפואה","text":"ניידת טיפול","how":"שם מקום.","file":"set-health-7"},{"n":171,"tier":3,"group":"תפקידים · בריאות ורפואה","text":"פרמדיק ומתנדב חדש שמתרגש מכל דבר","how":"מי הם בסצנה.","file":"roles-health-7"},{"n":172,"tier":3,"group":"במות · בריאות ורפואה","text":"ועדת בטיחות","how":"שם מקום.","file":"set-health-8"},{"n":173,"tier":3,"group":"תפקידים · בריאות ורפואה","text":"יו\"ר הוועדה ומי שהביא עוגה לישיבה","how":"מי הם בסצנה.","file":"roles-health-8"},{"n":174,"tier":3,"group":"במות · חינוך","text":"חדר מורים","how":"שם מקום.","file":"set-education-1"},{"n":175,"tier":3,"group":"תפקידים · חינוך","text":"מחנכת ותיקה ומורה חדש שמלא רעיונות","how":"מי הם בסצנה.","file":"roles-education-1"},{"n":176,"tier":3,"group":"במות · חינוך","text":"שיחת הורים","how":"שם מקום.","file":"set-education-2"},{"n":177,"tier":3,"group":"תפקידים · חינוך","text":"מורה והורה שבטוח שהילד שלו גאון","how":"מי הם בסצנה.","file":"roles-education-2"},{"n":178,"tier":3,"group":"במות · חינוך","text":"ישיבת צוות","how":"שם מקום.","file":"set-education-3"},{"n":179,"tier":3,"group":"תפקידים · חינוך","text":"מנהלת ומורה שלא קרא את המייל","how":"מי הם בסצנה.","file":"roles-education-3"},{"n":180,"tier":3,"group":"במות · חינוך","text":"טיול שנתי","how":"שם מקום.","file":"set-education-4"},{"n":181,"tier":3,"group":"תפקידים · חינוך","text":"מורה תורן ונהג האוטובוס — 40 ילדים ברקע","how":"מי הם בסצנה.","file":"roles-education-4"},{"n":182,"tier":3,"group":"במות · חינוך","text":"הפסקה גדולה","how":"שם מקום.","file":"set-education-5"},{"n":183,"tier":3,"group":"תפקידים · חינוך","text":"שני מורים תורנים ובלגן שאסור להראות שמפחיד","how":"מי הם בסצנה.","file":"roles-education-5"},{"n":184,"tier":3,"group":"במות · חינוך","text":"מסיבת סיום","how":"שם מקום.","file":"set-education-6"},{"n":185,"tier":3,"group":"תפקידים · חינוך","text":"רכזת ותלמיד ותיק שרוצה נאום של 20 דקות","how":"מי הם בסצנה.","file":"roles-education-6"},{"n":186,"tier":3,"group":"במות · חינוך","text":"ספרייה","how":"שם מקום.","file":"set-education-7"},{"n":187,"tier":3,"group":"תפקידים · חינוך","text":"ספרנית שקטה ומורה שמדבר בקול","how":"מי הם בסצנה.","file":"roles-education-7"},{"n":188,"tier":3,"group":"במות · חינוך","text":"השתלמות מורים","how":"שם מקום.","file":"set-education-8"},{"n":189,"tier":3,"group":"תפקידים · חינוך","text":"מרצה חיצוני ומורים שמחכים לצהריים","how":"מי הם בסצנה.","file":"roles-education-8"},{"n":190,"tier":3,"group":"במות · מכירות ושירות","text":"מוקד שירות","how":"שם מקום.","file":"set-sales-1"},{"n":191,"tier":3,"group":"תפקידים · מכירות ושירות","text":"נציג ולקוח שממתין כבר 40 דקות","how":"מי הם בסצנה.","file":"roles-sales-1"},{"n":192,"tier":3,"group":"במות · מכירות ושירות","text":"פגישת מכירה","how":"שם מקום.","file":"set-sales-2"},{"n":193,"tier":3,"group":"תפקידים · מכירות ושירות","text":"איש מכירות ולקוח שרק רוצה הנחה","how":"מי הם בסצנה.","file":"roles-sales-2"},{"n":194,"tier":3,"group":"במות · מכירות ושירות","text":"דוכן בתערוכה","how":"שם מקום.","file":"set-sales-3"},{"n":195,"tier":3,"group":"תפקידים · מכירות ושירות","text":"אשת מכירות ומבקר שבא רק בשביל המתנות","how":"מי הם בסצנה.","file":"roles-sales-3"},{"n":196,"tier":3,"group":"במות · מכירות ושירות","text":"ישיבת יעדים","how":"שם מקום.","file":"set-sales-4"},{"n":197,"tier":3,"group":"תפקידים · מכירות ושירות","text":"מנהל מכירות ונציג שהחמיץ את היעד ב-2%","how":"מי הם בסצנה.","file":"roles-sales-4"},{"n":198,"tier":3,"group":"במות · מכירות ושירות","text":"תמיכה בטלפון","how":"שם מקום.","file":"set-sales-5"},{"n":199,"tier":3,"group":"תפקידים · מכירות ושירות","text":"נציג תמיכה ולקוח שמדבר באותיות גדולות","how":"מי הם בסצנה.","file":"roles-sales-5"},{"n":200,"tier":3,"group":"במות · מכירות ושירות","text":"חנות ביום המבצע","how":"שם מקום.","file":"set-sales-6"},{"n":201,"tier":3,"group":"תפקידים · מכירות ושירות","text":"מוכר ולקוח שרוצה את הפריט האחרון","how":"מי הם בסצנה.","file":"roles-sales-6"},{"n":202,"tier":3,"group":"במות · מכירות ושירות","text":"חידוש חוזה","how":"שם מקום.","file":"set-sales-7"},{"n":203,"tier":3,"group":"תפקידים · מכירות ושירות","text":"מנהלת לקוח ולקוח שמאיים לעזוב","how":"מי הם בסצנה.","file":"roles-sales-7"},{"n":204,"tier":3,"group":"במות · מכירות ושירות","text":"ערב צוות מכירות","how":"שם מקום.","file":"set-sales-8"},{"n":205,"tier":3,"group":"תפקידים · מכירות ושירות","text":"הכוכב של החודש ומי שהגיע אחרון","how":"מי הם בסצנה.","file":"roles-sales-8"},{"n":206,"tier":3,"group":"אילוצים · סגנון","text":"טלנובלה","how":"שם האילוץ. קצר.","file":"style-1"},{"n":207,"tier":3,"group":"אילוצים · סגנון","text":"סרט אקשן","how":"שם האילוץ. קצר.","file":"style-2"},{"n":208,"tier":3,"group":"אילוצים · סגנון","text":"סרט טבע","how":"שם האילוץ. קצר.","file":"style-3"},{"n":209,"tier":3,"group":"אילוצים · סגנון","text":"מחזמר","how":"שם האילוץ. קצר.","file":"style-4"},{"n":210,"tier":3,"group":"אילוצים · סגנון","text":"סרט אימה","how":"שם האילוץ. קצר.","file":"style-5"},{"n":211,"tier":3,"group":"אילוצים · סגנון","text":"פילם נואר","how":"שם האילוץ. קצר.","file":"style-6"},{"n":212,"tier":3,"group":"אילוצים · סגנון","text":"ערוץ קניות","how":"שם האילוץ. קצר.","file":"style-7"},{"n":213,"tier":3,"group":"אילוצים · סגנון","text":"אנימה","how":"שם האילוץ. קצר.","file":"style-8"},{"n":214,"tier":3,"group":"אילוצים · סגנון","text":"שייקספיר","how":"שם האילוץ. קצר.","file":"style-9"},{"n":215,"tier":3,"group":"אילוצים · סגנון","text":"ריאליטי טראש","how":"שם האילוץ. קצר.","file":"style-10"},{"n":216,"tier":3,"group":"אילוצים · סגנון","text":"סרט אילם","how":"שם האילוץ. קצר.","file":"style-11"},{"n":217,"tier":3,"group":"אילוצים · סגנון","text":"דוקו פשע","how":"שם האילוץ. קצר.","file":"style-12"},{"n":218,"tier":3,"group":"אילוצים · שפה","text":"לפי הא\"ב","how":"שם האילוץ. קצר.","file":"lang-1"},{"n":219,"tier":3,"group":"אילוצים · שפה","text":"מילה אחת","how":"שם האילוץ. קצר.","file":"lang-2"},{"n":220,"tier":3,"group":"אילוצים · שפה","text":"רק שאלות","how":"שם האילוץ. קצר.","file":"lang-3"},{"n":221,"tier":3,"group":"אילוצים · שפה","text":"שלוש מילים","how":"שם האילוץ. קצר.","file":"lang-4"},{"n":222,"tier":3,"group":"אילוצים · שפה","text":"מתורגמן","how":"שם האילוץ. קצר.","file":"lang-5"},{"n":223,"tier":3,"group":"אילוצים · שפה","text":"חרוזים","how":"שם האילוץ. קצר.","file":"lang-6"},{"n":224,"tier":3,"group":"אילוצים · שפה","text":"סלנג דור Z","how":"שם האילוץ. קצר.","file":"lang-7"},{"n":225,"tier":3,"group":"אילוצים · שפה","text":"בלי האות י'","how":"שם האילוץ. קצר.","file":"lang-8"},{"n":226,"tier":3,"group":"אילוצים · שפה","text":"הד","how":"שם האילוץ. קצר.","file":"lang-9"},{"n":227,"tier":3,"group":"אילוצים · שפה","text":"פוליטיקאי","how":"שם האילוץ. קצר.","file":"lang-10"},{"n":228,"tier":3,"group":"אילוצים · שפה","text":"תיקון עצמי","how":"שם האילוץ. קצר.","file":"lang-11"},{"n":229,"tier":3,"group":"אילוצים · שפה","text":"גוף שלישי","how":"שם האילוץ. קצר.","file":"lang-12"},{"n":230,"tier":3,"group":"אילוצים · גוף","text":"מריונטות","how":"שם האילוץ. קצר.","file":"body-1"},{"n":231,"tier":3,"group":"אילוצים · גוף","text":"עמודי תמיכה","how":"שם האילוץ. קצר.","file":"body-2"},{"n":232,"tier":3,"group":"אילוצים · גוף","text":"תסריט עיוור","how":"שם האילוץ. קצר.","file":"body-3"},{"n":233,"tier":3,"group":"אילוצים · גוף","text":"משחק הספר","how":"שם האילוץ. קצר.","file":"body-4"},{"n":234,"tier":3,"group":"אילוצים · גוף","text":"סטטוס הפוך","how":"שם האילוץ. קצר.","file":"body-5"},{"n":235,"tier":3,"group":"אילוצים · גוף","text":"בלי קשר עין","how":"שם האילוץ. קצר.","file":"body-6"},{"n":236,"tier":3,"group":"אילוצים · גוף","text":"סלואו-מושן","how":"שם האילוץ. קצר.","file":"body-7"},{"n":237,"tier":3,"group":"אילוצים · גוף","text":"מגע קבוע","how":"שם האילוץ. קצר.","file":"body-8"},{"n":238,"tier":3,"group":"אילוצים · גוף","text":"מראה","how":"שם האילוץ. קצר.","file":"body-9"},{"n":239,"tier":3,"group":"אילוצים · גוף","text":"סטטוס גוף","how":"שם האילוץ. קצר.","file":"body-10"}];
+const TIER_NAME = {"1":"שכבה 1 — הליבה","2":"שכבה 2 — תוכן חוזר","3":"שכבה 3 — שמות הקלפים"};
+
+/* ---------- אחסון ---------- */
+const DB_NAME = "mm_recordings", STORE = "clips";
+let db = null;
+function openDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, 1);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains(STORE)) r.result.createObjectStore(STORE); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+function dbPut(k, v) { return new Promise((res, rej) => { const t = db.transaction(STORE, "readwrite"); t.objectStore(STORE).put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
+function dbGet(k) { return new Promise((res, rej) => { const t = db.transaction(STORE, "readonly"); const q = t.objectStore(STORE).get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+function dbKeys() { return new Promise((res, rej) => { const t = db.transaction(STORE, "readonly"); const q = t.objectStore(STORE).getAllKeys(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+function dbClear() { return new Promise((res, rej) => { const t = db.transaction(STORE, "readwrite"); t.objectStore(STORE).clear(); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
+
+/* ---------- WAV ---------- */
+function encodeWAV(samples, rate) {
+  const buf = new ArrayBuffer(44 + samples.length * 2);
+  const v = new DataView(buf);
+  const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  str(0, "RIFF"); v.setUint32(4, 36 + samples.length * 2, true); str(8, "WAVE");
+  str(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, "data"); v.setUint32(40, samples.length * 2, true);
+  let o = 44;
+  for (let i = 0; i < samples.length; i++, o += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([buf], { type: "audio/wav" });
+}
+function trimSilence(data, rate) {
+  const win = Math.floor(rate * 0.01) || 1, TH = 0.012;
+  const rms = (a, b) => { let s = 0; for (let i = a; i < b; i++) s += data[i] * data[i]; return Math.sqrt(s / (b - a)); };
+  let start = 0, end = data.length;
+  for (let i = 0; i + win < data.length; i += win) { if (rms(i, i + win) > TH) { start = i; break; } }
+  for (let i = data.length - win; i > start; i -= win) { if (rms(i, i + win) > TH) { end = i + win; break; } }
+  const pad = Math.floor(rate * 0.08);
+  start = Math.max(0, start - pad); end = Math.min(data.length, end + pad);
+  return end > start ? data.subarray(start, end) : data;
+}
+
+/* ---------- מיקרופון ---------- */
+let ctx = null, stream = null, src = null, proc = null, chunks = [], recording = false, rate = 48000;
+const $ = (s) => document.querySelector(s);
+
+async function initMic(deviceId) {
+  try {
+    if (stream) stream.getTracks().forEach((t) => t.stop());
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { deviceId: deviceId ? { exact: deviceId } : undefined,
+               echoCancellation: false, noiseSuppression: true, autoGainControl: false }
+    });
+  } catch (e) {
+    $("#nomic").classList.remove("hidden");
+    $("#mic").textContent = "אין גישה למיקרופון";
+    return false;
+  }
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === "suspended") await ctx.resume();
+  rate = ctx.sampleRate;
+  src = ctx.createMediaStreamSource(stream);
+  proc = ctx.createScriptProcessor(4096, 1, 1);
+  const mute = ctx.createGain(); mute.gain.value = 0;          // בלי זה נוצר הד חוזר
+  proc.onaudioprocess = (e) => {
+    const d = e.inputBuffer.getChannelData(0);
+    let peak = 0;
+    for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > peak) peak = a; }
+    $("#lvl").style.width = Math.min(100, peak * 140) + "%";
+    if (recording) chunks.push(new Float32Array(d));
+  };
+  src.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
+
+  const devs = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === "audioinput");
+  const sel = $("#dev"); sel.innerHTML = "";
+  devs.forEach((d, i) => { const o = document.createElement("option"); o.value = d.deviceId; o.textContent = d.label || ("מיקרופון " + (i + 1)); sel.appendChild(o); });
+  sel.classList.remove("hidden");
+  if (deviceId) sel.value = deviceId;
+  sel.onchange = () => initMic(sel.value);
+  warnLoopback(sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : "");
+
+  $("#mic").textContent = "מיקרופון פעיל";
+  $("#mic").disabled = true;
+  $("#nomic").classList.add("hidden");
+  return true;
+}
+
+/** מזהה התקנים שמקליטים את פלט המחשב במקום את הקול. */
+const LOOPBACK = ["stereo mix", "what u hear", "wave out", "loopback", "מיקסר סטריאו", "מיקס סטריאו", "speakers", "רמקול"];
+function warnLoopback(label) {
+  const bad = LOOPBACK.some((x) => (label || "").toLowerCase().includes(x));
+  const box = $("#devwarn");
+  if (bad) {
+    $("#devwarntxt").innerHTML = 'ההתקן <b>' + esc(label) + '</b> מקליט את מה שהמחשב <b>משמיע</b>, לא את מה שאתה אומר. ' +
+      'בחר מהרשימה התקן שנקרא Microphone או “מערך מיקרופונים”, ואז לחץ <b>בדיקת מיקרופון</b>.';
+    box.classList.remove("hidden");
+  } else box.classList.add("hidden");
+}
+
+/** עוצמת השיא בקובץ WAV שיצרנו (16 ביט, מונו, כותרת 44 בתים). */
+async function peakOf(blob) {
+  const buf = await blob.arrayBuffer();
+  if (buf.byteLength <= 44) return 0;
+  const pcm = new Int16Array(buf, 44, Math.floor((buf.byteLength - 44) / 2));
+  let peak = 0;
+  for (let i = 0; i < pcm.length; i++) { const a = Math.abs(pcm[i]); if (a > peak) peak = a; }
+  return peak / 32768;
+}
+
+/* ---------- הקלטה ---------- */
+let activeN = LINES.length ? LINES[0].n : 0;
+
+async function startRec(n) {
+  if (!ctx) {                       // לא מפילים את המשתמש על הודעה — פשוט מבקשים הרשאה
+    const b0 = document.querySelector('button.rec[data-n="' + n + '"]');
+    if (b0) b0.textContent = "מבקש גישה...";
+    const ok = await initMic();
+    if (b0) b0.textContent = "● הקלט";
+    if (!ok) return;
+  }
+  activeN = n; chunks = []; recording = true;
+  paintActive();
+  const b = document.querySelector('button.rec[data-n="' + n + '"]');
+  if (b) { b.classList.add("on"); b.textContent = "■ עצור"; }
+}
+
+async function stopRec() {
+  if (!recording) return;
+  recording = false;
+  const n = activeN;
+  const b = document.querySelector('button.rec[data-n="' + n + '"]');
+  if (b) { b.classList.remove("on"); b.textContent = "● הקלט"; }
+
+  let len = 0; chunks.forEach((c) => len += c.length);
+  if (!len) return;
+  let data = new Float32Array(len); let o = 0;
+  chunks.forEach((c) => { data.set(c, o); o += c.length; });
+  chunks = [];
+  if ($("#trim").checked) data = trimSilence(data, rate);
+
+  const line = LINES.find((l) => l.n === n);
+  let peak = 0;
+  for (let i = 0; i < data.length; i++) { const a = Math.abs(data[i]); if (a > peak) peak = a; }
+  const blob = encodeWAV(data, rate);
+  await dbPut(line.file, { blob, secs: data.length / rate, peak, at: Date.now() });
+  await paintRow(n);
+  await paintStats();
+
+  if ($("#auto").checked) {
+    const i = LINES.findIndex((l) => l.n === n);
+    if (i > -1 && i + 1 < LINES.length) { activeN = LINES[i + 1].n; paintActive(); scrollToActive(); }
+  }
+}
+
+let player = null, playerURL = null;
+async function playRow(n) {
+  const line = LINES.find((l) => l.n === n);
+  const rec = await dbGet(line.file);
+  const btn = document.querySelector('button.pl[data-n="' + n + '"]');
+  if (!rec) { if (btn) flash(btn, "אין"); return; }
+
+  const peak = rec.peak !== undefined ? rec.peak : await peakOf(rec.blob);
+  if (peak < 0.01) { if (btn) flash(btn, "שקט"); return; }   // אין מה להשמיע
+
+  try {
+    if (player) { player.pause(); }
+    if (playerURL) URL.revokeObjectURL(playerURL);
+    playerURL = URL.createObjectURL(rec.blob);
+    player = new Audio();                   // מוחזק במשתנה חיצוני, אחרת הדפדפן מוחק אותו לפני שהשמיע
+    player.src = playerURL;
+    player.onerror = () => { if (btn) flash(btn, "שגיאה"); };
+    await player.play();
+    if (btn) { btn.textContent = "⏸"; player.onended = () => { btn.textContent = "▶"; }; }
+  } catch (e) {
+    if (btn) flash(btn, "חסום");
+  }
+}
+function flash(btn, txt) {
+  const old = btn.textContent;
+  btn.textContent = txt;
+  setTimeout(() => { btn.textContent = old; }, 1500);
+}
+
+/* ---------- ציור ---------- */
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+const list = $("#list");
+let lastTier = null, lastGroup = null;
+LINES.forEach((l) => {
+  if (l.tier !== lastTier) { lastTier = l.tier; lastGroup = null;
+    const h = document.createElement("h2"); h.textContent = TIER_NAME[l.tier]; list.appendChild(h); }
+  if (l.group !== lastGroup) { lastGroup = l.group;
+    const h = document.createElement("h3"); h.textContent = l.group; list.appendChild(h); }
+  const d = document.createElement("div");
+  d.className = "card"; d.id = "row" + l.n;
+  d.innerHTML =
+    '<div class="num">' + l.n + '</div>' +
+    '<div class="mid"><div class="txt">' + esc(l.text) + '</div>' +
+    (l.how ? '<div class="how">' + esc(l.how) + '</div>' : '') +
+    '<div class="meta" id="m' + l.n + '">' + esc(l.file) + '.wav</div></div>' +
+    '<div class="btns">' +
+      '<button class="rec" data-n="' + l.n + '">● הקלט</button>' +
+      '<button class="pl" data-n="' + l.n + '" disabled>▶</button>' +
+    '</div>';
+  list.appendChild(d);
+});
+
+document.querySelectorAll("button.rec").forEach((b) => b.onclick = async () => {
+  const n = +b.dataset.n;
+  if (recording && activeN === n) await stopRec();
+  else if (recording) { await stopRec(); await startRec(n); }
+  else await startRec(n);
+});
+document.querySelectorAll("button.pl").forEach((b) => b.onclick = () => playRow(+b.dataset.n));
+
+function paintActive() {
+  document.querySelectorAll(".card.active").forEach((c) => c.classList.remove("active"));
+  const el = document.getElementById("row" + activeN);
+  if (el) el.classList.add("active");
+}
+function scrollToActive() {
+  const el = document.getElementById("row" + activeN);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+async function paintRow(n) {
+  const l = LINES.find((x) => x.n === n);
+  const rec = await dbGet(l.file);
+  const card = document.getElementById("row" + n);
+  const meta = document.getElementById("m" + n);
+  const pl = document.querySelector('button.pl[data-n="' + n + '"]');
+  if (rec) {
+    card.classList.add("done");
+    const p = rec.peak;
+    let tag = "";
+    if (p !== undefined) {
+      if (p < 0.01) { tag = "  ⚠ שקט — לא נקלט קול"; card.classList.add("silent"); }
+      else if (p < 0.05) { tag = "  ⚠ חלש מאוד"; card.classList.add("silent"); }
+      else { card.classList.remove("silent"); }
+    }
+    meta.textContent = l.file + ".wav · " + rec.secs.toFixed(1) + "s" + tag;
+    pl.disabled = false;
+  } else {
+    card.classList.remove("done");
+    meta.textContent = l.file + ".wav";
+    pl.disabled = true;
+  }
+}
+async function paintStats() {
+  const keys = await dbKeys();
+  const n = LINES.filter((l) => keys.includes(l.file)).length;
+  $("#stat").textContent = n + " / " + LINES.length;
+  $("#pi").style.width = (n / LINES.length * 100) + "%";
+}
+
+/* ---------- ייצוא ---------- */
+function dl(blob, name) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+$("#zip").onclick = async () => {
+  const keys = await dbKeys();
+  const have = LINES.filter((l) => keys.includes(l.file));
+  if (!have.length) { alert("עדיין אין הקלטות."); return; }
+  const btn = $("#zip"); btn.disabled = true; btn.textContent = "אורז...";
+  let JSZipLib = window.JSZip;
+  if (!JSZipLib) {
+    try {
+      await new Promise((res, rej) => {
+        const s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+        s.onload = res; s.onerror = rej; document.head.appendChild(s);
+      });
+      JSZipLib = window.JSZip;
+    } catch (e) { JSZipLib = null; }
+  }
+  if (JSZipLib) {
+    const zip = new JSZipLib();
+    for (const l of have) { const r = await dbGet(l.file); zip.file(l.file + ".wav", r.blob); }
+    const out = await zip.generateAsync({ type: "blob" });
+    dl(out, "mehamoten-voice.zip");
+  } else {
+    // בלי אינטרנט: מוריד קובץ-קובץ
+    if (!confirm("אין חיבור לאינטרנט ליצירת ZIP. להוריד " + have.length + " קבצים בנפרד?")) { btn.disabled = false; btn.textContent = "הורד הכל"; return; }
+    for (const l of have) { const r = await dbGet(l.file); dl(r.blob, l.file + ".wav"); await new Promise((r2) => setTimeout(r2, 350)); }
+  }
+  btn.disabled = false; btn.textContent = "הורד הכל";
+};
+/* בדיקת מיקרופון: מקליט שלוש שניות, מודד, ומשמיע בחזרה */
+$("#check").onclick = async () => {
+  const btn = $("#check"), box = $("#checkbox"), txt = $("#checktxt");
+  box.classList.remove("hidden");
+  if (!ctx) { txt.textContent = "מבקש הרשאה..."; if (!(await initMic())) { txt.textContent = "אין גישה למיקרופון."; return; } }
+  btn.disabled = true;
+  txt.textContent = "מקליט שלוש שניות — דבר עכשיו...";
+  chunks = []; recording = true;
+  await new Promise((r) => setTimeout(r, 3000));
+  recording = false;
+  let len = 0; chunks.forEach((c) => len += c.length);
+  const data = new Float32Array(len); let o = 0;
+  chunks.forEach((c) => { data.set(c, o); o += c.length; }); chunks = [];
+  let peak = 0;
+  for (let i = 0; i < data.length; i++) { const a = Math.abs(data[i]); if (a > peak) peak = a; }
+  btn.disabled = false;
+
+  const devLabel = $("#dev").options[$("#dev").selectedIndex] ? $("#dev").options[$("#dev").selectedIndex].textContent : "";
+  if (peak < 0.01) {
+    txt.innerHTML = '<b style="color:#ff9aa8">לא נקלט כלום.</b> ההתקן <b>' + esc(devLabel) + '</b> לא שומע אותך. ' +
+      'בחר התקן אחר ברשימה שלמעלה ונסה שוב. אל תקליט עד שהבדיקה הזו עוברת.';
+    return;
+  }
+  if (peak < 0.05) {
+    txt.innerHTML = '<b style="color:#f3c579">נקלט, אבל חלש מאוד</b> (שיא ' + Math.round(peak * 100) + '%). ' +
+      'התקרב למיקרופון או הגבר אותו בהגדרות הקול של ווינדוס.';
+  } else if (peak > 0.98) {
+    txt.innerHTML = '<b style="color:#f3c579">חזק מדי ומעוות</b> (שיא ' + Math.round(peak * 100) + '%). התרחק קצת או הנמך את המיקרופון.';
+  } else {
+    txt.innerHTML = '<b style="color:#8ce3ad">תקין.</b> שיא ' + Math.round(peak * 100) + '%. משמיע בחזרה...';
+  }
+  try {
+    if (playerURL) URL.revokeObjectURL(playerURL);
+    playerURL = URL.createObjectURL(encodeWAV(data, rate));
+    player = new Audio(); player.src = playerURL; await player.play();
+  } catch (e) {}
+};
+
+/* סורק את כל ההקלטות ומדווח כמה מהן שקטות */
+$("#scan").onclick = async () => {
+  const btn = $("#scan"); btn.disabled = true; btn.textContent = "סורק...";
+  const keys = await dbKeys();
+  let silent = 0, weak = 0, ok = 0, none = 0;
+  for (const l of LINES) {
+    if (!keys.includes(l.file)) { none++; continue; }
+    const rec = await dbGet(l.file);
+    let p = rec.peak;
+    if (p === undefined) { p = await peakOf(rec.blob); await dbPut(l.file, Object.assign({}, rec, { peak: p })); }
+    if (p < 0.01) silent++; else if (p < 0.05) weak++; else ok++;
+    await paintRow(l.n);
+  }
+  btn.disabled = false; btn.textContent = "סרוק הקלטות";
+  const box = $("#checkbox"), txt = $("#checktxt");
+  box.classList.remove("hidden");
+  txt.innerHTML = "מתוך " + LINES.length + " שורות: " +
+    '<b style="color:#8ce3ad">' + ok + " תקינות</b>, " +
+    '<b style="color:#f3c579">' + weak + " חלשות</b>, " +
+    '<b style="color:#ff9aa8">' + silent + " שקטות</b>, " + none + " לא הוקלטו." +
+    (silent ? "<br>השורות השקטות מסומנות באדום. צריך להקליט אותן מחדש אחרי שבדיקת המיקרופון עוברת." : "");
+};
+
+$("#wipe").onclick = async () => {
+  if (!confirm("למחוק את כל ההקלטות? אי אפשר לשחזר.")) return;
+  await dbClear();
+  for (const l of LINES) await paintRow(l.n);
+  await paintStats();
+};
+
+/* ---------- מקלדת ---------- */
+document.addEventListener("keydown", (e) => {
+  if (/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  const i = LINES.findIndex((l) => l.n === activeN);
+  if (e.code === "Space") { e.preventDefault(); if (recording) stopRec(); else startRec(activeN); }
+  else if (e.key === "ArrowDown") { e.preventDefault(); if (i + 1 < LINES.length) { activeN = LINES[i + 1].n; paintActive(); scrollToActive(); } }
+  else if (e.key === "ArrowUp") { e.preventDefault(); if (i > 0) { activeN = LINES[i - 1].n; paintActive(); scrollToActive(); } }
+  else if (e.key === "Enter") { e.preventDefault(); playRow(activeN); }
+});
+
+/* ---------- הפעלה ---------- */
+$("#mic").onclick = () => initMic();
+(async () => {
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) $("#phonetip").classList.remove("hidden");
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    $("#nomic").classList.remove("hidden");
+    $("#mic").disabled = true; $("#mic").textContent = "לא נתמך";
+  }
+  db = await openDB();
+  for (const l of LINES) await paintRow(l.n);
+  await paintStats();
+  paintActive();
+})();
+</script>
+</body>
+</html>
