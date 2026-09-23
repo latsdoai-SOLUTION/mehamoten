@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.1.1";
+const APP_VERSION = "2.2.0";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -24,7 +24,7 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
 const rand = (a) => a[Math.floor(Math.random() * a.length)];
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const validCat = (c) => typeof c === "string" && Object.prototype.hasOwnProperty.call(MM_CAT, c) && c !== "guess";
+const validCat = (c) => typeof c === "string" && Object.prototype.hasOwnProperty.call(MM_CAT, c) && c !== "guess" && c !== "ear";
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 function lsGet(k, d) { try { const r = localStorage.getItem(k); return r === null ? d : JSON.parse(r); } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -137,7 +137,7 @@ function load() {
   S.players = S.players.slice(0, MAX_PLAYERS).map((p) => String(p || "").slice(0, 24));
   S.settings = { ...DEFAULT_SETTINGS, ...(S.settings || {}) };
   if (!Array.isArray(S.packs) || !S.packs.length) S.packs = ["style", "lang", "body"];
-  S.packs = S.packs.filter((p) => p === "guess" || MM_DATA[p]);
+  S.packs = S.packs.filter((p) => p === "guess" || p === "ear" || MINI[p] || MM_DATA[p]);
   if (!S.packs.length) S.packs = ["style", "lang", "body"];
   if (![60, 90, 120].includes(+S.sceneLen)) S.sceneLen = 90; else S.sceneLen = +S.sceneLen;
   if (!["auto", "manual"].includes(S.mode)) S.mode = "auto";
@@ -169,6 +169,7 @@ function saveCustom() { lsSet(CUSTOM_KEY, CUSTOM); clearDecks(); }
 const decks = {}, lastDrawn = {};
 function shuffleCopy(a) { const r = a.slice(); for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; }
 function clearDecks() { for (const k in decks) delete decks[k]; }
+function kp(arr) { return S.kids ? arr.filter((x) => !MM_KIDS_SKIP_NEW.has(Array.isArray(x) ? x[0] : x)) : arr; }
 function drawDeck(key, arr) {
   if (!arr || !arr.length) return undefined;
   const dk = key + "#" + arr.length;
@@ -411,6 +412,8 @@ function renderCustom() {
 
 /* ---------- זרימת משחק ---------- */
 let guessRound = false, guessWin = false, hinterPick = null, gameActive = false;
+let earRound = false, earRevealed = false, earNextAt = 0; const earCaught = new Set();
+let miniRound = false, miniCueIdx = 0, miniExtra = 0, miniTopicShown = false;
 async function startGame() {
   S.company = ($("#companyInput").value || "").trim().slice(0, 40);
   const ps = activeP();
@@ -420,13 +423,13 @@ async function startGame() {
   const norm = ps.map((p) => p.replace(/\s+/g, " ").toLowerCase());
   if (new Set(norm).size !== norm.length) { toastMsg("יש שני שחקנים עם אותו שם — שנו אחד מהם"); return; }
   S.scores = {}; S.dirCounts = {}; S.honors = {}; ps.forEach((p) => { S.scores[p] = 0; S.dirCounts[p] = 0; S.honors[p] = 0; });
-  S.round = 0; S.directorIdx = 0; S.guessIdx = 0; S.log = []; S.debriefPicked = []; S.startedAt = Date.now();
+  S.round = 0; S.directorIdx = 0; S.guessIdx = 0; S.earIdx = 0; S.miniIdx = 0; S.log = []; S.debriefPicked = []; S.startedAt = Date.now();
   S.trialRound = false;
   if (S.team && !licActive()) {
     if (S.teamTrialUsed) { S.team = false; S.industry = ""; toastMsg("סיבוב הניסיון במצב צוות נוצל. ממשיכים במצב רגיל."); }
     else S.trialRound = true;
   }
-  guessRound = false; guessWin = false; gameActive = true; S.inGame = true; clearDecks();
+  guessRound = false; guessWin = false; earRound = false; miniRound = false; gameActive = true; S.inGame = true; clearDecks();
   bumpStat("games"); keepAwake(true); save(); nextRound();
 }
 function rolesForRound() {
@@ -456,7 +459,10 @@ function buildCard(cat, card) {
 function drawCards() {
   const packs = S.kids ? S.packs.filter((p) => p !== "guess") : S.packs;
   const cat = rand(packs.length ? packs : ["style", "lang", "body"]);
+  earRound = false; miniRound = false;
   if (cat === "guess") { setupGuessRound(); return; }
+  if (cat === "ear") { setupEarRound(); return; }
+  if (MINI[cat]) { setupMiniRound(cat); return; }
   guessRound = false; guessWin = false;
   { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; if (!S.curPerf.includes(S.starter)) S.starter = rand(S.curPerf); }
   S.set = drawDeck("set", pool("set")); S.conCat = cat; S.con = drawDeck(cat, pool(cat));
@@ -470,6 +476,212 @@ function goCast() {
   const seed = $("#castSeed");
   if (S.level === "easy") { seed.hidden = false; $("#castSeedTxt").textContent = '"' + rand(MM_OPENERS) + '"'; } else seed.hidden = true;
   show("cast"); speak(persona().frame(S.set[0], S.set[1], S.starter));
+}
+
+/* ---------- סיבוב האוזניה ----------
+   אחד עם הגב למסך (המאזין/ה), אחד מול המסך (הסוכן/ת) + הקהל.
+   כל ~30 שניות משימה סודית חדשה. בסוף המאזין/ה מנחש/ת מה היו המשימות.
+   חשוב: לא מקריאים משימות בקול (TTS) — זה היה חושף אותן. */
+function earCount() { return Math.max(2, Math.round(S.sceneLen / 30)); }
+function earEvery() { return Math.round(S.sceneLen / earCount()); }
+function setupEarRound() {
+  const ps = activeP(), n = ps.length, i = (S.earIdx || 0) % n;
+  S.earListener = ps[i]; S.earAgent = ps[(i + 1) % n];
+  S.curDir = ""; S.curPerf = [S.earListener, S.earAgent]; S.starter = S.earAgent;
+  S.set = drawDeck("set", pool("set")); S.ear = { missions: [] };
+  earRound = true; guessRound = false; guessWin = false; save();
+  $("#earRnum").textContent = "סיבוב " + S.round + " · האוזניה";
+  $("#earListenerName").textContent = S.earListener; $("#earAgentName").textContent = S.earAgent;
+  $("#earEvery").textContent = earEvery(); renderEarSet();
+  show("earIntro"); sfx.start();
+  speak(`סיבוב האוזניה! ${S.earListener}, להסתובב עם הגב למסך. ${S.earAgent}, את או אתה הסוכן.`);
+}
+function renderEarSet() {
+  $("#earSetCard").innerHTML = `<div class="scard set"><div class="k">📍 הסצנה</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>`;
+}
+function earRedrawSet() { S.set = drawDeck("set", pool("set")); save(); renderEarSet(); }
+function renderEarMission(anim) {
+  const m = S.ear.missions[S.ear.missions.length - 1]; if (!m) return;
+  $("#earNum").textContent = S.ear.missions.length; $("#earTitle").textContent = m[0]; $("#earDesc").textContent = m[1];
+  const card = $("#earMission"); if (!card) return;
+  if (anim) { card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop"); }
+}
+function earNext(auto) {
+  if (!earRound || !sceneRunning || paused) return;
+  if (S.ear.missions.length >= earCount() + 3) { toastMsg("מספיק משימות לסבב אחד 🙂"); return; }
+  const m = drawDeck("ear", kp(MM_EAR)); S.ear.missions.push([m[0], m[1], elapsed]);
+  earNextAt = elapsed + earEvery(); save();
+  renderEarMission(true); sfx.hint();
+  try { if (navigator.vibrate) navigator.vibrate(90); } catch (e) {}
+}
+const EAR_MIN_SECS = 8;
+function earValid() {
+  const ms = S.ear.missions, end = Math.min(elapsed, S.sceneLen);
+  return ms.filter((m, i) => ((i + 1 < ms.length ? ms[i + 1][2] : end) - (m[2] || 0)) >= EAR_MIN_SECS);
+}
+function finishEar() {
+  earRevealed = false; earCaught.clear();
+  S.ear.valid = earValid(); save();
+  const ms = S.ear.valid, skipped = S.ear.missions.length - ms.length;
+  $("#earRevealTitle").textContent = `${S.earListener}, להסתובב! 🔄`;
+  $("#earRevealSub").textContent = `היו ${ms.length} משימות סודיות. נחשו מה הן, ורק אז חושפים.` + (skipped ? ` (${skipped} דולגו מהר מדי ולא נספרות)` : "");
+  $("#earList").innerHTML = ms.map((m, i) => `<button class="earitem blurred" data-ec="${i}" aria-pressed="false">
+    <span class="n">${i + 1}</span><span class="tx"><b>${esc(m[0])}</b><small>${esc(m[1])}</small></span><span class="st">🎯 נתפס</span></button>`).join("");
+  $("#earRevealBtn").hidden = false; $("#earTapHint").hidden = true; $("#earContinueBtn").hidden = true;
+  sfx.end(); speak(`נגמר הזמן! ${S.earListener}, להסתובב. מה היו המשימות?`);
+  show("earReveal");
+}
+function earReveal() {
+  earRevealed = true; $$("#earList .earitem").forEach((b) => b.classList.remove("blurred"));
+  $("#earRevealBtn").hidden = true; $("#earTapHint").hidden = false; $("#earContinueBtn").hidden = false; sfx.bell();
+}
+function toggleEarCaught(btn) {
+  if (!earRevealed) { toastMsg("קודם מנחשים, אחר כך חושפים 👀"); return; }
+  const i = +btn.dataset.ec; if (earCaught.has(i)) earCaught.delete(i); else earCaught.add(i);
+  const on = earCaught.has(i); btn.classList.toggle("on", on); btn.setAttribute("aria-pressed", on ? "true" : "false");
+}
+function applyEarScore() {
+  if (!earRound || !earRevealed || currentScreen !== "earReveal") return;
+  const ms = S.ear.valid || [], caught = earCaught.size;
+  if (S.scored) {
+    S.scores[S.earListener] = (S.scores[S.earListener] || 0) + caught;
+    S.scores[S.earAgent] = (S.scores[S.earAgent] || 0) + (ms.length - caught);
+  }
+  logRound({ type: "ear", listener: S.earListener, agent: S.earAgent, missions: ms.map((m) => m[0]), caught, secs: Math.min(elapsed, S.sceneLen) });
+  earRound = false; earRevealed = false; earCaught.clear(); advanceRound();
+  if (S.scored) showBoard(`סיבוב ${S.round} הסתיים`);
+  else roundEnd2();
+}
+
+/* ---------- משחקוני מסך ----------
+   מנוע אחד: קלף פתיחה + "רמזים" מתוזמנים על המסך (cues) לפי זמן שעבר בסצנה,
+   כך שהשהיה עוצרת גם אותם. לא מקריאים קלפים ב-TTS. */
+function accelCues(first, gap0) {
+  const L = S.sceneLen, out = []; let t = first, g = gap0;
+  while (t < L - 4) { out.push(Math.round(t)); t += g; g = Math.max(5, g * .66); }
+  return out;
+}
+function fixedCues(first, gap) { const out = []; for (let t = first; t < S.sceneLen - 4; t += gap) out.push(t); return out; }
+const MINI = {
+  emo: { label: "רגשות בשלט רחוק", ic: "🎚️", need: 2,
+    roles: (p) => `🎭 <b>${esc(p[0])}</b> ו-<b>${esc(p[1])}</b> · כולם רואים את המסך`,
+    how: ["מקבלים סצנה פשוטה ומתחילים לשחק.", "המסך נותן לכל אחד רגש, וכל צפצוף מחליף אותו. ממשיכים מאותה נקודה, רק ברגש החדש.", "לקראת הסוף הקצב עולה."],
+    topic: () => { const s = drawDeck("set", pool("set")); return { k: "📍 הסצנה", v: s[0], d: s[1] }; },
+    cues: () => accelCues(0, S.sceneLen * .3),
+    guide: "תנו לרגש לשנות את איך שאתם אומרים, לא את מה שקורה 🎚️",
+    card(i, p) {
+      if (i > 0 && i % 3 === 2) return { k: "🎚️ רגע משותף", v: drawDeck("emoboth", MM_EMO_BOTH), d: "" };
+      const E = kp(MM_EMO), a = drawDeck("emo", E); let b = drawDeck("emo", E); if (b === a) b = drawDeck("emo", E);
+      return { k: i === 0 ? "🎚️ הרגש שלכם" : "🎚️ החלפת רגש!", rows: [[p[0], a], [p[1] || "", b]] };
+    } },
+  line: { label: "משפט מהמסך", ic: "📜", need: 2,
+    roles: (p) => `🎭 <b>${p.map(esc).join("</b> ו-<b>")}</b> · כולם רואים את המסך`,
+    how: ["משחקים סצנה רגילה.", "פתאום דינג: המסך בוחר שחקן ומשפט שהוא חייב להגיד עכשיו, ולהצדיק אותו בתוך הסיפור.", "לקראת הסוף הדינגים מגיעים מהר יותר."],
+    topic: () => { const s = drawDeck("set", pool("set")); return { k: "📍 הסצנה", v: s[0], d: s[1] }; },
+    cues: () => accelCues(Math.round(S.sceneLen * .12), S.sceneLen * .28),
+    guide: "כשיש דינג: להגיד את המשפט תוך 5 שניות, ולגרום לו להיות הגיוני 📜",
+    idle: { k: "📜 משפט מהמסך", v: "חכו לדינג…", d: "" },
+    card(i, p) { const who = p[i % p.length]; return { k: `📜 ${who} חייב/ת לומר עכשיו:`, v: "״" + drawDeck("line", kp(MM_LINES)) + "״", d: "", ding: true }; } },
+  heads: { label: "שלושה ראשים", ic: "🧠", need: 3,
+    roles: (p) => `🧠 <b>${p.map(esc).join("</b>, <b>")}</b> הם מומחה אחד. כל אחד אומר מילה אחת בתורו`,
+    how: ["עומדים בשורה, שכם אל שכם. אתם מומחה אחד עם כמה ראשים.", "עונים על השאלה מילה-מילה: כל ראש אומר מילה אחת, בתורו.", "כל כמה שניות המסך מוסיף חוק חדש לתשובה."],
+    topic: () => ({ k: "🧠 השאלה למומחה", v: drawDeck("headsq", kp(MM_HEADS_Q)), d: "" }),
+    cues: () => fixedCues(20, 20),
+    guide: "מילה אחת בכל פעם. לא לתכנן, לבנות על מה שהקודם נתן 🧠",
+    idle: { k: "🧠 חוקים", v: "עונים מילה-מילה", d: "חוק חדש יגיע עם צפצוף" },
+    card() { return { k: "🧠 חוק חדש!", v: drawDeck("headsr", MM_HEADS_RULES), d: "" }; } },
+  dub: { label: "כתוביות", ic: "🎬", need: 3,
+    roles: (p) => p.length >= 3
+      ? `🙉 <b>${esc(p[0])}</b> ו-<b>${esc(p[1])}</b>: שחקני הסרט, עם הגב למסך, מדברים ג'יבריש<br>🎬 <b>${esc(p[2])}</b>: המתרגם/ת, מול המסך`
+      : `🙉 <b>${esc(p[0])}</b>: שחקן/ית הסרט, עם הגב למסך, מדבר/ת ג'יבריש<br>🎬 <b>${esc(p[1])}</b>: המתרגם/ת, מול המסך`,
+    how: ["שחקני הסרט מדברים בשפה מומצאת, עם הרבה רגש.", "המתרגם/ת מתרגם/ת לקהל מה הם 'אומרים'.", "כל כמה שניות המסך חושף עובדה חדשה, והמתרגם/ת חייב/ת לגרום לה להיות אמת בסצנה."],
+    topic: () => { const s = drawDeck("set", pool("set")); return { k: "📍 הסרט", v: s[0], d: s[1] }; },
+    cues: () => fixedCues(10, 22),
+    guide: "מתרגם/ת: השחילו את העובדה לתרגום. שחקני הסרט: פשוט תזרמו 🎬",
+    idle: { k: "🎬 כתוביות", v: "הסרט מתחיל…", d: "עובדה ראשונה בעוד רגע" },
+    card() { return { k: "🎬 האמת החדשה, למתרגם/ת:", v: drawDeck("dub", MM_DUB_FACTS), d: "" }; } },
+  expert: { label: "מומחה שלא קיים", ic: "🎓", need: 3, secret: true,
+    roles: (p) => `🙉 <b>${esc(p[0])}</b>: המומחה/ית, עם הגב למסך<br>🎤 <b>${p.slice(1).map(esc).join("</b> ו-<b>")}</b>: מראיינים, מול המסך`,
+    how: ["המומחה/ית לא יודע/ת במה הוא/היא מומחה/ית. כולם חוץ ממנו/ה רואים.", "המראיינים שואלים שאלות ברצינות גמורה, בלי להגיד את התחום.", "פעמיים המסך נותן רמז, והמראיינים מקריאים אותו בקול. בסוף: מי היית?"],
+    topic() { const e = drawDeck("expert", MM_EXPERT); S.mini.expert = e; return { k: "🎓 המומחה/ית הוא/היא… (לא להראות!)", v: e.t, d: "" }; },
+    cues: () => [Math.round(S.sceneLen * .45), Math.round(S.sceneLen * .7)],
+    guide: "מומחה/ית: דברו בביטחון מלא, גם אם אין לכם מושג 🎓",
+    card(i) { const h = S.mini.expert.h[i]; return h ? { k: "💡 רמז! מראיינים, הקריאו בקול:", v: h, d: "" } : null; } }
+};
+function setupMiniRound(g) {
+  const G = MINI[g], ps = activeP(), n = ps.length, st = (S.miniIdx || 0) % n;
+  const rot = ps.slice(st).concat(ps.slice(0, st));
+  S.mini = { g, perf: rot.slice(0, Math.min(G.need, n)), shown: 0 };
+  S.curDir = ""; S.curPerf = S.mini.perf.slice(); S.starter = S.curPerf[0];
+  S.mini.topic = G.topic();
+  miniRound = true; earRound = false; guessRound = false; guessWin = false; save();
+  $("#miniRnum").textContent = "סיבוב " + S.round + " · " + G.label;
+  $("#miniTitle").textContent = G.ic + " " + G.label;
+  $("#miniRoles").innerHTML = G.roles(S.mini.perf);
+  $("#miniHow").innerHTML = G.how.map((t) => `<p>${esc(t)}</p>`).join("");
+  renderMiniTopic(); show("miniIntro"); sfx.start();
+  speak(`${G.label}! ${S.mini.perf.join(" ו")}, לבמה.`);
+}
+function renderMiniTopic() {
+  const G = MINI[S.mini.g], t = S.mini.topic; miniTopicShown = !G.secret;
+  $("#miniTopic").innerHTML = `<div class="scard set minitopic ${G.secret ? "blurred" : ""}" ${G.secret ? 'data-act="miniShowTopic" role="button" tabindex="0"' : ""}>
+    <div class="k">${esc(t.k)}</div><div class="v">${esc(t.v)}</div>${t.d ? `<div class="vd">${esc(t.d)}</div>` : ""}
+    ${G.secret ? `<div class="tapshow">👆 המומחה/ית עם הגב? לחצו כדי להציג</div>` : ""}</div>`;
+}
+function miniShowTopic() { const c = $("#miniTopic .minitopic"); if (c) c.classList.remove("blurred"); miniTopicShown = true; }
+function miniRedraw() { S.mini.topic = MINI[S.mini.g].topic(); save(); renderMiniTopic(); }
+function miniCardHTML(c) {
+  const body = c.rows
+    ? c.rows.filter((r) => r[0]).map((r) => `<div class="emorow"><span class="who">${esc(r[0])}</span><span class="emo">${esc(r[1])}</span></div>`).join("")
+    : `<div class="v">${esc(c.v)}</div>${c.d ? `<div class="vd">${esc(c.d)}</div>` : ""}`;
+  return `<div class="k">${esc(c.k)}</div>${body}`;
+}
+function fireMiniCue(manual) {
+  if (!miniRound || !sceneRunning || paused) return;
+  const G = MINI[S.mini.g], cues = S.mini.cues;
+  if (manual && miniCueIdx >= cues.length) { if (S.mini.g === "expert" || miniExtra >= 4) { toastMsg(S.mini.g === "expert" ? "נגמרו הרמזים 🙂" : "מספיק לסבב אחד 🙂"); return; } miniExtra++; }
+  const c = G.card(S.mini.shown, S.mini.perf); if (!c) { toastMsg("נגמרו הרמזים 🙂"); return; }
+  S.mini.shown++;
+  if (miniCueIdx < cues.length) miniCueIdx++;
+  if (manual) { const min = elapsed + 5; for (let i = miniCueIdx; i < cues.length; i++) if (cues[i] < min + (i - miniCueIdx) * 5) cues[i] = min + (i - miniCueIdx) * 5; while (cues.length > miniCueIdx && cues[cues.length - 1] > S.sceneLen - 3) cues.pop(); }
+  const card = $("#miniCard"); card.innerHTML = miniCardHTML(c);
+  card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop");
+  if (c.ding) sfx.bell(); else sfx.hint();
+  try { if (navigator.vibrate) navigator.vibrate(90); } catch (e) {}
+  save();
+}
+function miniTick() {
+  if (!miniRound) return;
+  const cues = S.mini.cues;
+  if (miniCueIdx < cues.length && elapsed >= cues[miniCueIdx] && (cues[miniCueIdx] === 0 || S.sceneLen - elapsed > 2)) fireMiniCue(false);
+}
+function endMini() {
+  const G = MINI[S.mini.g];
+  if (S.mini.g === "expert") { finishExpert(); return; }
+  logRound({ type: "mini", game: S.mini.g, title: S.mini.topic.v, perf: S.mini.perf.slice(), cues: S.mini.shown, secs: Math.min(elapsed, S.sceneLen) });
+  miniRound = false;
+  sfx.end(); speak(rand(persona().timeup));
+  endT = setTimeout(() => { endT = null; if (S.scored) buildScore(); else roundEnd(); }, 700);
+}
+function finishExpert() {
+  $("#miniRevealTitle").textContent = `${S.mini.perf[0]}, להסתובב! מי היית? 🎓`;
+  $("#miniRevealCard").classList.add("blurred"); $("#miniRevealVal").textContent = S.mini.expert.t;
+  $("#miniRevealBtn").hidden = false; $("#miniVerdict").hidden = true;
+  sfx.end(); speak(`נגמר הזמן! ${S.mini.perf[0]}, במה את או אתה מומחה?`);
+  show("miniReveal");
+}
+function miniRevealExpert() { $("#miniRevealCard").classList.remove("blurred"); $("#miniRevealBtn").hidden = true; $("#miniVerdict").hidden = false; sfx.bell(); }
+function miniExpertDone(win) {
+  if (!miniRound || currentScreen !== "miniReveal") return;
+  const ex = S.mini.perf[0];
+  if (win) { miniConfetti(); sfx.bell(); if (S.scored) S.scores[ex] = (S.scores[ex] || 0) + 2; }
+  logRound({ type: "mini", game: "expert", title: S.mini.expert.t, perf: S.mini.perf.slice(), win: !!win, secs: Math.min(elapsed, S.sceneLen) });
+  miniRound = false; advanceRound();
+  if (S.scored) showBoard(`סיבוב ${S.round} הסתיים`); else roundEnd2();
+}
+function miniLogLine(r) {
+  const G = MINI[r.game] || { ic: "🎲", label: r.game };
+  return `${G.ic} ${G.label}: ${r.title}` + (r.game === "expert" ? ` · ${r.perf[0]} ${r.win ? "ניחש/ה" : "לא ניחש/ה"}` : ` · ${r.perf.join(" ו־")}`);
 }
 
 /* ---------- סיבוב ניחוש ---------- */
@@ -509,6 +721,7 @@ function finishGuess(win) {
   show("guessScore");
 }
 function applyGuessScore() {
+  if (currentScreen !== "guessScore") return;
   if (S.scored && hinterPick) { S.scores[hinterPick] = (S.scores[hinterPick] || 0) + 1; S.honors[hinterPick] = (S.honors[hinterPick] || 0) + 1; }
   guessRound = false; hinterPick = null; advanceRound();
   if (S.scored) showBoard(`סיבוב ${S.round} הסתיים`);
@@ -544,27 +757,54 @@ document.addEventListener("visibilitychange", () => {
 });
 function pushGameState() { try { if (!history.state || !history.state.mm) history.pushState({ mm: 1 }, ""); } catch (e) {} }
 window.addEventListener("popstate", () => { if (gameActive && currentScreen !== "home") { pushGameState(); confirmHome(); } });
+const KEYHINT_DEFAULT = "מקלדת: רווח = החלפה · T = נושא · H = רמז · P = השהיה · E = סיום";
+function setKeyHint() {
+  const el = $("#keyHint"); if (!el) return;
+  el.textContent = miniRound ? "מקלדת: רווח = הבא עכשיו · P = השהיה · E = סיום"
+    : earRound ? "מקלדת: רווח = משימה הבאה · P = השהיה · E = סיום"
+    : guessRound ? "מקלדת: " + (S.settings.hints ? "H = רמז · " : "") + "P = השהיה · E = סיום" : KEYHINT_DEFAULT;
+}
 function startScene() {
   pushGameState();
   elapsed = 0; sceneStart = Date.now(); S.rings = 0; S.topics = 0; sceneRunning = true; paused = false; setPausedUI(false);
-  if (guessRound) {
+  if (miniRound) {
+    const G = MINI[S.mini.g], t = S.mini.topic;
+    S.miniIdx = (S.miniIdx || 0) + 1; S.mini.shown = 0; S.mini.cues = G.cues(); miniCueIdx = 0; miniExtra = 0;
+    $("#playCards").innerHTML =
+      `<div class="scard set"><div class="k">${esc(t.k.replace(" (לא להראות!)", ""))}</div><div class="v">${esc(t.v)}</div>${t.d ? `<div class="vd">${esc(t.d)}</div>` : ""}</div>` +
+      `<div class="earmission minicard" id="miniCard">${G.idle ? miniCardHTML(G.idle) : ""}</div>`;
+    $("#playPerf").innerHTML = G.roles(S.mini.perf);
+    $("#guide").textContent = G.guide;
+    $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = true; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = false;
+    $("#miniNextBtn").textContent = S.mini.g === "expert" ? "💡 רמז עכשיו" : "⏭️ הבא עכשיו";
+  } else if (earRound) {
+    S.earIdx = (S.earIdx || 0) + 1; S.ear.missions = []; earNextAt = 0;
+    $("#playCards").innerHTML =
+      `<div class="scard set"><div class="k">📍 הסצנה</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>` +
+      `<div class="earmission" id="earMission"><div class="k">🎧 משימה סודית <span id="earNum">1</span></div><div class="v" id="earTitle"></div><div class="vd" id="earDesc"></div></div>`;
+    $("#playPerf").innerHTML = `🙉 <b>${esc(S.earListener)}</b> עם הגב · 🎧 <b>${esc(S.earAgent)}</b> הסוכן/ת`;
+    $("#guide").textContent = "סוכן/ת: שלבו את המשימה בשיחה בלי שיעלו עליכם! קהל: שקט, לא מסגירים 🤫";
+    $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = true; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = false; $("#miniCtrl").hidden = true;
+  } else if (guessRound) {
     S.guessIdx++; save();
     $("#playCards").innerHTML = `<div class="scard guess"><div class="k">🕵️ ניחוש · ${esc(S.guess.k)}</div><div class="v">${esc(S.guess.t)}</div><div class="vd">${esc(S.guess.d)}</div></div>`;
     $("#playPerf").innerHTML = `<b>${esc(S.guesser)}</b> מנחש/ת · כל השאר רומזים`;
     $("#guide").textContent = "רומזים חופשי — רק אסור להגיד את הסוד!";
-    $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = true; $("#guessCtrl").hidden = false;
+    $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = true; $("#guessCtrl").hidden = false; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
   } else {
     $("#playCards").innerHTML =
       `<div class="scard set"><div class="k">📍 במה</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>` +
       `<div class="scard ${S.conCat}"><div class="k">${MM_CAT[S.conCat].ic} ${MM_CAT[S.conCat].label}</div><div class="v">${esc(S.con[0])}</div><div class="vd">${esc(S.con[1])}</div></div>`;
     $("#playPerf").textContent = S.curPerf.join("  •  ");
     $("#guide").textContent = S.mode === "manual" ? "במאי/ת: כשזה נהיה צפוי — לחצו 🔔 החלפה!" : "המנחה מוביל — הקשיבו ל\"החלפה!\" ול\"נושא חדש\"";
-    $("#manualCtrl").hidden = S.mode !== "manual"; $("#autoCtrl").hidden = S.mode !== "auto"; $("#guessCtrl").hidden = true;
+    $("#manualCtrl").hidden = S.mode !== "manual"; $("#autoCtrl").hidden = S.mode !== "auto"; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
   }
   $("#ringcount").textContent = ""; $("#playBadge").hidden = licActive();
-  updateClock(); show("play"); sfx.start(); keepAwake(true);
+  updateClock(); setKeyHint(); show("play"); sfx.start(); keepAwake(true);
   if (timer) clearInterval(timer); timer = setInterval(tick, 1000);
-  if (S.mode === "auto" && !guessRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
+  if (earRound) earNext(false);
+  if (miniRound) miniTick();
+  if (S.mode === "auto" && !guessRound && !earRound && !miniRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
 }
 function updateClock() {
   const left = Math.max(0, S.sceneLen - elapsed); const clk = $("#clock"); clk.textContent = left;
@@ -576,7 +816,10 @@ function updateClock() {
 function tick() {
   if (!sceneRunning || paused) return;
   elapsed = Math.round((Date.now() - sceneStart) / 1000); updateClock();
-  const left = S.sceneLen - elapsed; if (left <= 5 && left > 0) sfx.tick(); if (elapsed >= S.sceneLen) endScene();
+  const left = S.sceneLen - elapsed; if (left <= 5 && left > 0) sfx.tick();
+  miniTick();
+  if (earRound && elapsed >= earNextAt && S.ear.missions.length < earCount() && left > 8) earNext(true);
+  if (elapsed >= S.sceneLen) endScene();
 }
 function nextGap() {
   const frac = elapsed / S.sceneLen, easy = S.level === "easy" || S.kids;
@@ -584,14 +827,14 @@ function nextGap() {
   return (easy ? 3.5 : 2.5) + Math.random() * 2;
 }
 function scheduleAutoSwap() {
-  if (!sceneRunning || paused || S.mode !== "auto" || guessRound) return;
+  if (!sceneRunning || paused || S.mode !== "auto" || guessRound || earRound || miniRound) return;
   const startQuiet = S.sceneLen * ((S.level === "easy" || S.kids) ? .33 : .22);
   const delay = elapsed < startQuiet ? (startQuiet - elapsed) + Math.random() * 2 : nextGap();
   if (swapT) clearTimeout(swapT);
   swapT = setTimeout(() => { if (!sceneRunning || paused) return; if (S.sceneLen - elapsed <= 1) return; doSwap(); scheduleAutoSwap(); }, delay * 1000);
 }
 function scheduleAutoTopic() {
-  if (!sceneRunning || paused || S.mode !== "auto" || guessRound) return;
+  if (!sceneRunning || paused || S.mode !== "auto" || guessRound || earRound || miniRound) return;
   const first = S.sceneLen * .45 + (Math.random() * 6 - 3);
   if (topicAutoT) clearTimeout(topicAutoT);
   topicAutoT = setTimeout(function fire() {
@@ -628,7 +871,7 @@ function togglePause() {
     try { speechSynthesis.cancel(); } catch (e) {} setPausedUI(true); updateClock();
   } else {
     sceneStart += Date.now() - pausedAt; paused = false; setPausedUI(false); tick();
-    if (S.mode === "auto" && !guessRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
+    if (S.mode === "auto" && !guessRound && !earRound && !miniRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
   }
 }
 function stopSceneTimers() { if (timer) clearInterval(timer); if (swapT) clearTimeout(swapT); if (topicAutoT) clearTimeout(topicAutoT); if (endT) clearTimeout(endT); timer = swapT = topicAutoT = endT = null; }
@@ -636,6 +879,8 @@ function endScene() {
   if (!sceneRunning) return;
   sceneRunning = false; paused = false; setPausedUI(false); stopSceneTimers();
   hideHint(); hideTopic(); $("#timefill").style.width = "0%";
+  if (miniRound) { endMini(); return; }
+  if (earRound) { finishEar(); return; }
   if (guessRound) { finishGuess(guessWin); return; }
   logRound({ type: "scene", set: S.set[0], con: S.con[0], conCat: S.conCat, perf: S.curPerf.slice(), swaps: S.rings, topics: S.topics, secs: Math.min(elapsed, S.sceneLen) });
   sfx.end(); speak(rand(persona().timeup));
@@ -661,6 +906,7 @@ function buildScore() {
   show("score");
 }
 function applyScore() {
+  if (currentScreen !== "score") return;
   if (S.mode === "manual") S.curPerf.forEach((p) => { const s = scoreState[p] || {}; const a = (s.yes ? 1 : 0) + (s.loyal ? 1 : 0) + (s.pivot ? 1 : 0); S.scores[p] = (S.scores[p] || 0) + a; });
   else if (scoreState.honor) { S.scores[scoreState.honor] = (S.scores[scoreState.honor] || 0) + 1; S.honors[scoreState.honor] = (S.honors[scoreState.honor] || 0) + 1; }
   advanceRound();
@@ -728,7 +974,7 @@ function newGame() { gameActive = false; S.inGame = false; save(); keepAwake(fal
 function canResume() { return !!(S.inGame && S.round > 0 && activeP().length >= 2); }
 function resumeGame() {
   if (!canResume()) { $("#resumeBtn").hidden = true; return; }
-  gameActive = true; keepAwake(true); guessRound = false; guessWin = false; ac();
+  gameActive = true; keepAwake(true); guessRound = false; guessWin = false; earRound = false; miniRound = false; ac();
   S.round = S.log.length; save();
   renderBoard(); const top = Math.max(0, ...Object.values(S.scores || {}));
   $("#boardSub").textContent = "ממשיכים משחק · " + S.round + " סיבובים שוחקו";
@@ -748,7 +994,7 @@ async function confirmHome() {
 function summaryData() {
   const scenes = S.log.filter((r) => r.type === "scene"), guesses = S.log.filter((r) => r.type === "guess");
   const swaps = scenes.reduce((a, r) => a + (r.swaps || 0), 0), topics = scenes.reduce((a, r) => a + (r.topics || 0), 0);
-  const secs = scenes.reduce((a, r) => a + (r.secs || 0), 0);
+  const secs = S.log.filter((r) => r.type === "scene" || r.type === "ear" || r.type === "mini").reduce((a, r) => a + (r.secs || 0), 0);
   const ps = activeP();
   const board = ps.map((p) => ({ p, t: S.scores[p] || 0 })).sort((a, b) => b.t - a.t);
   const honors = ps.map((p) => ({ p, h: S.honors[p] || 0 })).filter((x) => x.h > 0).sort((a, b) => b.h - a.h);
@@ -765,7 +1011,11 @@ function showSummary() {
   let html = `<div class="sumlist"><h4>👥 מי שיחק</h4><p>${d.ps.map(esc).join(" · ")}</p></div>`;
   if (S.scored && d.board.length) html += `<div class="sumlist"><h4>🏆 לוח תוצאות</h4>${d.board.map((r, i) => `<p>${i + 1}. ${esc(r.p)} — ${r.t} אסימונים</p>`).join("")}</div>`;
   if (d.honors.length) html += `<div class="sumlist"><h4>⭐ כבוד מהחבר'ה</h4><p>${d.honors.map((h) => `${esc(h.p)} (${h.h})`).join(" · ")}</p></div>`;
-  if (S.log.length) html += `<div class="sumlist"><h4>🎬 הסיבובים</h4>` + S.log.map((r) => r.type === "guess"
+  if (S.log.length) html += `<div class="sumlist"><h4>🎬 הסיבובים</h4>` + S.log.map((r) => r.type === "mini"
+    ? `<div class="rnd"><span class="i">${r.n}</span><span class="w">${esc(miniLogLine(r))}</span></div>`
+    : r.type === "ear"
+    ? `<div class="rnd"><span class="i">${r.n}</span><span class="w">🎧 האוזניה: ${esc(r.agent)} הסוכן/ת, ${esc(r.listener)} תפס/ה ${r.caught} מתוך ${r.missions.length} <small>(${r.missions.map(esc).join(" · ")})</small></span></div>`
+    : r.type === "guess"
     ? `<div class="rnd"><span class="i">${r.n}</span><span class="w">🕵️ ${esc(r.title)} — ${esc(r.guesser)} ${r.win ? "ניחש/ה נכון" : "לא ניחש/ה"} <small>(${esc(r.secret)})</small></span></div>`
     : `<div class="rnd"><span class="i">${r.n}</span><span class="w">${esc(r.set)} · ${MM_CAT[r.conCat]?.ic || ""} ${esc(r.con)} <small>— ${r.perf.map(esc).join(" ו־")} · ${r.swaps} החלפות</small></span></div>`).join("") + `</div>`;
   if (S.team) html += `<div class="sumlist"><h4>💬 שאלות התחקיר שדיברתם עליהן</h4>${S.debriefPicked.length ? S.debriefPicked.map((q) => `<p>• ${esc(q)}</p>`).join("") : `<p class="muted">לא סומנו שאלות.</p>`}</div>`;
@@ -779,7 +1029,7 @@ function summaryText() {
   if (S.scored) { L.push("🏆 תוצאות:"); d.board.forEach((r, i) => L.push(`${i + 1}. ${r.p} — ${r.t}`)); L.push(""); }
   if (d.honors.length) { L.push("⭐ כבוד: " + d.honors.map((h) => `${h.p} (${h.h})`).join(", ")); L.push(""); }
   L.push("🎬 סיבובים:");
-  S.log.forEach((r) => L.push(r.type === "guess" ? `${r.n}. ניחוש "${r.title}" — ${r.guesser} ${r.win ? "ניחש/ה נכון" : "לא ניחש/ה"}` : `${r.n}. ${r.set} + ${r.con} — ${r.perf.join(" ו־")} (${r.swaps} החלפות)`));
+  S.log.forEach((r) => L.push(r.type === "mini" ? `${r.n}. ${miniLogLine(r)}` : r.type === "ear" ? `${r.n}. האוזניה: ${r.agent} הסוכן/ת, ${r.listener} תפס/ה ${r.caught} מתוך ${r.missions.length}` : r.type === "guess" ? `${r.n}. ניחוש "${r.title}" — ${r.guesser} ${r.win ? "ניחש/ה נכון" : "לא ניחש/ה"}` : `${r.n}. ${r.set} + ${r.con} — ${r.perf.join(" ו־")} (${r.swaps} החלפות)`));
   if (S.team) { L.push(""); L.push("💬 תחקיר — דיברנו על:"); (S.debriefPicked.length ? S.debriefPicked : ["(לא סומנו שאלות)"]).forEach((q) => L.push("• " + q)); }
   L.push(""); L.push(licActive() ? "מהמותן · מצב צוות" : "מופעל על ידי מהמותן · " + SITE_URL.replace("https://", ""));
   return L.join("\n");
@@ -939,11 +1189,11 @@ document.addEventListener("keydown", (e) => {
   if (["INPUT", "TEXTAREA", "SELECT"].includes(tag)) return;
   if (currentScreen !== "play" || !sceneRunning || $("#dlg")?.classList.contains("open")) return;
   const k = e.key.toLowerCase();
-  if (e.code === "Space") { e.preventDefault(); if (!guessRound) doSwap(); }
-  else if (k === "t" || k === "א") { if (!guessRound) throwTopic(); }
-  else if (k === "h" || k === "י") { if (S.settings.hints) sceneHint(); }
+  if (e.code === "Space") { e.preventDefault(); if (miniRound) fireMiniCue(true); else if (earRound) earNext(false); else if (!guessRound) doSwap(); }
+  else if (k === "t" || k === "א") { if (!guessRound && !earRound && !miniRound) throwTopic(); }
+  else if (k === "h" || k === "י") { if (S.settings.hints && !earRound && !miniRound) sceneHint(); }
   else if (k === "p" || k === "פ") togglePause();
-  else if (k === "f" || k === "כ") { if (S.mode === "manual" && !guessRound) freeze(); }
+  else if (k === "f" || k === "כ") { if (S.mode === "manual" && !guessRound && !earRound && !miniRound) freeze(); }
   else if (k === "e" || k === "ק") endScene();
 });
 
@@ -955,6 +1205,8 @@ const ACTIONS = {
   addPlayer, delPlayer: (b) => delPlayer(+b.dataset.i), openEditor, closeEditor, addCustomCard, delCustomCard: (b) => delCustomCard(+b.dataset.i), exportCustom, importCustom,
   startGame, resumeGame, confirmHome, drawCards, reDraw: drawCards, openerHint, goCast, backToDraw: () => show("draw"), beginCountdown,
   manualSwap, throwTopic, stuck, sceneHint, freeze, togglePause, endScene, guessSuccess, applyGuessScore,
+  earNext: () => earNext(false), earRedrawSet, earReveal, applyEarScore,
+  miniNext: () => fireMiniCue(true), miniRedraw, miniShowTopic, miniRevealExpert, miniExpertWin: () => miniExpertDone(true), miniExpertLose: () => miniExpertDone(false),
   applyScore, nextRound, endGameNow, declareWinner, showBoardOnly: () => { renderBoard(); show("scoreboard"); }, renderDebrief, finalEnd, newGame,
   showSummary, copySummary, shareSummary, pickDebrief: (b) => pickDebrief(b.dataset.q, b),
   hideHint, hideTopic, enterCode, removeCode, continueFree, shareImage, pickLogo, removeLogo
@@ -967,6 +1219,7 @@ document.addEventListener("click", (e) => {
   const crit = e.target.closest(".crit button"); if (crit) { const grp = crit.closest(".crit"); const p = S.curPerf[+grp.dataset.player]; const c = crit.dataset.c; if (scoreState[p]) { scoreState[p][c] = !scoreState[p][c]; crit.classList.toggle("on", scoreState[p][c]); } return; }
   const hn = e.target.closest("[data-hn]"); if (hn) { const grid = hn.parentElement; grid.querySelectorAll("button").forEach((x) => x.classList.remove("on")); hn.classList.add("on");
     if (grid.id === "hinterGrid") hinterPick = hn.dataset.hn; else scoreState.honor = hn.dataset.hn; return; }
+  const ec = e.target.closest("[data-ec]"); if (ec) { toggleEarCaught(ec); return; }
   const act = e.target.closest("[data-act]"); if (!act) return;
   const fn = ACTIONS[act.dataset.act]; if (fn) fn(act, e);
 });
@@ -976,6 +1229,9 @@ document.addEventListener("input", (e) => {
   else if (t.id === "companyInput") { S.company = t.value.trim().slice(0, 40); }
   else if (t.id === "logoFile") { onLogoFile(t.files && t.files[0]); }
 });
+document.addEventListener("keydown", (e) => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[role="button"][data-act]')) { e.preventDefault(); e.stopPropagation(); e.target.click(); }
+}, true);
 document.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && e.target.matches("#players input")) { e.preventDefault(); const inputs = $$("#players input"); const i = inputs.indexOf(e.target); if (i < inputs.length - 1) inputs[i + 1].focus(); else e.target.blur(); }
   if (e.key === "Enter" && (e.target.id === "edTitle" || e.target.id === "edDesc")) { e.preventDefault(); if (e.target.id === "edTitle") $("#edDesc").focus(); else addCustomCard(); }

@@ -3,7 +3,7 @@
    ניווטים: network-first (תמיד הגרסה החדשה, אופליין → מטמון).
    קבצי האפליקציה (css/js/אייקונים): stale-while-revalidate (מהיר, ומתעדכן ברקע).
    גופני Google: stale-while-revalidate. */
-const VERSION = "2.1.1";
+const VERSION = "2.2.0";
 const CACHE = "mehamoten-" + VERSION;
 const ASSETS = [
   "./",
