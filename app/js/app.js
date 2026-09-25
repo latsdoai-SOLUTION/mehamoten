@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.2.0";
+const APP_VERSION = "2.2.1";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -127,7 +127,54 @@ const S = {
   log: [], debriefPicked: [],
   settings: { ...DEFAULT_SETTINGS }
 };
-function save() { lsSet(STORE_KEY, S); }
+function save() { S.lastActive = Date.now(); lsSet(STORE_KEY, S); }
+
+/* ---------- קבוצה חדשה: כל קבוצה מתחילה ממסך נקי ----------
+   מוחק רק את מה ששייך לקבוצה (שמות, ניקוד, יומן, שם ארגון, משחק פתוח).
+   נשאר במכשיר: רישיון, לוגו, הגדרות, קלפים משלכם, סטטיסטיקה, וסיבוב הניסיון שנוצל. */
+const GROUP_IDLE_MS = 6 * 60 * 60 * 1000;
+function hasGroupData() { return activeP().length > 0 || !!S.company || S.log.length > 0 || !!S.inGame; }
+/* נתונים ממכשיר שעוד לא היה בו lastActive (לפני 2.2.1): נופלים לזמן תחילת המשחק */
+function groupIsStale() { const t = +S.lastActive || +S.startedAt || 0; return hasGroupData() && Date.now() - t > GROUP_IDLE_MS; }
+function clearGroup() {
+  stopGame(); /* כל מסלולי המחיקה עוצרים קודם טיימרים, ספירה לאחור וקול */
+  S.players = ["", "", ""]; S.company = "";
+  S.scores = {}; S.honors = {}; S.dirCounts = {}; S.log = []; S.debriefPicked = [];
+  S.round = 0; S.directorIdx = 0; S.guessIdx = 0; S.earIdx = 0; S.miniIdx = 0;
+  S.curDir = ""; S.curPerf = []; S.starter = ""; S.set = null; S.con = null; S.conCat = null;
+  S.rings = 0; S.topics = 0; S.startedAt = 0; S.inGame = false; S.trialRound = false;
+  S.guesser = ""; S.earListener = ""; S.earAgent = ""; S.mini = null; S.ear = null; S.guess = null;
+  gameActive = false; save();
+  const ci = $("#companyInput"); if (ci) ci.value = "";
+  /* מסכים מוסתרים שעוד מחזיקים שמות מהקבוצה הקודמת */
+  ["#board", "#introPerf", "#introDir", "#introWho", "#winName", "#summaryBody", "#playPerf", "#earListenerName", "#earAgentName"].forEach((sel) => { const e = $(sel); if (e) e.textContent = ""; });
+  renderPlayers(); syncGroupUI();
+}
+function syncGroupUI() {
+  const rb = $("#resumeBtn"); if (rb) rb.hidden = !canResume();
+  const ng = $("#newGroupHome"); if (ng) ng.hidden = !hasGroupData();
+}
+async function newGroup() {
+  if (hasGroupData()) {
+    const ok = await dialog({ title: "להתחיל קבוצה חדשה?", text: "השמות, הניקוד ושם הארגון של הקבוצה הקודמת יימחקו מהמכשיר. הרישיון, הלוגו, ההגדרות והקלפים שלכם נשארים.", okText: "כן, קבוצה חדשה", cancelText: "ביטול" });
+    if (!ok) return;
+  }
+  clearGroup(); toastMsg("מוכן לקבוצה חדשה ✓");
+  if (currentScreen !== "setup") goSetup();
+}
+let staleAsking = false;
+async function askStaleGroup() {
+  if (staleAsking) return; staleAsking = true;
+  const n = activeP().length, t = +S.lastActive || +S.startedAt || 0, h = t ? Math.floor((Date.now() - t) / 3600000) : 0;
+  const when = !t ? "" : h >= 48 ? ` לפני ${Math.floor(h / 24)} ימים` : h >= 1 ? ` לפני ${h} שעות` : "";
+  const text = `במכשיר שמורים נתונים של קבוצה קודמת${n ? ` (${n} שחקנים` + (when ? `, שיחקו${when})` : ")") : ""}. כדי שהשמות לא יופיעו לקבוצה הבאה, מומלץ להתחיל נקי.` + (S.inGame ? " המשחק הפתוח של הקבוצה הקודמת ייסגר." : "");
+  /* רקע אטום: שלא יראו את השמות הישנים מאחורי החלון */
+  const ok = await dialog({ title: "קבוצה חדשה?", text, okText: "קבוצה חדשה", cancelText: "להמשיך עם הקבוצה הקודמת", solid: true });
+  staleAsking = false;
+  if (ok) {
+    clearGroup(); if (!["home", "setup"].includes(currentScreen)) show("home"); toastMsg("מוכן לקבוצה חדשה ✓");
+  } else { save(); if (gameActive) keepAwake(true); } /* מעדכן את זמן הפעילות כדי שלא ישאל שוב מיד */
+}
 function load() {
   let r = lsGet(STORE_KEY, null);
   if (!r) { const legacy = lsGet(LEGACY_KEY, null); if (legacy) r = legacy; }
@@ -193,6 +240,7 @@ function show(id) {
   $$(".screen").forEach((s) => s.classList.remove("active"));
   const el = $("#" + id); if (!el) return;
   el.classList.add("active"); el.scrollTop = 0; currentScreen = id;
+  if (id === "home") syncGroupUI();
   document.body.classList.toggle("ingame", !["home", "setup", "summary"].includes(id));
   const focusEl = el.querySelector("h1,h2,.who,.eyebrow,.guide"); if (focusEl) { focusEl.setAttribute("tabindex", "-1"); focusEl.focus({ preventScroll: true }); }
 }
@@ -247,7 +295,7 @@ function speak(text) {
 function persona() { return MM_PERSONA[S.settings.persona] || MM_PERSONA.compere; }
 
 /* ---------- חלוניות (במקום alert/confirm/prompt) ---------- */
-function dialog({ title, text, input, value = "", okText = "אישור", cancelText = "ביטול", danger = false }) {
+function dialog({ title, text, input, value = "", okText = "אישור", cancelText = "ביטול", danger = false, solid = false }) {
   return new Promise((resolve) => {
     let m = $("#dlg");
     if (!m) { m = document.createElement("div"); m.id = "dlg"; m.className = "modal"; m.style.zIndex = "90"; m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); document.body.appendChild(m); }
@@ -259,6 +307,7 @@ function dialog({ title, text, input, value = "", okText = "אישור", cancelT
         <button class="${danger ? "ghost" : "big sm"}" data-dlg="ok">${esc(okText)}</button>
         ${cancelText ? `<button class="${danger ? "big sm" : "ghost"}" data-dlg="cancel">${esc(cancelText)}</button>` : ""}
       </div></div>`;
+    m.style.background = solid ? "#100c17" : "";
     m.classList.add("open");
     const done = (ok) => { m.classList.remove("open"); const v = input ? ($("#dlgIn")?.value || "") : true; resolve(ok ? v : null); };
     m.onclick = (e) => { const b = e.target.closest("[data-dlg]"); if (!b) return; done(b.dataset.dlg === "ok"); };
@@ -316,7 +365,11 @@ function throwTopic() {
 }
 
 /* ---------- הגדרת משחק ---------- */
-function goSetup() { renderPlayers(); syncSetupUI(); show("setup"); ac(); }
+function goSetup() {
+  /* בדיקה לפני שמציגים שמות: גם כשהאפליקציה נשארה פתוחה בלי טעינה ובלי יציאה */
+  if (groupIsStale()) { if (!staleAsking) askStaleGroup().then(() => goSetup()); return; }
+  renderPlayers(); syncSetupUI(); show("setup"); ac();
+}
 function renderPlayers() {
   $("#players").innerHTML = S.players.map((p, i) => `
     <div class="prow"><div class="idx">${i + 1}</div>
@@ -427,7 +480,7 @@ async function startGame() {
   S.trialRound = false;
   if (S.team && !licActive()) {
     if (S.teamTrialUsed) { S.team = false; S.industry = ""; toastMsg("סיבוב הניסיון במצב צוות נוצל. ממשיכים במצב רגיל."); }
-    else S.trialRound = true;
+    else { S.trialRound = true; S.teamTrialUsed = true; } /* מסומן כבר בהתחלה: יציאה באמצע לא נותנת ניסיון נוסף */
   }
   guessRound = false; guessWin = false; earRound = false; miniRound = false; gameActive = true; S.inGame = true; clearDecks();
   bumpStat("games"); keepAwake(true); save(); nextRound();
@@ -737,7 +790,7 @@ function beginCountdown() {
   countIv = setInterval(() => {
     n--; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
     if (n > 0) { el.textContent = n; sfx.count(); speak(n === 2 ? "שתיים" : "אחת"); }
-    else { el.textContent = "אקשן!"; sfx.start(); speak("אקשן!"); clearInterval(countIv); countIv = null; setTimeout(() => { ov.classList.remove("go"); countdownRunning = false; startScene(); }, 700); }
+    else { el.textContent = "אקשן!"; sfx.start(); speak("אקשן!"); clearInterval(countIv); countIv = null; setTimeout(() => { ov.classList.remove("go"); if (!countdownRunning) return; countdownRunning = false; startScene(); }, 700); }
   }, 1000);
 }
 
@@ -752,6 +805,8 @@ async function keepAwake(on) {
 }
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible") return;
+  /* טאבלט/אפליקציה שנשארו פתוחים לילה שלם: שואלים גם בלי טעינה מחדש */
+  if (groupIsStale() && !(sceneRunning && !paused) && !document.querySelector("#dlg.open")) { askStaleGroup(); return; }
   if (gameActive) keepAwake(true);
   if (sceneRunning && !paused) { elapsed = Math.round((Date.now() - sceneStart) / 1000); updateClock(); if (elapsed >= S.sceneLen) endScene(); }
 });
@@ -973,6 +1028,7 @@ function bigConfetti() { spawnConfetti(80); }
 function newGame() { gameActive = false; S.inGame = false; save(); keepAwake(false); $("#confetti").innerHTML = ""; goSetup(); }
 function canResume() { return !!(S.inGame && S.round > 0 && activeP().length >= 2); }
 function resumeGame() {
+  if (groupIsStale()) { if (!staleAsking) askStaleGroup().then(() => { if (canResume()) resumeGame(); }); return; }
   if (!canResume()) { $("#resumeBtn").hidden = true; return; }
   gameActive = true; keepAwake(true); guessRound = false; guessWin = false; earRound = false; miniRound = false; ac();
   S.round = S.log.length; save();
@@ -983,11 +1039,14 @@ function resumeGame() {
 async function confirmHome() {
   const ok = await dialog({ title: "לצאת למסך הבית?", text: "המשחק נשמר במכשיר — תוכלו ללחוץ 'המשך משחק' ולחזור ללוח.", okText: "כן, למסך הבית", cancelText: "להישאר", danger: true });
   if (!ok) return;
+  stopGameToHome();
+}
+function stopGameToHome() { stopGame(); syncGroupUI(); show("home"); }
+function stopGame() {
   if (sceneRunning) { sceneRunning = false; paused = false; stopSceneTimers(); hideHint(); hideTopic(); }
   countdownRunning = false; if (countIv) { clearInterval(countIv); countIv = null; } $("#count").classList.remove("go"); $("#count .n").classList.remove("pop");
   try { speechSynthesis.cancel(); } catch (e) {}
   gameActive = false; keepAwake(false); save();
-  $("#resumeBtn").hidden = !canResume(); show("home");
 }
 
 /* ---------- סיכום מפגש ---------- */
@@ -1201,9 +1260,9 @@ document.addEventListener("keydown", (e) => {
 const ACTIONS = {
   obSkip: skipOnboard, obNext: nextOnboard, howto: () => openOnboard(true),
   openSettings, closeSettings, testVoice, resetAll, install, reloadApp,
-  goSetup, goHome: () => { S.company = ($("#companyInput").value || "").trim().slice(0, 40); save(); show("home"); $("#resumeBtn").hidden = !canResume(); },
+  goSetup, goHome: () => { S.company = ($("#companyInput").value || "").trim().slice(0, 40); save(); show("home"); syncGroupUI(); },
   addPlayer, delPlayer: (b) => delPlayer(+b.dataset.i), openEditor, closeEditor, addCustomCard, delCustomCard: (b) => delCustomCard(+b.dataset.i), exportCustom, importCustom,
-  startGame, resumeGame, confirmHome, drawCards, reDraw: drawCards, openerHint, goCast, backToDraw: () => show("draw"), beginCountdown,
+  startGame, resumeGame, confirmHome, newGroup, drawCards, reDraw: drawCards, openerHint, goCast, backToDraw: () => show("draw"), beginCountdown,
   manualSwap, throwTopic, stuck, sceneHint, freeze, togglePause, endScene, guessSuccess, applyGuessScore,
   earNext: () => earNext(false), earRedrawSet, earReveal, applyEarScore,
   miniNext: () => fireMiniCue(true), miniRedraw, miniShowTopic, miniRevealExpert, miniExpertWin: () => miniExpertDone(true), miniExpertLose: () => miniExpertDone(false),
@@ -1240,21 +1299,48 @@ document.addEventListener("keydown", (e) => {
 /* ---------- אתחול ---------- */
 (function init() {
   load(); loadCustom(); loadLicense(); loadLogo(); buildIndustrySeg();
+  /* חזרה אחרי הפסקה ארוכה: לא מציגים לקבוצה הבאה את השמות של הקודמת */
+  let staleGroup = groupIsStale();
   /* לינק מוכן מראש: ?preset=team&company=X&industry=hitech&code=MM-... */
   try {
-    const q = new URLSearchParams(location.search); let presetUsed = false;
-    if (q.get("code")) { const p = parseLicense(q.get("code")); if (p.ok && p.exp > Date.now()) { LIC = p; lsSet(LIC_KEY, { code: p.code }); presetUsed = true; } }
-    if (q.get("preset") === "team") { S.team = true; presetUsed = true; }
-    if (q.get("company")) { S.company = q.get("company").trim().slice(0, 40); presetUsed = true; }
-    if (q.get("industry") && MM_INDUSTRY[q.get("industry")]) { S.industry = q.get("industry"); presetUsed = true; }
-    if (presetUsed) { lsSet(SEEN_KEY, true); save(); history.replaceState(null, "", location.pathname); setTimeout(goSetup, 0); }
+    const q = new URLSearchParams(location.search);
+    const pc = q.get("code") ? parseLicense(q.get("code")) : null, codeOk = !!(pc && pc.ok && pc.exp > Date.now());
+    const qCompany = (q.get("company") || "").trim().slice(0, 40), qTeam = q.get("preset") === "team";
+    const qInd = q.get("industry") && MM_INDUSTRY[q.get("industry")] ? q.get("industry") : "";
+    const presetUsed = codeOk || qTeam || !!qCompany || !!qInd;
+    /* לינק של ארגון אחר, או נתונים ישנים: מתחילים נקי בלי לשאול */
+    const normOrg = (x) => String(x || "").replace(/\s+/g, " ").trim().toLowerCase();
+    const otherOrg = (!!qCompany && normOrg(qCompany) !== normOrg(S.company)) || (codeOk && (!LIC || LIC.org !== pc.org));
+    const applyPreset = () => {
+      if (codeOk) { LIC = pc; lsSet(LIC_KEY, { code: pc.code }); }
+      if (qTeam) S.team = true;
+      if (qCompany) S.company = qCompany;
+      if (qInd) S.industry = qInd;
+      lsSet(SEEN_KEY, true); save(); renderLicBoxes();
+    };
+    if (presetUsed) {
+      history.replaceState(null, "", location.pathname);
+      staleGroup = false;
+      if (otherOrg && S.inGame && !groupIsStale()) {
+        /* משחק פתוח ועדכני + לינק של ארגון אחר: שום דבר לא משתנה עד שהמנחה מאשר */
+        setTimeout(async () => {
+          const ok = await dialog({ title: "לעבור לארגון אחר?", text: "פתחתם לינק של ארגון אחר, אבל במכשיר יש משחק פתוח. מעבר יסגור את המשחק וימחק את השמות והניקוד שלו. ביטול משאיר הכל בדיוק כמו שהיה.", okText: "לעבור לארגון החדש", cancelText: "ביטול, להמשיך במשחק", solid: true });
+          if (!ok) { syncGroupUI(); return; }
+          clearGroup(); applyPreset(); goSetup();
+        }, 0);
+      } else {
+        if (hasGroupData() && (groupIsStale() || otherOrg)) clearGroup(); /* ארגון אחר או נתונים ישנים: מתחילים נקי */
+        applyPreset(); setTimeout(goSetup, 0);
+      }
+    }
   } catch (e) {}
   document.body.classList.toggle("noanim", !S.settings.motion);
   document.body.classList.toggle("bigscreen", !!S.big);
   $("#verLabel").textContent = APP_VERSION;
-  $("#resumeBtn").hidden = !canResume();
+  syncGroupUI();
   loadVoices(); applyHintsVis(); show("home");
-  if (location.hash === "#play") { lsSet(SEEN_KEY, true); goSetup(); history.replaceState(null, "", location.pathname + location.search); }
+  if (location.hash === "#play") { lsSet(SEEN_KEY, true); if (staleGroup) askStaleGroup().then(goSetup); else goSetup(); history.replaceState(null, "", location.pathname + location.search); }
+  else if (staleGroup) askStaleGroup();
   else if (!S.team || !$("#setup").classList.contains("active")) openOnboard(false);
   if (LIC && licActive() && licDaysLeft() <= 7) setTimeout(() => toastMsg(`הקוד הארגוני של ${LIC.org} פג בעוד ${licDaysLeft()} ימים — אפשר לחדש בוואטסאפ מההגדרות`), 1200);
   else if (LIC && !licActive()) setTimeout(() => toastMsg(`הקוד הארגוני של ${LIC.org} פג תוקף — מצב צוות חזר לניסיון`), 1200);
