@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.2.0">
+<link rel="stylesheet" href="css/app.css?v=2.2.1">
 <script>
 /* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
    מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
@@ -91,6 +91,7 @@
     <div class="row">
       <button class="big" data-act="goSetup">בואו נשחק</button>
       <button class="ghost" id="resumeBtn" hidden data-act="resumeGame">▶️ המשך משחק</button>
+      <button class="ghost" id="newGroupHome" hidden data-act="newGroup">🧹 קבוצה חדשה</button>
     </div>
     <div class="row" style="margin-top:18px">
       <span class="pill">🤖 מנחה אוטומטי</span><span class="pill">🕵️ מצב ניחוש</span><span class="pill">🎧 האוזניה</span>
@@ -113,6 +114,7 @@
         <div class="label">השחקנים</div>
         <div class="players" id="players"></div>
         <button class="ghost addp" data-act="addPlayer">+ הוסף שחקן</button>
+        <button class="ghost addp" data-act="newGroup">🧹 קבוצה חדשה</button>
       </div>
       <div class="field">
         <div class="label">מצב מנחה</div>
@@ -586,11 +588,11 @@
     <div class="field"><div class="label">סטטיסטיקה (נשמרת במכשיר בלבד)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 בדוק קול</button><button class="ghost" data-act="resetAll">🧹 איפוס נתונים</button><button class="big sm" data-act="closeSettings">סגור</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.2.0</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.2.1</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.2.0"></script>
-<script src="js/app.js?v=2.2.0"></script>
+<script src="js/data.js?v=2.2.1"></script>
+<script src="js/app.js?v=2.2.1"></script>
 </body>
 </html>
