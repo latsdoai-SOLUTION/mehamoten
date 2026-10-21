@@ -3,7 +3,7 @@
    ניווטים: network-first (תמיד הגרסה החדשה, אופליין → מטמון).
    קבצי האפליקציה (css/js/אייקונים): stale-while-revalidate (מהיר, ומתעדכן ברקע).
    גופני Google: stale-while-revalidate. */
-const VERSION = "2.2.1";
+const VERSION = "2.4.0";
 const CACHE = "mehamoten-" + VERSION;
 const ASSETS = [
   "./",
@@ -13,6 +13,8 @@ const ASSETS = [
   "./css/app.css?v=" + VERSION,
   "./js/data.js?v=" + VERSION,
   "./js/app.js?v=" + VERSION,
+  "./js/voice_map.js?v=" + VERSION,
+  "./js/voice.js?v=" + VERSION,
   "./icons/favicon.svg",
   "./icons/app-icon.svg",
   "./icons/icon-180.png",
@@ -21,10 +23,14 @@ const ASSETS = [
   "./icons/icon-maskable-192.png",
   "./icons/icon-maskable-512.png"
 ];
+/* רשימת קבצי השמע נלקחת מהמפה עצמה, כדי שלא תתפצל */
+let AUDIO = [];
+try { importScripts("./js/voice_map.js?v=" + VERSION); AUDIO = MM_VOICE.groups.map((g) => "./audio/" + g + ".mp3?v=" + VERSION); } catch (e) {}
 const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+  /* קבצי השמע (כ-4.5MB) נשמרים בניסיון אחד ובלי להכשיל את ההתקנה: אם אחד נכשל, הוא ייטען בפעם הראשונה שצריך אותו */
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS).then(() => Promise.all(AUDIO.map((u) => c.add(u).catch(() => {}))))));
 });
 
 self.addEventListener("activate", (e) => {
@@ -58,6 +64,12 @@ self.addEventListener("fetch", (e) => {
       timeoutFetch(req, 4000).then((res) => { e.waitUntil(putCopy(req, res)); return res; })
         .catch(() => caches.match(req, { ignoreSearch: true }).then((c) => c || caches.match("./index.html")))
     );
+    return;
+  }
+
+  /* קבצי שמע: לא משתנים בתוך גרסה (?v=), אז מהמטמון בלבד, בלי להוריד שוב ברקע */
+  if (url.origin === location.origin && url.pathname.includes("/audio/")) {
+    e.respondWith(caches.match(req).then((c) => c || fetch(req).then((res) => { e.waitUntil(putCopy(req, res)); return res; })));
     return;
   }
 

@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.2.1";
+const APP_VERSION = "2.4.0";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -117,14 +117,14 @@ async function removeCode() {
 function teamAllowed() { return licActive() || !S.teamTrialUsed; }
 
 /* ---------- מצב ---------- */
-const DEFAULT_SETTINGS = { persona: "compere", tts: true, sfx: true, hints: true, motion: true, voiceURI: "" };
+const DEFAULT_SETTINGS = { persona: "compere", tts: true, sfx: true, hints: true, motion: true, voiceURI: "", voice: "rec" };
 const S = {
   players: ["", "", ""], mode: "auto", scored: false, level: "easy", kids: false, team: false, company: "", industry: "",
-  packs: ["style", "lang", "body"], sceneLen: 90, big: false,
+  packs: ["style", "lang", "body"], sceneLen: 90, big: false, lite: true, ls: null, liteEv: null,
   scores: {}, honors: {}, directorIdx: 0, round: 0, dirCounts: {}, curDir: "", curPerf: [], starter: "",
   guessIdx: 0, inGame: false, startedAt: 0, teamTrialUsed: false, trialRound: false,
   set: null, con: null, conCat: null, rings: 0, topics: 0,
-  log: [], debriefPicked: [],
+  log: [], debriefPicked: [], debrief: null, freezes: 0,
   settings: { ...DEFAULT_SETTINGS }
 };
 function save() { S.lastActive = Date.now(); lsSet(STORE_KEY, S); }
@@ -139,15 +139,15 @@ function groupIsStale() { const t = +S.lastActive || +S.startedAt || 0; return h
 function clearGroup() {
   stopGame(); /* כל מסלולי המחיקה עוצרים קודם טיימרים, ספירה לאחור וקול */
   S.players = ["", "", ""]; S.company = "";
-  S.scores = {}; S.honors = {}; S.dirCounts = {}; S.log = []; S.debriefPicked = [];
+  S.scores = {}; S.honors = {}; S.dirCounts = {}; S.log = []; S.debriefPicked = []; S.debrief = null;
   S.round = 0; S.directorIdx = 0; S.guessIdx = 0; S.earIdx = 0; S.miniIdx = 0;
   S.curDir = ""; S.curPerf = []; S.starter = ""; S.set = null; S.con = null; S.conCat = null;
-  S.rings = 0; S.topics = 0; S.startedAt = 0; S.inGame = false; S.trialRound = false;
+  S.rings = 0; S.topics = 0; S.startedAt = 0; S.inGame = false; S.trialRound = false; S.ls = null; S.liteEv = null;
   S.guesser = ""; S.earListener = ""; S.earAgent = ""; S.mini = null; S.ear = null; S.guess = null;
   gameActive = false; save();
   const ci = $("#companyInput"); if (ci) ci.value = "";
   /* מסכים מוסתרים שעוד מחזיקים שמות מהקבוצה הקודמת */
-  ["#board", "#introPerf", "#introDir", "#introWho", "#winName", "#summaryBody", "#playPerf", "#earListenerName", "#earAgentName"].forEach((sel) => { const e = $(sel); if (e) e.textContent = ""; });
+  ["#dbBody", "#board", "#introPerf", "#introDir", "#introWho", "#winName", "#summaryBody", "#playPerf", "#earListenerName", "#earAgentName"].forEach((sel) => { const e = $(sel); if (e) e.textContent = ""; });
   renderPlayers(); syncGroupUI();
 }
 function syncGroupUI() {
@@ -192,6 +192,7 @@ function load() {
   if (S.industry && !MM_INDUSTRY[S.industry]) S.industry = "";
   if (!Array.isArray(S.log)) S.log = [];
   if (!Array.isArray(S.debriefPicked)) S.debriefPicked = [];
+  if (S.debrief) { const D = S.debrief; if (Array.isArray(D) || typeof D !== "object") S.debrief = null; else { D.step = [0, 1, 2, 3].includes(D.step) ? D.step : 0; D.op = +D.op || 0; ["theme", "shared", "tryIt", "follow"].forEach((k) => { D[k] = typeof D[k] === "string" ? D[k] : ""; }); D.done = !!D.done; D.skipped = !!D.skipped; } }
   ["scores", "dirCounts", "honors"].forEach((k) => { if (!S[k] || typeof S[k] !== "object" || Array.isArray(S[k])) S[k] = {}; });
   if (!Array.isArray(S.curPerf)) S.curPerf = [];
   if (typeof S.round !== "number" || S.round < 0) S.round = 0;
@@ -201,7 +202,18 @@ function load() {
   if (S.set && !MM_CAT[S.conCat]) { S.conCat = null; S.con = null; }
   if (typeof S.guessIdx !== "number") S.guessIdx = 0;
   S.kids = !!S.kids; S.team = !!S.team; S.big = !!S.big; S.scored = !!S.scored;
+  /* מצב קליל (2.4.0): ברירת מחדל למצב צוות. מכשיר שעודכן מגרסה קודמת מקבל קליל. */
+  S.lite = S.lite !== false;
+  if (!S.ls || typeof S.ls !== "object" || !Array.isArray(S.ls.roles) || !Array.isArray(S.ls.lines)) S.ls = null;
+  if (S.liteEv && !["swap", "task"].includes(S.liteEv.kind)) S.liteEv = null;
 }
+/* מצב קליל פעיל: רק במצב צוות, כשבחרו "קליל" (ברירת המחדל) */
+function isLite() { return !!(S.team && S.lite); }
+function voiceHas(t) { try { return S.settings.voice === "tts" || (typeof MMV === "object" && MMV.has(t, S.settings.persona)); } catch (e) { return false; } }
+/* סיבוב "שובר" במצב קליל: כל סיבוב רביעי משהו אחר (ניחוש עם 3+ שחקנים, אחרת רגשות בשלט רחוק) */
+function liteBreaker(round) { return round > 0 && round % 4 === 0; }
+/* מה קורה באמצע הסיבוב במצב קליל: סיבוב 1 כלום, סיבוב 2 החלפת דמויות, סיבוב 3 משימה אישית, ואז לסירוגין */
+function liteEventKind(round) { if (round <= 1) return null; return round % 2 === 0 ? "swap" : "task"; }
 
 /* סטטיסטיקה מקומית בלבד (בלי שרת) */
 const STATS = Object.assign({ games: 0, rounds: 0, swaps: 0 }, lsGet(STATS_KEY, {}));
@@ -251,7 +263,7 @@ let AC = null;
 function ac() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } return AC; }
 function tone(freq, dur, type = "sine", vol = .4, slideTo = null) {
   if (!S.settings.sfx) return; const c = ac(); if (!c) return;
-  if (c.state === "suspended") c.resume().catch(() => {});
+  if (c.state !== "running") { try { c.resume().catch(() => {}); } catch (e) {} }
   const o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.value = freq;
   if (slideTo) o.frequency.linearRampToValueAtTime(slideTo, c.currentTime + dur);
   g.gain.setValueAtTime(vol, c.currentTime); g.gain.exponentialRampToValueAtTime(.001, c.currentTime + dur);
@@ -281,8 +293,20 @@ function loadVoices() {
   else if (he[0]) { sel.value = he[0].voiceURI; S.settings.voiceURI = he[0].voiceURI; }
 }
 if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => { if (!$("#settings").classList.contains("open")) loadVoices(); };
-function speak(text) {
-  if (!S.settings.tts || !text || !("speechSynthesis" in window)) return;
+function speak(text, seq) {
+  if (!S.settings.tts) return;
+  /* קול מוקלט: מנגן את מה שהוקלט. משפט שלא הוקלט נשאר על המסך בלי קול, ולא קוטע משפט שכבר מתנגן,
+     כדי שלא יתערבב הקול של הדפדפן באמצע. קול הדפדפן רק אם בחרו בו או אם ההקלטות לא זמינות. */
+  if (S.settings.voice !== "tts" && typeof MMV === "object" && MMV.available()) {
+    if (MMV.say(seq && seq.length ? seq : [text], S.settings.persona)) { try { if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch (e) {} }
+    return;
+  }
+  stopVoice();
+  speakTTS(text);
+}
+function stopVoice() { try { if (typeof MMV === "object") MMV.stop(); } catch (e) {} try { if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch (e) {} }
+function speakTTS(text) {
+  if (!text || !("speechSynthesis" in window)) return;
   try {
     if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text); u.lang = "he-IL";
@@ -293,6 +317,7 @@ function speak(text) {
   } catch (e) {}
 }
 function persona() { return MM_PERSONA[S.settings.persona] || MM_PERSONA.compere; }
+function personaKey() { return MM_PERSONA[S.settings.persona] ? S.settings.persona : "compere"; }
 
 /* ---------- חלוניות (במקום alert/confirm/prompt) ---------- */
 function dialog({ title, text, input, value = "", okText = "אישור", cancelText = "ביטול", danger = false, solid = false }) {
@@ -361,7 +386,7 @@ function hideTopic() { $("#topic").classList.remove("show"); }
 function throwTopic() {
   if (!sceneRunning || paused) return; S.topics++;
   let tp = MM_TOPICS; if (S.kids) tp = tp.filter((x) => !MM_KIDS_TOPIC_BLOCK.some((b) => x.includes(b)));
-  const t = drawDeck("topics", tp); showTopicToast(t); sfx.topic(); speak(persona().topic(t));
+  const t = drawDeck("topics", tp); showTopicToast(t); sfx.topic(); speak(persona().topic(t), ["topic-lead-1", t]);
 }
 
 /* ---------- הגדרת משחק ---------- */
@@ -391,9 +416,12 @@ function syncSetupUI() {
   setOn("kidsSeg", S.kids ? "on" : "off"); setOn("teamSeg", S.team ? "on" : "off"); setOn("bigSeg", S.big ? "on" : "off");
   setOn("timeSeg", String(S.sceneLen)); setOn("industrySeg", S.industry || "");
   $("#teamExtra").hidden = !S.team; $("#companyInput").value = S.company || ""; renderLicBoxes();
+  setOn("liteSeg", S.lite ? "on" : "off"); if (isLite()) setOn("modeSeg", "auto");
+  /* במצב קליל: המנחה אוטומטי, והאילוצים, הרמה ומשחקי המיני לא בשימוש */
+  const lite = isLite(); const ln = $("#liteNote"); if (ln) ln.hidden = !lite;
+  $$("#modeSeg button, #levelSeg button, #packSeg button").forEach((b) => b.disabled = lite || (b.dataset.pack === "guess" && S.kids));
   $$("#packSeg button").forEach((b) => { const on = S.packs.includes(b.dataset.pack); b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
   $$("#scoredSeg button").forEach((b) => b.disabled = S.kids);
-  const gb = $('#packSeg button[data-pack="guess"]'); if (gb) gb.disabled = S.kids;
 }
 function onSetupSeg(seg, btn) {
   const key = seg.dataset.key, v = btn.dataset.v;
@@ -406,6 +434,7 @@ function onSetupSeg(seg, btn) {
     clearDecks();
   }
   else if (key === "team") S.team = v === "on";
+  else if (key === "lite") S.lite = v === "on";
   else if (key === "industry") { S.industry = v; clearDecks(); }
   else if (key === "sceneLen") S.sceneLen = +v;
   else if (key === "big") {
@@ -471,19 +500,116 @@ async function startGame() {
   S.company = ($("#companyInput").value || "").trim().slice(0, 40);
   const ps = activeP();
   if (S.kids) { S.scored = false; S.packs = S.packs.filter((p) => p !== "guess"); if (!S.packs.length) S.packs = ["style", "lang", "body"]; }
+  if (isLite()) S.mode = "auto"; /* במצב קליל המנחה הדיגיטלי מנהל, אין במאי */
   if (S.mode === "auto" && ps.length < 2) { await notify("חסרים שחקנים", "במצב אוטומטי צריך לפחות 2 שחקנים עם שמות."); return; }
   if (S.mode === "manual" && ps.length < 3) { await notify("חסרים שחקנים", "במצב ידני צריך לפחות 3 שחקנים (במאי + 2 מאלתרים)."); return; }
   const norm = ps.map((p) => p.replace(/\s+/g, " ").toLowerCase());
   if (new Set(norm).size !== norm.length) { toastMsg("יש שני שחקנים עם אותו שם — שנו אחד מהם"); return; }
   S.scores = {}; S.dirCounts = {}; S.honors = {}; ps.forEach((p) => { S.scores[p] = 0; S.dirCounts[p] = 0; S.honors[p] = 0; });
-  S.round = 0; S.directorIdx = 0; S.guessIdx = 0; S.earIdx = 0; S.miniIdx = 0; S.log = []; S.debriefPicked = []; S.startedAt = Date.now();
+  S.round = 0; S.directorIdx = 0; S.guessIdx = 0; S.earIdx = 0; S.miniIdx = 0; S.log = []; S.debriefPicked = []; S.debrief = null; S.startedAt = Date.now();
   S.trialRound = false;
   if (S.team && !licActive()) {
     if (S.teamTrialUsed) { S.team = false; S.industry = ""; toastMsg("סיבוב הניסיון במצב צוות נוצל. ממשיכים במצב רגיל."); }
     else { S.trialRound = true; S.teamTrialUsed = true; } /* מסומן כבר בהתחלה: יציאה באמצע לא נותנת ניסיון נוסף */
   }
   guessRound = false; guessWin = false; earRound = false; miniRound = false; gameActive = true; S.inGame = true; clearDecks();
-  bumpStat("games"); keepAwake(true); save(); nextRound();
+  S.ls = null; S.liteEv = null;
+  bumpStat("games"); keepAwake(true); save();
+  if (isLite()) liteIntro(); else nextRound();
+}
+/* ---------- מצב קליל: פתיחה, במה, מי זה מי ---------- */
+function liteIntro() {
+  $("#liteIntroBody").innerHTML = MM_LITE_INTRO.map((t) => `<p>${esc(t)}</p>`).join("");
+  show("liteIntro"); sfx.start();
+}
+function liteGo() { nextRound(); }
+/* קלף הבמה הקליל: מקום + בעיה קטנה + מי זה מי. דמות 1 תמיד למי שמתחיל. */
+function liteDraw() {
+  const st = drawDeck("lite", MM_LITE_SET);
+  S.ls = { place: st.place, prob: st.prob, roles: st.roles.slice(), lines: st.lines.slice() };
+  S.set = [st.place, st.roles.join(" ו"), st.lines[0]]; S.con = null; S.conCat = null;
+  /* מי שמתחיל = דמות 1, השני = דמות 2 (בלי בחירה, בלי דיון) */
+  const other = S.curPerf.find((p) => p !== S.starter) || S.curPerf[1] || "";
+  S.ls.who = [S.starter, other]; S.liteEv = null;
+  $("#drawRnum").textContent = "סיבוב " + S.round + " · הבמה שלכם";
+  $("#drawCards").innerHTML = liteCardHTML(true);
+  renderLiteDrawGuide(); applyHintsVis(); show("draw"); sfx.start();
+  /* במה שעוד לא הוקלטה: המנחה אומר רק "קדימה!" (משפט חצי מוקלט לא מושמע) */
+  speak(`הבמה: ${S.ls.place}. קדימה!`, voiceHas(S.ls.place) ? ["draw-a-1", S.ls.place, "draw-b-1"] : ["draw-b-1"]);
+  save();
+}
+function liteCardHTML(big) {
+  const L = S.ls; if (!L) return "";
+  return `<div class="gcard set b-set lite${big ? "" : " sm"}">
+    <div class="band"><span class="cdot"></span><span class="lbl">הבמה</span><span class="ic">📍</span></div>
+    <div class="body"><h3 class="t">${esc(L.place)}</h3><div class="rule"></div><p class="d">${esc(L.prob)}</p>
+    <div class="who2"><div><b>${esc(L.who[0])}</b><span>${esc(L.roles[0])}</span></div><div><b>${esc(L.who[1])}</b><span>${esc(L.roles[1])}</span></div></div>
+    <div class="wm" aria-hidden="true">במה</div><div class="foot">מהמותן</div></div></div>`;
+}
+function renderLiteDrawGuide() {
+  const g = $("#drawGuide"), L = S.ls; if (!g || !L) return;
+  g.innerHTML =
+    `<div class="gl"><span class="gi">📍</span><span><b>איפה:</b> ${esc(L.place)}. ${esc(L.prob)}</span></div>` +
+    `<div class="gl"><span class="gi">🎭</span><span><b>מי זה מי:</b> ${esc(L.who[0])} = ${esc(L.roles[0])}. ${esc(L.who[1])} = ${esc(L.roles[1])}.</span></div>` +
+    `<div class="gl next"><span class="gi">👉</span><span>עוד לא משחקים. לחצו <b>"המשך"</b> ותקבלו משפט פתיחה לכל אחד. לא מתאים? <b>"שלוף שוב"</b>.</span></div>`;
+}
+/* ההסבר על מה שיקרה באמצע הסיבוב, רק כשזה רלוונטי (לא מעמיסים הכל מראש) */
+function liteCastNote() {
+  const k = liteEventKind(S.round);
+  if (k === "swap") return `🔔 באמצע הסיבוב תשמעו <b>"החלפה!"</b>: מתחלפים בדמויות (${esc(S.ls.who[0])} הופך/ת ל${esc(S.ls.roles[1])}, ${esc(S.ls.who[1])} ל${esc(S.ls.roles[0])}) וממשיכים מאותו מקום.`;
+  if (k === "task") return `🎯 באמצע הסיבוב אחד/ת מכם יקבל/תקבל <b>משימה קטנה</b> על המסך. רק מי שהשם שלו/ה כתוב. השני/ה ממשיך/ה כרגיל.`;
+  return `🟢 הסיבוב הזה בלי הפרעות: רק אתם, המקום והמשפט הראשון.`;
+}
+function liteGoCast() {
+  const L = S.ls;
+  $("#castPlace").textContent = L.place; $("#castRel").textContent = L.prob;
+  $("#castStarter").textContent = L.who[0];
+  $("#castSeed").hidden = true; $("#castCon").hidden = true;
+  const w = $("#castWho"); w.hidden = false;
+  w.innerHTML = [0, 1].map((i) => `<div class="whorow"><div class="wn">${esc(L.who[i])}</div><div class="wr">${esc(L.roles[i])}</div><div class="wl">${i ? "עונה" : "פותח/ת"}: <q>${esc(L.lines[i])}</q></div></div>`).join("");
+  const n = $("#castNote"); n.hidden = false; n.innerHTML = liteCastNote();
+  show("cast"); if (voiceHas(L.place)) speak(persona().frame(L.place, L.roles.join(" ו"), L.who[0]), ["frame-a-2", L.place]);
+}
+function liteSwapRoles() {
+  const L = S.ls; if (!L) return;
+  L.who = [L.who[1], L.who[0]]; S.starter = L.who[0]; save();
+  const pc = $("#playCards"); if (pc) pc.innerHTML = litePlayCards();
+}
+function litePlayCards() {
+  const L = S.ls, ev = S.liteEv;
+  return `<div class="scard set"><div class="k">📍 הבמה</div><div class="v">${esc(L.place)}</div><div class="vd">${esc(L.prob)}</div></div>` +
+    `<div class="scard lite"><div class="k">🎭 מי זה מי</div><div class="v who2s"><span><b>${esc(L.who[0])}</b> ${esc(L.roles[0])}</span><span><b>${esc(L.who[1])}</b> ${esc(L.roles[1])}</span></div>` +
+    (ev && ev.fired && ev.kind === "swap" ? `<div class="vd">התחלפתם בדמויות. ממשיכים מאותו מקום.</div>` : `<div class="vd">${esc(L.who[0])}: <q>${esc(L.lines[0])}</q> · ${esc(L.who[1])}: <q>${esc(L.lines[1])}</q></div>`) + `</div>` +
+    (ev && ev.fired && ev.kind === "task" ? `<div class="scard task"><div class="k">🎯 משימה ל${esc(ev.who)}</div><div class="v">${esc(ev.text)}</div><div class="vd">${esc(ev.other)} ממשיך/ה כרגיל</div></div>` : "");
+}
+/* האירוע היחיד של הסיבוב: החלפת דמויות (תמיד פעם אחת, באמצע) או משימה אישית (ב-120 שניות: שתיים, 40% ו-70%). */
+function scheduleLiteEvent() {
+  if (!sceneRunning || paused || !isLite() || guessRound || earRound || miniRound) return;
+  const kind = liteEventKind(S.round); if (!kind) return;
+  if (!S.liteEv) S.liteEv = { kind, fired: 0, max: kind === "task" && S.sceneLen >= 120 ? 2 : 1 };
+  const ev = S.liteEv; if (ev.fired >= ev.max) return;
+  const at = ev.max === 2 ? (ev.fired === 0 ? .4 : .7) : .5;
+  const delay = Math.max(1, S.sceneLen * at - elapsed + (Math.random() * 6 - 3));
+  if (swapT) clearTimeout(swapT);
+  swapT = setTimeout(() => {
+    if (!sceneRunning || paused) return; if (S.sceneLen - elapsed <= 12) return;
+    fireLiteEvent(); if (ev.fired < ev.max) scheduleLiteEvent();
+  }, delay * 1000);
+}
+function fireLiteEvent() {
+  const ev = S.liteEv, L = S.ls; if (!ev || !L) return; ev.fired++;
+  if (ev.kind === "swap") {
+    S.rings++; bumpStat("swaps"); liteSwapRoles();
+    $("#flashTxt").textContent = "החלפה!"; $("#ringcount").textContent = `🔔 התחלפתם בדמויות: ${L.who[0]} = ${L.roles[0]} · ${L.who[1]} = ${L.roles[1]}`;
+    flashSwap(false); sfx.swap(); speak("החלפה!");
+  } else {
+    const who = rand(L.who), other = L.who.find((p) => p !== who) || "";
+    ev.who = who; ev.other = other; ev.text = drawDeck("litetask", MM_LITE_TASK); S.tasks = (S.tasks || 0) + 1;
+    $("#flashTxt").textContent = `משימה ל${who}!`; $("#ringcount").textContent = `🎯 ${who}: ${ev.text}`;
+    flashSwap(true); sfx.topic();
+    const pc = $("#playCards"); if (pc) pc.innerHTML = litePlayCards();
+  }
+  save();
 }
 function rolesForRound() {
   const ps = activeP(), n = ps.length;
@@ -501,7 +627,7 @@ function nextRound() {
   $("#introPerf").textContent = perf.join("  •  ");
   if (S.mode === "manual") { $("#introDirLine").hidden = false; $("#introDir").textContent = dir; $("#introWho").textContent = dir + ", את/ה הבמאי/ת"; }
   else { $("#introDirLine").hidden = true; $("#introWho").textContent = "המנחה מוכן"; }
-  show("intro"); speak(persona().intro(perf.join(" ו"))); save();
+  show("intro"); speak(persona().intro(perf.join(" ו")), [personaKey() + "-intro-1", personaKey() + "-intro-2"]); save();
 }
 function buildCard(cat, card) {
   return `<div class="gcard ${cat} b-${cat}">
@@ -509,10 +635,33 @@ function buildCard(cat, card) {
     <div class="body"><h3 class="t">${esc(card[0])}</h3><div class="rule"></div><p class="d">${esc(card[1])}</p>
     <div class="wm" aria-hidden="true">${MM_CAT[cat].ltr}</div><div class="foot">מהמותן</div></div></div>`;
 }
+/* מסביר במילים פשוטות מה כתוב על הקלפים ומה קורה עכשיו (למי שמשחק בפעם הראשונה) */
+const CON_HOW = {
+  style: "משחקים את <b>כל הסצנה</b> בסגנון הזה",
+  lang: "מדברים ככה <b>כל הסצנה</b>",
+  body: "שומרים עליו בגוף <b>כל הסצנה</b>"
+};
+function renderDrawGuide(cat) {
+  const g = $("#drawGuide"); if (!g || !S.set || !S.con) return;
+  const how = CON_HOW[cat] || "משחקים לפיו <b>כל הסצנה</b>";
+  const ex = typeof MM_CON_EXPLAIN === "object" ? MM_CON_EXPLAIN[S.con[0]] : null;
+  g.innerHTML =
+    `<div class="gl"><span class="gi">📍</span><span><b>הבמה:</b> הסצנה קורית ב<b>${esc(S.set[0])}</b>. מי אתם: ${esc(S.set[1])}.</span></div>` +
+    `<div class="gl"><span class="gi">${MM_CAT[cat] ? MM_CAT[cat].ic : "🎭"}</span><span><b>האילוץ: ${esc(S.con[0])}.</b> הדמויות נשארות מכרטיס הבמה. האילוץ קובע <b>איך</b> משחקים אותן: ${how}.` +
+      (ex ? `<span class="ex"><b>מה זה אומר:</b> ${esc(ex[0])}</span><span class="ex"><b>לדוגמה:</b> ${esc(ex[1])}</span>` : `<span class="ex">${esc(S.con[1])}</span>`) +
+    `</span></div>` +
+    `<div class="gl next"><span class="gi">👉</span><span>עוד לא משחקים. לחצו <b>"המשך"</b> כדי לראות מי עולה לבמה ומי מתחיל. לא אוהבים את הקלפים? <b>"שלוף שוב"</b>.</span></div>`;
+}
 function drawCards() {
+  earRound = false; miniRound = false;
+  if (isLite()) {
+    guessRound = false; guessWin = false;
+    { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; if (!S.curPerf.includes(S.starter)) S.starter = rand(S.curPerf); }
+    if (liteBreaker(S.round)) { if (activeP().length >= 3) setupGuessRound(); else setupMiniRound("emo"); return; }
+    liteDraw(); return;
+  }
   const packs = S.kids ? S.packs.filter((p) => p !== "guess") : S.packs;
   const cat = rand(packs.length ? packs : ["style", "lang", "body"]);
-  earRound = false; miniRound = false;
   if (cat === "guess") { setupGuessRound(); return; }
   if (cat === "ear") { setupEarRound(); return; }
   if (MINI[cat]) { setupMiniRound(cat); return; }
@@ -521,14 +670,18 @@ function drawCards() {
   S.set = drawDeck("set", pool("set")); S.conCat = cat; S.con = drawDeck(cat, pool(cat));
   $("#drawRnum").textContent = "סיבוב " + S.round + " · הבמה והאילוץ שלכם";
   $("#drawCards").innerHTML = buildCard("set", S.set) + buildCard(cat, S.con);
-  applyHintsVis(); show("draw"); sfx.start(); speak(persona().draw(S.set[0], S.con[0]));
+  renderDrawGuide(cat);
+  applyHintsVis(); show("draw"); sfx.start(); speak(persona().draw(S.set[0], S.con[0]), ["draw-a-1", S.set[0], "draw-a-2", S.con[0], "draw-b-1"]);
+  if (S.settings.tts && S.settings.voice !== "tts" && typeof MMV === "object") MMV.prefetch([S.set[1]], S.settings.persona); /* התפקיד של המסך הבא */
 }
 function goCast() {
+  if (isLite() && S.ls) { liteGoCast(); return; }
+  $("#castWho").hidden = true; $("#castNote").hidden = true; $("#castCon").hidden = false;
   $("#castPlace").textContent = S.set[0]; $("#castRel").textContent = S.set[1]; $("#castStarter").textContent = S.starter;
   $("#castCon").textContent = "האילוץ: " + S.con[0] + " — " + S.con[1];
   const seed = $("#castSeed");
   if (S.level === "easy") { seed.hidden = false; $("#castSeedTxt").textContent = '"' + rand(MM_OPENERS) + '"'; } else seed.hidden = true;
-  show("cast"); speak(persona().frame(S.set[0], S.set[1], S.starter));
+  show("cast"); speak(persona().frame(S.set[0], S.set[1], S.starter), ["frame-a-1", S.set[1], "frame-a-2", S.set[0]]);
 }
 
 /* ---------- סיבוב האוזניה ----------
@@ -749,7 +902,7 @@ function setupGuessRound() {
   $("#secretKind").textContent = "🕵️ " + g.k; $("#secretVal").textContent = secret; $("#secretDesc").textContent = g.d;
   $("#secretCard").classList.add("blurred");
   show("guessIntro"); sfx.start();
-  speak(`סיבוב ניחוש! ${S.guesser}, בלי להסתכל על המסך! כל השאר — תציצו בסוד.`);
+  speak(`סיבוב ניחוש! ${S.guesser}, בלי להסתכל על המסך! כל השאר — תציצו בסוד.`, ["guess-intro-1", "guess-intro-2"]);
 }
 (function secretHold() {
   const sc = $("#secretCard"); let holdT = null;
@@ -765,8 +918,8 @@ function finishGuess(win) {
   $("#guessEmoji").textContent = win ? "🎯" : "⏱️";
   $("#guessResult").textContent = win ? `${S.guesser} ניחש/ה נכון!` : "הזמן נגמר!";
   $("#guessResultSub").textContent = `הסוד היה: ${S.guess.secret}` + (win ? "" : " — אולי בפעם הבאה 😅");
-  if (win) { sfx.bell(); miniConfetti(); speak(`${S.guesser} ניחש/ה נכון! כל הכבוד!`); if (S.scored) S.scores[S.guesser] = (S.scores[S.guesser] || 0) + 2; }
-  else { sfx.end(); speak(`נגמר הזמן! הסוד היה: ${S.guess.secret}`); }
+  if (win) { sfx.bell(); miniConfetti(); speak(`${S.guesser} ניחש/ה נכון! כל הכבוד!`, ["guess-win-2"]); if (S.scored) S.scores[S.guesser] = (S.scores[S.guesser] || 0) + 2; }
+  else { sfx.end(); speak(`נגמר הזמן! הסוד היה: ${S.guess.secret}`, ["guess-lose-1", S.guess.secret]); }
   hinterPick = null;
   const hp = $("#hinterPanel"); hp.hidden = !S.scored;
   if (S.scored) $("#hinterGrid").innerHTML = activeP().filter((p) => p !== S.guesser).map((p) => `<button data-hn="${esc(p)}">${esc(p)}</button>`).join("");
@@ -817,11 +970,12 @@ function setKeyHint() {
   const el = $("#keyHint"); if (!el) return;
   el.textContent = miniRound ? "מקלדת: רווח = הבא עכשיו · P = השהיה · E = סיום"
     : earRound ? "מקלדת: רווח = משימה הבאה · P = השהיה · E = סיום"
-    : guessRound ? "מקלדת: " + (S.settings.hints ? "H = רמז · " : "") + "P = השהיה · E = סיום" : KEYHINT_DEFAULT;
+    : guessRound ? "מקלדת: " + (S.settings.hints ? "H = רמז · " : "") + "P = השהיה · E = סיום"
+    : isLite() ? "מקלדת: H = רמז · P = השהיה · E = סיום" : KEYHINT_DEFAULT;
 }
 function startScene() {
   pushGameState();
-  elapsed = 0; sceneStart = Date.now(); S.rings = 0; S.topics = 0; sceneRunning = true; paused = false; setPausedUI(false);
+  elapsed = 0; sceneStart = Date.now(); S.rings = 0; S.topics = 0; S.freezes = 0; S.tasks = 0; S.liteEv = null; sceneRunning = true; paused = false; setPausedUI(false);
   if (miniRound) {
     const G = MINI[S.mini.g], t = S.mini.topic;
     S.miniIdx = (S.miniIdx || 0) + 1; S.mini.shown = 0; S.mini.cues = G.cues(); miniCueIdx = 0; miniExtra = 0;
@@ -829,7 +983,7 @@ function startScene() {
       `<div class="scard set"><div class="k">${esc(t.k.replace(" (לא להראות!)", ""))}</div><div class="v">${esc(t.v)}</div>${t.d ? `<div class="vd">${esc(t.d)}</div>` : ""}</div>` +
       `<div class="earmission minicard" id="miniCard">${G.idle ? miniCardHTML(G.idle) : ""}</div>`;
     $("#playPerf").innerHTML = G.roles(S.mini.perf);
-    $("#guide").textContent = G.guide;
+    $("#playGuide").textContent = G.guide;
     $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = true; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = false;
     $("#miniNextBtn").textContent = S.mini.g === "expert" ? "💡 רמז עכשיו" : "⏭️ הבא עכשיו";
   } else if (earRound) {
@@ -838,28 +992,39 @@ function startScene() {
       `<div class="scard set"><div class="k">📍 הסצנה</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>` +
       `<div class="earmission" id="earMission"><div class="k">🎧 משימה סודית <span id="earNum">1</span></div><div class="v" id="earTitle"></div><div class="vd" id="earDesc"></div></div>`;
     $("#playPerf").innerHTML = `🙉 <b>${esc(S.earListener)}</b> עם הגב · 🎧 <b>${esc(S.earAgent)}</b> הסוכן/ת`;
-    $("#guide").textContent = "סוכן/ת: שלבו את המשימה בשיחה בלי שיעלו עליכם! קהל: שקט, לא מסגירים 🤫";
+    $("#playGuide").textContent = "סוכן/ת: שלבו את המשימה בשיחה בלי שיעלו עליכם! קהל: שקט, לא מסגירים 🤫";
     $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = true; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = false; $("#miniCtrl").hidden = true;
   } else if (guessRound) {
     S.guessIdx++; save();
     $("#playCards").innerHTML = `<div class="scard guess"><div class="k">🕵️ ניחוש · ${esc(S.guess.k)}</div><div class="v">${esc(S.guess.t)}</div><div class="vd">${esc(S.guess.d)}</div></div>`;
     $("#playPerf").innerHTML = `<b>${esc(S.guesser)}</b> מנחש/ת · כל השאר רומזים`;
-    $("#guide").textContent = "רומזים חופשי — רק אסור להגיד את הסוד!";
+    $("#playGuide").textContent = "רומזים חופשי — רק אסור להגיד את הסוד!";
     $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = true; $("#guessCtrl").hidden = false; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
+  } else if (isLite() && S.ls) {
+    $("#playCards").innerHTML = litePlayCards();
+    $("#playPerf").textContent = S.curPerf.join("  •  ");
+    $("#playGuide").textContent = "אתם לא צריכים להצחיק אף אחד. פשוט דברו זה עם זה כאילו אתם באמת שם.";
+    $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = false; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
   } else {
     $("#playCards").innerHTML =
       `<div class="scard set"><div class="k">📍 במה</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>` +
       `<div class="scard ${S.conCat}"><div class="k">${MM_CAT[S.conCat].ic} ${MM_CAT[S.conCat].label}</div><div class="v">${esc(S.con[0])}</div><div class="vd">${esc(S.con[1])}</div></div>`;
     $("#playPerf").textContent = S.curPerf.join("  •  ");
-    $("#guide").textContent = S.mode === "manual" ? "במאי/ת: כשזה נהיה צפוי — לחצו 🔔 החלפה!" : "המנחה מוביל — הקשיבו ל\"החלפה!\" ול\"נושא חדש\"";
+    $("#playGuide").textContent = S.mode === "manual" ? "במאי/ת: כשזה נהיה צפוי — לחצו 🔔 החלפה!" : "המנחה מוביל — הקשיבו ל\"החלפה!\" ול\"נושא חדש\"";
     $("#manualCtrl").hidden = S.mode !== "manual"; $("#autoCtrl").hidden = S.mode !== "auto"; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
   }
+  /* במצב קליל אין "נושא חדש" ואין "קפאו": רק תקוע?, רמז, השהיה וסיום */
+  const lite = isLite() && !guessRound && !earRound && !miniRound;
+  $$("#autoCtrl .topicb").forEach((b) => b.hidden = lite);
+  const ah = $("#autoCtrl .autohint"); if (ah) ah.textContent = lite ? "🤖 המנחה מנהל את הסצנה. דברו, זה כל מה שצריך." : "🤖 המנחה מנהל את הסצנה… הקשיבו ל\"החלפה!\"";
+  document.body.classList.toggle("litescene", lite);
   $("#ringcount").textContent = ""; $("#playBadge").hidden = licActive();
   updateClock(); setKeyHint(); show("play"); sfx.start(); keepAwake(true);
   if (timer) clearInterval(timer); timer = setInterval(tick, 1000);
   if (earRound) earNext(false);
   if (miniRound) miniTick();
-  if (S.mode === "auto" && !guessRound && !earRound && !miniRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
+  if (isLite() && !guessRound && !earRound && !miniRound) scheduleLiteEvent();
+  else if (S.mode === "auto" && !guessRound && !earRound && !miniRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
 }
 function updateClock() {
   const left = Math.max(0, S.sceneLen - elapsed); const clk = $("#clock"); clk.textContent = left;
@@ -905,8 +1070,8 @@ function doSwap() {
   flashSwap(false); sfx.swap(); speak(rand(persona().swap));
 }
 function freeze() {
-  if (!sceneRunning || paused) return; $("#flashTxt").textContent = "פריז!"; flashSwap(true); sfx.freeze();
-  speak("פריז! החליפו שחקן ופתחו סצנה חדשה מאותה תנוחה!");
+  if (!sceneRunning || paused) return; S.freezes = (S.freezes || 0) + 1; $("#flashTxt").textContent = "קפאו!"; flashSwap(true); sfx.freeze();
+  speak("קפאו! החליפו שחקן, ופתחו סצנה חדשה מאותה תנוחה.");
 }
 function flashSwap(isFreeze) {
   const bg = $("#flashbg"), fl = $("#flash"), app = $(".app");
@@ -923,10 +1088,11 @@ function togglePause() {
   if (!sceneRunning) return;
   if (!paused) {
     paused = true; pausedAt = Date.now(); if (swapT) clearTimeout(swapT); if (topicAutoT) clearTimeout(topicAutoT);
-    try { speechSynthesis.cancel(); } catch (e) {} setPausedUI(true); updateClock();
+    stopVoice(); setPausedUI(true); updateClock();
   } else {
     sceneStart += Date.now() - pausedAt; paused = false; setPausedUI(false); tick();
-    if (S.mode === "auto" && !guessRound && !earRound && !miniRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
+    if (isLite() && !guessRound && !earRound && !miniRound) scheduleLiteEvent();
+    else if (S.mode === "auto" && !guessRound && !earRound && !miniRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
   }
 }
 function stopSceneTimers() { if (timer) clearInterval(timer); if (swapT) clearTimeout(swapT); if (topicAutoT) clearTimeout(topicAutoT); if (endT) clearTimeout(endT); timer = swapT = topicAutoT = endT = null; }
@@ -937,7 +1103,7 @@ function endScene() {
   if (miniRound) { endMini(); return; }
   if (earRound) { finishEar(); return; }
   if (guessRound) { finishGuess(guessWin); return; }
-  logRound({ type: "scene", set: S.set[0], con: S.con[0], conCat: S.conCat, perf: S.curPerf.slice(), swaps: S.rings, topics: S.topics, secs: Math.min(elapsed, S.sceneLen) });
+  logRound({ type: "scene", set: S.set[0], con: S.con ? S.con[0] : "", conCat: S.conCat, lite: isLite() && !!S.ls, who: S.ls ? S.ls.who.slice() : undefined, roles: S.ls ? S.ls.roles.slice() : undefined, perf: S.curPerf.slice(), swaps: S.rings, topics: S.topics, tasks: S.tasks || 0, freezes: S.freezes || 0, secs: Math.min(elapsed, S.sceneLen) });
   sfx.end(); speak(rand(persona().timeup));
   endT = setTimeout(() => { endT = null; if (S.scored) buildScore(); else roundEnd(); }, 700);
 }
@@ -955,7 +1121,7 @@ function buildScore() {
         <button data-c="loyal">נאמנות לאילוץ<small>שמר על החוק</small></button>
         <button data-c="pivot">הפניית פרסה<small>הגיב מהר להחלפה</small></button></div></div>`; }).join("");
   } else {
-    $("#scoreSub").textContent = "מי הגיב הכי מהר לאילוצים? תנו כבוד (אפשר לדלג)."; scoreState = { honor: null };
+    $("#scoreSub").textContent = isLite() ? "מי הקשיב הכי טוב לשותף/ה? תנו כבוד (אפשר לדלג)." : "מי הגיב הכי מהר לאילוצים? תנו כבוד (אפשר לדלג)."; scoreState = { honor: null };
     body.innerHTML = `<div class="honor" id="honorGrid">` + S.curPerf.map((p) => `<button data-hn="${esc(p)}">${esc(p)}</button>`).join("") + `</div>`;
   }
   show("score");
@@ -996,11 +1162,73 @@ function finalEnd() {
   if (S.scored) declareWinner();
   else { $("#partyendSub").textContent = `${S.round} סיבובים של צחוק${S.company ? " עם " + S.company : ""}. עד הפעם הבאה!`; show("partyend"); bigConfetti(); sfx.bell(); }
 }
-function renderDebrief() {
-  const picks = shuffleCopy(MM_DEBRIEF).slice(0, 3);
-  $("#debriefBody").innerHTML = picks.map((d) => `<div class="scorer"><div class="nm" style="font-size:clamp(17px,2.4vmin,22px);color:var(--spot)">${esc(d.theme)}</div><div class="debq">` +
-    d.qs.map((q) => `<button data-act="pickDebrief" data-q="${esc(q)}" class="${S.debriefPicked.includes(q) ? "on" : ""}">${esc(q)}</button>`).join("") + `</div></div>`).join("");
+/* ---------- שיחת סיום מונחית (מצב צוות) ----------
+   3 שלבים: רגע מהמשחק, "יש לזה קשר לעבודה שלנו?" (נושא אחד), מה לוקחים.
+   לא מסיקים מהמשחק מי טוב במה. מתעדים רק מה שהקבוצה אישרה לשתף, בלי שמות. */
+const DB_SUGGEST = { change: "השתמשתם היום ב'החלפה'. אפשר לדבר על מה עזר להמשיך כשהכיוון השתנה.", help: "היו היום החלפות שחקנים ב'קפאו'. אפשר לדבר על איך עוזרים לסצנה להמשיך.", listen: "" };
+function dbFacts() {
+  const sc = S.log.filter((r) => r.type === "scene");
+  const sum = (k) => sc.reduce((a, r) => a + (r[k] || 0), 0);
+  const last = sc.length ? sc[sc.length - 1] : null;
+  return { swaps: sum("swaps"), topics: sum("topics"), freezes: sum("freezes"), con: last ? last.con : "" };
 }
+function dbOpeners() {
+  const f = dbFacts();
+  return MM_DEBRIEF2.openers.filter((o) => o.when === "any" || (o.when === "con" ? !!f.con : f[o.when] > 0))
+    .map((o) => o.q.replace("{con}", () => f.con || ""));
+}
+function dbSuggestKey() { const f = dbFacts(); return f.swaps > 0 ? "change" : f.freezes > 0 ? "help" : "listen"; }
+function dbState() {
+  if (!S.debrief) S.debrief = { step: 0, op: 0, theme: "", shared: "", tryIt: "", follow: "" };
+  return S.debrief;
+}
+function renderDebrief() { dbState(); renderDb(); }
+function dbTip(title, lines) {
+  return `<details class="dbtip"><summary>${title}</summary>${lines.map((l) => `<p>${l}</p>`).join("")}</details>`;
+}
+function renderDb() {
+  const D = dbState(), SC = MM_DEBRIEF2.script, body = $("#dbBody"), nav = $("#dbNav");
+  const head = (n, t, mins) => `<div class="dbstep">${n ? `שלב ${n} מתוך 3 · ` : ""}${mins}</div><h2>${t}</h2>`;
+  const say = (t) => `<div class="dbsay"><span class="lbl">אומרים בקול:</span> "${esc(t)}"</div>`;
+  let h = "", n = "";
+  if (D.step === 0) {
+    h = head(0, "💬 שיחת סיום", "בערך 10 דקות") +
+      `<p class="sub">רגע לפני שנפרדים: שיחה קצרה על מה שקרה, ואם יש משהו ששווה לקחת לעבודה. יושבים במעגל.</p>` +
+      say(SC.open) + say(SC.rules) + say(SC.record) +
+      `<p class="dbnote">קבוצה של יותר מ-12? בשלב 2 תנו חצי דקה לדבר בזוגות, ואז שמעו 2 או 3 דוגמאות. אין צורך שכולם ידברו.</p>`;
+    const typed = !!(D.shared || D.tryIt || D.follow || D.theme);
+    n = (typed ? "" : `<button class="ghost" data-act="dbSkip">דלגו על השיחה</button>`) + `<button class="big" data-act="dbNext">מתחילים ←</button>`;
+  } else if (D.step === 1) {
+    const ops = dbOpeners(), q = ops[D.op % ops.length];
+    h = head(1, "רגע מהמשחק", "2 דקות") + `<div class="dbq">${esc(q)}</div>` +
+      `<p class="dbnote">גם מי שרק צפה מוזמן לענות.</p>` +
+      (ops.length > 1 ? `<div class="row" style="justify-content:flex-start"><button class="ghost" data-act="dbOther">🔀 שאלה אחרת</button></div>` : "") +
+      dbTip("שקט? מה עושים", [`"${esc(SC.silence)}"`, `ואם עדיין שקט: "${esc(SC.pairs)}"`]);
+    n = `<button class="ghost" data-act="dbBack">חזרה</button><button class="big" data-act="dbNext">הבא ←</button>`;
+  } else if (D.step === 2) {
+    const sug = dbSuggestKey(), th = MM_DEBRIEF2.themes.find((t) => t.key === D.theme);
+    h = head(2, "יש לזה קשר לעבודה שלנו?", "4 דקות") + say(SC.bridge) +
+      `<p class="dbnote">גם "לא ממש" היא תשובה בסדר. ${DB_SUGGEST[sug] ? esc(DB_SUGGEST[sug]) + " " : ""}בחרו נושא אחד:</p>` +
+      `<div class="dbthemes">` + MM_DEBRIEF2.themes.map((t) => `<button data-act="dbTheme" data-k="${t.key}" class="${t.key === D.theme ? "on" : ""}">${t.ic} ${esc(t.label)}${t.key === sug && !D.theme ? ' <small>מוצע</small>' : ""}</button>`).join("") + `</div>` +
+      (th ? `<div class="dbq sm">${esc(th.qs[0])}</div><div class="dbq sm2"><span class="lbl">אם יש זמן:</span> ${esc(th.qs[1])}</div>` + (th.note ? `<p class="dbnote">${esc(th.note)}</p>` : "") : "") +
+      dbTip("טיפים למנחה", ["מנהל/ת שמנחה: הקשיבו קודם לאחרים, ותנו את דעתכם רק בסוף.", `מישהו משתלט: "${esc(SC.dominate)}"`, `עולה ביקורת על אדם מסוים: "${esc(SC.personal)}"`, "לא עולה חיבור לעבודה? זה בסדר. לא מייצרים אחד בכוח."]);
+    n = `<button class="ghost" data-act="dbBack">חזרה</button><button class="big" data-act="dbNext">הבא ←</button>`;
+  } else {
+    h = head(3, "מה לוקחים הלאה?", "3 דקות") +
+      `<ul class="dbclose">${MM_DEBRIEF2.close.map((q) => `<li>${esc(q)}</li>`).join("")}</ul>` +
+      `<p class="dbnote">לא צריך לשאול את כולן. אם לא נקבע כלום, זה בסדר. רק מה שהקבוצה אישרה נכנס לסיכום, בלי שמות.</p>` +
+      `<label class="dbf"><span>משפט מהשיחה שאושר לשיתוף (לא חובה)</span><textarea id="dbShared" rows="2" maxlength="220">${esc(D.shared)}</textarea></label>` +
+      `<label class="dbf"><span>מה ננסה, ובאיזה מצב (לא חובה)</span><textarea id="dbTry" rows="2" maxlength="220">${esc(D.tryIt)}</textarea></label>` +
+      `<label class="dbf"><span>מי יזכיר לבדוק אם זה עזר, ומתי (לא חובה)</span><input id="dbFollow" maxlength="120" value="${esc(D.follow)}"></label>` +
+      say(SC.end);
+    n = `<button class="ghost" data-act="dbBack">חזרה</button><button class="big" data-act="dbFinish">סיום ←</button>`;
+  }
+  body.innerHTML = h; nav.innerHTML = n;
+  const bind = (sel, k) => { const e = $(sel); if (e) e.addEventListener("input", () => { D[k] = e.value.trim(); save(); }); };
+  bind("#dbShared", "shared"); bind("#dbTry", "tryIt"); bind("#dbFollow", "follow");
+  const p = $("#debrief .dbpanel"); if (p) p.scrollTop = 0;
+}
+function dbGo(d) { const D = dbState(); D.step = Math.max(0, Math.min(3, D.step + d)); save(); renderDb(); }
 function pickDebrief(q, btn) {
   const i = S.debriefPicked.indexOf(q); if (i >= 0) S.debriefPicked.splice(i, 1); else S.debriefPicked.push(q);
   btn.classList.toggle("on", i < 0); save();
@@ -1013,7 +1241,7 @@ function declareWinner() {
   $("#winName").textContent = arr.length ? names : "—";
   $("#winSub").textContent = arr.length ? (tie ? `תיקו! עם ${top} אסימונים כל אחד` : `עם ${top} אסימונים`) : "";
   show("winner"); bigConfetti(); sfx.bell(); setTimeout(sfx.bell, 250);
-  speak(arr.length ? (tie ? `${names} מנצחים! כל הכבוד!` : `${names} מנצח/ת! כל הכבוד!`) : "");
+  speak(arr.length ? (tie ? `${names} מנצחים! כל הכבוד!` : `${names} מנצח/ת! כל הכבוד!`) : "", arr.length ? [tie ? "compere-timeup-3" : "winner-2"] : []);
 }
 function spawnConfetti(n) {
   if (!S.settings.motion) return; const c = $("#confetti"); const cols = ["#e23149", "#ff5066", "#f6e7b4", "#8c2fc9", "#1786a6", "#2c9e5b", "#e08a1e"];
@@ -1045,7 +1273,7 @@ function stopGameToHome() { stopGame(); syncGroupUI(); show("home"); }
 function stopGame() {
   if (sceneRunning) { sceneRunning = false; paused = false; stopSceneTimers(); hideHint(); hideTopic(); }
   countdownRunning = false; if (countIv) { clearInterval(countIv); countIv = null; } $("#count").classList.remove("go"); $("#count .n").classList.remove("pop");
-  try { speechSynthesis.cancel(); } catch (e) {}
+  stopVoice();
   gameActive = false; keepAwake(false); save();
 }
 
@@ -1076,9 +1304,35 @@ function showSummary() {
     ? `<div class="rnd"><span class="i">${r.n}</span><span class="w">🎧 האוזניה: ${esc(r.agent)} הסוכן/ת, ${esc(r.listener)} תפס/ה ${r.caught} מתוך ${r.missions.length} <small>(${r.missions.map(esc).join(" · ")})</small></span></div>`
     : r.type === "guess"
     ? `<div class="rnd"><span class="i">${r.n}</span><span class="w">🕵️ ${esc(r.title)} — ${esc(r.guesser)} ${r.win ? "ניחש/ה נכון" : "לא ניחש/ה"} <small>(${esc(r.secret)})</small></span></div>`
-    : `<div class="rnd"><span class="i">${r.n}</span><span class="w">${esc(r.set)} · ${MM_CAT[r.conCat]?.ic || ""} ${esc(r.con)} <small>— ${r.perf.map(esc).join(" ו־")} · ${r.swaps} החלפות</small></span></div>`).join("") + `</div>`;
-  if (S.team) html += `<div class="sumlist"><h4>💬 שאלות התחקיר שדיברתם עליהן</h4>${S.debriefPicked.length ? S.debriefPicked.map((q) => `<p>• ${esc(q)}</p>`).join("") : `<p class="muted">לא סומנו שאלות.</p>`}</div>`;
+    : `<div class="rnd"><span class="i">${r.n}</span><span class="w">${esc(r.set)}${r.con ? ` · ${MM_CAT[r.conCat]?.ic || ""} ${esc(r.con)}` : ""} <small>— ${r.perf.map(esc).join(" ו־")} · ${r.swaps} החלפות</small></span></div>`).join("") + `</div>`;
+  if (S.team) html = `<div class="sumlist mgrprev"><h4>📤 זה מה שיישלח למנהל/ת</h4><pre>${esc(summaryMgrText())}</pre><p class="muted">בלי ניקוד, בלי דירוג ובלי שמות של מי אמר מה.</p><button class="ghost" data-act="dbEdit">✏️ עריכה בשיחת הסיום</button></div>` + html;
+  const mb = $("#mementoBtn"); if (mb) mb.hidden = !S.team;
   $("#summaryBody").innerHTML = html; $("#confetti").innerHTML = ""; renderLicBoxes(); show("summary");
+}
+/* סיכום למנהל/ת (מצב צוות): מה התקיים, על מה דיברו, מה סוכם. בלי ניקוד, דירוג או שמות */
+function summaryMgrText() {
+  const d = summaryData(), D = S.debrief || {}, th = MM_DEBRIEF2.themes.find((t) => t.key === D.theme), L = [];
+  L.push(`🎭 מהמותן | סיכום מפגש`);
+  L.push((S.company ? S.company + " • " : "") + d.date);
+  L.push(`${d.ps.length} משתתפים • ${S.log.length} סיבובים`);
+  L.push("");
+  if (th) { L.push("💬 דיברנו על:"); L.push(th.label + "."); }
+  else if (D.done && !D.skipped) L.push("💬 התקיימה שיחת סיום. לא נבחר נושא לתיעוד.");
+  else L.push("💬 לא התקיימה שיחת סיום מתועדת.");
+  if (D.shared) { L.push(""); L.push("מתוך השיחה, בניסוח שאושר לשיתוף:"); L.push(`"${D.shared}"`); }
+  L.push("");
+  if (D.tryIt) { L.push("🔁 מה ננסה:"); L.push(D.tryIt); }
+  else L.push("לא נקבעה פעולה להמשך.");
+  if (D.follow) L.push("מעקב: " + D.follow);
+  L.push("");
+  L.push("הסיכום מתעד את השיחה וההסכמות, לא הערכה של המשתתפים.");
+  L.push(licActive() ? "מהמותן · מצב צוות" : "מופעל על ידי מהמותן · " + SITE_URL.replace("https://", ""));
+  return L.join("\n");
+}
+async function shareMemento() {
+  const txt = summaryText();
+  if (navigator.share) { try { await navigator.share({ title: "מהמותן · מזכרת מהמשחק", text: txt }); return; } catch (e) { if (e && e.name === "AbortError") return; } }
+  copyText(txt);
 }
 function summaryText() {
   const d = summaryData(); const L = [];
@@ -1088,21 +1342,21 @@ function summaryText() {
   if (S.scored) { L.push("🏆 תוצאות:"); d.board.forEach((r, i) => L.push(`${i + 1}. ${r.p} — ${r.t}`)); L.push(""); }
   if (d.honors.length) { L.push("⭐ כבוד: " + d.honors.map((h) => `${h.p} (${h.h})`).join(", ")); L.push(""); }
   L.push("🎬 סיבובים:");
-  S.log.forEach((r) => L.push(r.type === "mini" ? `${r.n}. ${miniLogLine(r)}` : r.type === "ear" ? `${r.n}. האוזניה: ${r.agent} הסוכן/ת, ${r.listener} תפס/ה ${r.caught} מתוך ${r.missions.length}` : r.type === "guess" ? `${r.n}. ניחוש "${r.title}" — ${r.guesser} ${r.win ? "ניחש/ה נכון" : "לא ניחש/ה"}` : `${r.n}. ${r.set} + ${r.con} — ${r.perf.join(" ו־")} (${r.swaps} החלפות)`));
-  if (S.team) { L.push(""); L.push("💬 תחקיר — דיברנו על:"); (S.debriefPicked.length ? S.debriefPicked : ["(לא סומנו שאלות)"]).forEach((q) => L.push("• " + q)); }
+  S.log.forEach((r) => L.push(r.type === "mini" ? `${r.n}. ${miniLogLine(r)}` : r.type === "ear" ? `${r.n}. האוזניה: ${r.agent} הסוכן/ת, ${r.listener} תפס/ה ${r.caught} מתוך ${r.missions.length}` : r.type === "guess" ? `${r.n}. ניחוש "${r.title}" — ${r.guesser} ${r.win ? "ניחש/ה נכון" : "לא ניחש/ה"}` : `${r.n}. ${r.set}${r.con ? " + " + r.con : ""} — ${r.perf.join(" ו־")} (${r.swaps} החלפות)`));
   L.push(""); L.push(licActive() ? "מהמותן · מצב צוות" : "מופעל על ידי מהמותן · " + SITE_URL.replace("https://", ""));
   return L.join("\n");
 }
-async function copySummary() {
-  const txt = summaryText(); let ok = false;
+async function copyText(txt) {
+  let ok = false;
   try { if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(txt); ok = true; } } catch (e) {}
   if (ok) toastMsg("הסיכום הועתק — הדביקו במייל או בוואטסאפ");
   else { await dialog({ title: "העתיקו את הסיכום", text: "סמנו הכול והעתיקו:", input: " ", value: txt, okText: "סגור", cancelText: "" }); }
 }
+function copySummary() { return copyText(S.team ? summaryMgrText() : summaryText()); }
 async function shareSummary() {
-  const txt = summaryText();
+  const txt = S.team ? summaryMgrText() : summaryText();
   if (navigator.share) { try { await navigator.share({ title: "מהמותן — סיכום מפגש", text: txt }); return; } catch (e) { if (e && e.name === "AbortError") return; } }
-  copySummary();
+  copyText(txt);
 }
 
 /* ---------- לוגו ארגון (רישיון בלבד, נשמר במכשיר) ---------- */
@@ -1156,11 +1410,11 @@ async function shareImage() {
     y += 150 + 64;
     x.fillStyle = "#f6e7b4"; x.font = "500 24px Rubik, Heebo, sans-serif"; x.fillText("על הבמה", R, y); y += 48;
     x.fillStyle = "#ffffff"; x.font = "700 34px Heebo, sans-serif"; const nl = wrapText(x, d.ps.join("  ·  "), R, y, W - 180, 46, 3); y += 46 * nl + 40;
-    if (S.scored && d.board.length && y < H - 420) { x.fillStyle = "#f6e7b4"; x.font = "500 24px Rubik, Heebo, sans-serif"; x.fillText("לוח תוצאות", R, y); y += 50;
+    if (S.scored && !S.team && d.board.length && y < H - 420) { x.fillStyle = "#f6e7b4"; x.font = "500 24px Rubik, Heebo, sans-serif"; x.fillText("לוח תוצאות", R, y); y += 50;
       d.board.slice(0, 3).forEach((r, i) => { x.fillStyle = i === 0 ? "#f6e7b4" : "#e9e3d4"; x.font = (i === 0 ? "400 44px 'Secular One'" : "700 34px Heebo") + ", Heebo, sans-serif"; x.fillText(`${["🥇", "🥈", "🥉"][i]} ${r.p}  ${r.t}`, R, y); y += i === 0 ? 58 : 48; }); y += 20; }
     const last = S.log.filter((r) => r.type === "scene").slice(-3);
     if (last.length && y < H - 360) { x.fillStyle = "#f6e7b4"; x.font = "500 24px Rubik, Heebo, sans-serif"; x.fillText("רגעים מהמפגש", R, y); y += 48;
-      last.forEach((r) => { if (y > H - 230) return; x.fillStyle = "#e9e3d4"; x.font = "500 30px Heebo, sans-serif"; x.fillText(fitText(x, `${r.set} · ${r.con}`, W - 320), R, y); y += 44; }); }
+      last.forEach((r) => { if (y > H - 230) return; x.fillStyle = "#e9e3d4"; x.font = "500 30px Heebo, sans-serif"; x.fillText(fitText(x, r.con ? `${r.set} · ${r.con}` : r.set, W - 320), R, y); y += 44; }); }
     // תחתית: כוכב + החלפה!
     x.save(); x.translate(150, H - 150); x.rotate(-0.2); x.fillStyle = "#e23149"; star(x, 0, 0, 12, 92, 62); x.fill(); x.restore();
     x.textAlign = "center"; x.fillStyle = "#fff"; x.font = "400 40px 'Secular One', Heebo, sans-serif"; x.fillText("החלפה!", 150, H - 136);
@@ -1181,19 +1435,21 @@ function wrapText(x, text, X, Y, maxW, lh, maxLines = 4) { const words = text.sp
 function fitText(x, text, maxW) { if (x.measureText(text).width <= maxW) return text; let t = text; while (t.length > 3 && x.measureText(t + "…").width > maxW) t = t.slice(0, -1); return t + "…"; }
 
 /* ---------- הגדרות ---------- */
-function openSettings() { syncSettingsUI(); loadVoices(); renderLocalStats(); renderLicBoxes(); $("#settings").classList.add("open"); ac(); $("#settings .close").focus(); }
+function applyVoiceUI() { const w = $("#ttsVoiceWrap"); if (w) w.hidden = S.settings.voice !== "tts"; }
+function openSettings() { syncSettingsUI(); applyVoiceUI(); loadVoices(); renderLocalStats(); renderLicBoxes(); $("#settings").classList.add("open"); ac(); $("#settings .close").focus(); }
 function closeSettings() { const v = $("#voiceSel").value; if (v) S.settings.voiceURI = v; save(); $("#settings").classList.remove("open"); }
 function syncSettingsUI() {
   const st = S.settings;
-  const map = { persona: st.persona, tts: st.tts ? "on" : "off", hints: st.hints ? "on" : "off", sfx: st.sfx ? "on" : "off", motion: st.motion ? "on" : "off" };
+  const map = { persona: st.persona, voice: st.voice === "tts" ? "tts" : "rec", tts: st.tts ? "on" : "off", hints: st.hints ? "on" : "off", sfx: st.sfx ? "on" : "off", motion: st.motion ? "on" : "off" };
   $$("[data-skey]").forEach((seg) => { const v = map[seg.dataset.skey]; seg.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.v === v)); });
 }
 function onSettingsSeg(seg, btn) {
   const k = seg.dataset.skey, v = btn.dataset.v;
-  if (k === "persona") S.settings.persona = v; else S.settings[k] = v === "on";
+  if (k === "persona" || k === "voice") S.settings[k] = v; else S.settings[k] = v === "on";
   if (k === "motion") document.body.classList.toggle("noanim", !S.settings.motion);
   if (k === "hints") applyHintsVis();
-  if (k === "tts" && !S.settings.tts) { try { speechSynthesis.cancel(); } catch (e) {} }
+  if (k === "tts" && !S.settings.tts) stopVoice();
+  if (k === "voice") { stopVoice(); applyVoiceUI(); }
   syncSettingsUI(); save();
 }
 function renderLocalStats() { $("#localStats").innerHTML = `<span>משחקים<b>${STATS.games}</b></span><span>סיבובים<b>${STATS.rounds}</b></span><span>החלפות<b>${STATS.swaps}</b></span>`; }
@@ -1240,16 +1496,18 @@ document.addEventListener("keydown", (e) => {
   const tag = (e.target && e.target.tagName) || "";
   if (e.key === "Escape") {
     if ($("#dlg")?.classList.contains("open")) return;
+    if ($("#guide").classList.contains("open")) { $("#guide").classList.remove("open"); return; }
     if ($("#settings").classList.contains("open")) closeSettings();
     else if ($("#editor").classList.contains("open")) closeEditor();
     else if ($("#onboard").classList.contains("open")) skipOnboard();
     return;
   }
   if (["INPUT", "TEXTAREA", "SELECT"].includes(tag)) return;
+  if ($("#guide").classList.contains("open")) return; /* במדריך: מקשי המשחק לא פעילים */
   if (currentScreen !== "play" || !sceneRunning || $("#dlg")?.classList.contains("open")) return;
   const k = e.key.toLowerCase();
-  if (e.code === "Space") { e.preventDefault(); if (miniRound) fireMiniCue(true); else if (earRound) earNext(false); else if (!guessRound) doSwap(); }
-  else if (k === "t" || k === "א") { if (!guessRound && !earRound && !miniRound) throwTopic(); }
+  if (e.code === "Space") { e.preventDefault(); if (miniRound) fireMiniCue(true); else if (earRound) earNext(false); else if (!guessRound && !isLite()) doSwap(); }
+  else if (k === "t" || k === "א") { if (!guessRound && !earRound && !miniRound && !isLite()) throwTopic(); }
   else if (k === "h" || k === "י") { if (S.settings.hints && !earRound && !miniRound) sceneHint(); }
   else if (k === "p" || k === "פ") togglePause();
   else if (k === "f" || k === "כ") { if (S.mode === "manual" && !guessRound && !earRound && !miniRound) freeze(); }
@@ -1259,14 +1517,19 @@ document.addEventListener("keydown", (e) => {
 /* ---------- ניתוב פעולות ---------- */
 const ACTIONS = {
   obSkip: skipOnboard, obNext: nextOnboard, howto: () => openOnboard(true),
+  openGuide: () => { $("#guide").classList.add("open"); $("#guide .gpanel").scrollTop = 0; $("#guide .close").focus(); }, closeGuide: () => $("#guide").classList.remove("open"),
   openSettings, closeSettings, testVoice, resetAll, install, reloadApp,
   goSetup, goHome: () => { S.company = ($("#companyInput").value || "").trim().slice(0, 40); save(); show("home"); syncGroupUI(); },
   addPlayer, delPlayer: (b) => delPlayer(+b.dataset.i), openEditor, closeEditor, addCustomCard, delCustomCard: (b) => delCustomCard(+b.dataset.i), exportCustom, importCustom,
-  startGame, resumeGame, confirmHome, newGroup, drawCards, reDraw: drawCards, openerHint, goCast, backToDraw: () => show("draw"), beginCountdown,
+  startGame, resumeGame, confirmHome, newGroup, liteGo, drawCards, reDraw: drawCards, openerHint, goCast, backToDraw: () => show("draw"), beginCountdown,
   manualSwap, throwTopic, stuck, sceneHint, freeze, togglePause, endScene, guessSuccess, applyGuessScore,
   earNext: () => earNext(false), earRedrawSet, earReveal, applyEarScore,
   miniNext: () => fireMiniCue(true), miniRedraw, miniShowTopic, miniRevealExpert, miniExpertWin: () => miniExpertDone(true), miniExpertLose: () => miniExpertDone(false),
-  applyScore, nextRound, endGameNow, declareWinner, showBoardOnly: () => { renderBoard(); show("scoreboard"); }, renderDebrief, finalEnd, newGame,
+  applyScore, nextRound, endGameNow, declareWinner: () => (S.team && !(S.debrief && S.debrief.done) ? endGameNow() : declareWinner()), showBoardOnly: () => { renderBoard(); show("scoreboard"); }, renderDebrief, finalEnd, newGame,
+  dbNext: () => dbGo(1), dbBack: () => dbGo(-1), dbOther: () => { dbState().op++; save(); renderDb(); },
+  dbTheme: (b) => { const D = dbState(); D.theme = D.theme === b.dataset.k ? "" : b.dataset.k; save(); renderDb(); }, dbSkip: () => { S.debrief = { step: 0, op: 0, theme: "", shared: "", tryIt: "", follow: "", done: true, skipped: true }; save(); finalEnd(); },
+  dbFinish: () => { const D = dbState(); const again = !!D.done; D.done = true; save(); if (again) showSummary(); else finalEnd(); }, shareMemento,
+  dbEdit: () => { const D = dbState(); D.step = 3; D.done = true; save(); renderDb(); show("debrief"); },
   showSummary, copySummary, shareSummary, pickDebrief: (b) => pickDebrief(b.dataset.q, b),
   hideHint, hideTopic, enterCode, removeCode, continueFree, shareImage, pickLogo, removeLogo
 };

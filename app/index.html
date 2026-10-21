@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.2.1">
+<link rel="stylesheet" href="css/app.css?v=2.4.0">
 <script>
 /* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
    מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
@@ -78,8 +78,52 @@
   </div>
 </div>
 
+
+<!-- ============ מדריך למנחה ============ -->
+<div id="guide" role="dialog" aria-modal="true" aria-label="מדריך למנחה">
+  <div class="gpanel">
+    <button class="close" data-act="closeGuide" aria-label="סגור">✕</button>
+    <h2>📖 מדריך למנחה</h2>
+    <p class="sub">לא צריך ניסיון באלתור. האפליקציה אומרת מה לעשות, ואתם רק מקריאים ולוחצים.</p>
+
+    <h3>מי זה המנחה?</h3>
+    <p>מי שמחזיק את הטלפון או עומד ליד המסך ולוחץ על הכפתורים. הוא לא חייב לשחק. בכל סיבוב <b>שני שחקנים</b> עולים ל"במה" (כל מקום פנוי בחדר), וכל השאר הם <b>הקהל</b>.</p>
+
+    <h3>קליל או מלא?</h3>
+    <p>במצב צוות יש שני סגנונות (בהגדרת המשחק, מתחת לשם הארגון). <b>🟢 קליל</b>: צוות שמשחק בפעם הראשונה, תמיד קליל. בכל סיבוב במה אחת מהיום-יום, המסך אומר <b>מי זה מי</b> ונותן <b>משפט פתיחה לכל אחד</b>. הסיבוב הראשון בלי שום הפרעה. מהסיבוב השני יש דבר אחד באמצע: <b>"החלפה!"</b> (מתחלפים בדמויות וממשיכים) או <b>משימה קטנה</b> לאחד מהשניים. כל סיבוב רביעי הוא משהו אחר ששובר את הקצב. <b>🔵 מלא</b>: הגרסה המתקדמת שמתוארת למטה, עם אילוצים, נושאים חדשים והרבה החלפות.</p>
+
+    <h3>סיבוב אחד, צעד אחרי צעד</h3>
+    <ol class="gsteps">
+      <li><b>🎤 מי עולה.</b> המסך מראה שני שמות. הם עולים לבמה. לוחצים <b>"שלוף קלפים"</b>.</li>
+      <li><b>🃏 הקלפים.</b> קלף <b>במה</b>: איפה הסצנה קורית ומי הדמויות. קלף <b>אילוץ</b>: איך משחקים את הדמויות האלה (בסגנון מסוים, בדרך דיבור מסוימת, או עם כלל לגוף). מתחת לקלפים יש הסבר ודוגמה. המנחה מקריא בקול. לא מתאים? <b>"שלוף שוב"</b>. ואז <b>"המשך"</b>.</li>
+      <li><b>🎬 לפני הסצנה.</b> רואים מי פותח את הסצנה, ויש משפט פתיחה מוכן למי שצריך. עוד לא משחקים! כשהשחקנים עומדים מוכנים, לוחצים <b>"להתחלת הסצנה"</b>.</li>
+      <li><b>⏱️ הסצנה.</b> ספירה: 3, 2, 1, אקשן! השחקנים מאלתרים והשעון רץ. במהלך הסצנה:
+        <ul>
+          <li><b>🔔 החלפה!</b> השחקן שדיבר אחרון מחליף את המשפט האחרון שלו במשהו אחר לגמרי, וממשיכים משם. במצב אוטומטי האפליקציה קוראת "החלפה!" לבד.</li>
+          <li><b>🎲 נושא חדש:</b> זורק טוויסט לתוך הסצנה.</li>
+          <li><b>💡 רמז / 😅 תקוע?:</b> עזרה כשנתקעים.</li>
+          <li><b>❄️ קפאו!</b> השחקנים קופאים במקום. מישהו מהקהל מחליף אחד מהם, ופותח סצנה חדשה מאותה תנוחה בדיוק.</li>
+        </ul>
+      </li>
+      <li><b>👏 סוף הסצנה.</b> מוחאים כפיים! אם הפעלתם ניקוד, נותנים נקודות על <b>שמירה על האילוץ ועל הקשבה לשותף</b>, לא על "מי הכי מצחיק". ואז <b>"סיבוב הבא"</b>.</li>
+      <li><b>🏁 סוף המשחק.</b> מכריזים על מנצח. במצב צוות יש גם <b>שיחת סיום של 10 דקות</b>, שלב אחרי שלב: רגע מהמשחק, האם יש לזה קשר לעבודה, ומה לוקחים. האפליקציה אומרת לכם מה להגיד בכל שלב, ובסוף יוצא סיכום קצר למנהל, בלי ניקוד ובלי שמות.</li>
+    </ol>
+
+    <h3>טיפים למנחה</h3>
+    <ul class="gtips">
+      <li><b>אין טעויות באלתור.</b> כל מה שנאמר על הבמה הופך ל"נכון", וממשיכים ממנו.</li>
+      <li><b>הכלל החשוב: "כן, ו..."</b> מקבלים את מה שהשותף אמר, ומוסיפים עליו. לא אומרים "לא".</li>
+      <li><b>סצנה נתקעה?</b> לא עוצרים. לוחצים "נושא חדש" או "קפאו!".</li>
+      <li><b>הסיבוב הראשון</b> הכי מפחיד. כדאי שהמנחה ומישהו אמיץ יעלו ראשונים.</li>
+      <li><b>מחיאות כפיים אחרי כל סצנה,</b> גם אם היא לא הצליחה. זה מה שנותן ביטחון לבאים אחריהם.</li>
+    </ul>
+    <div class="row" style="margin-top:14px"><button class="big sm" data-act="closeGuide">הבנתי, בואו נשחק</button></div>
+  </div>
+</div>
+
 <div class="app">
   <button class="gear" data-act="openSettings" aria-label="הגדרות">⚙️</button>
+  <button class="guidebtn" data-act="openGuide" aria-label="מדריך למנחה">📖</button>
   <button class="homebtn" data-act="confirmHome" aria-label="חזרה למסך הבית">🏠</button>
 
   <!-- ============ בית ============ -->
@@ -102,7 +146,10 @@
     <div class="row installbar" id="installBar">
       <button class="ghost goldb" data-act="install">📲 התקינו כאפליקציה</button>
     </div>
-    <button class="ghost" style="margin-top:20px" data-act="howto">איך משחקים?</button>
+    <div class="row" style="margin-top:20px">
+      <button class="ghost goldb" data-act="openGuide">📖 מדריך למנחה (2 דקות קריאה)</button>
+      <button class="ghost" data-act="howto">איך משחקים?</button>
+    </div>
   </section>
 
   <!-- ============ הגדרת משחק ============ -->
@@ -152,6 +199,12 @@
         </div>
         <div id="teamExtra" hidden>
           <input id="companyInput" class="tinput" type="text" maxlength="40" placeholder="שם הארגון (לא חובה)" style="margin-top:10px" aria-label="שם הארגון" autocomplete="organization">
+          <div class="label" style="margin-top:14px">סגנון הסיבובים</div>
+          <div class="seg" id="liteSeg" data-key="lite">
+            <button data-v="on">🟢 קליל<small>מומלץ לצוות שמשחק בפעם הראשונה: במה אחת, מי זה מי, משפט פתיחה, בלי אילוצים</small></button>
+            <button data-v="off">🔵 מלא<small>אילוצים, נושאים חדשים, הרבה החלפות</small></button>
+          </div>
+          <div class="litenote" id="liteNote" hidden>במצב קליל המנחה הדיגיטלי מנהל לבד. הרמה, חבילות האילוצים ומצב הבמאי לא בשימוש.</div>
           <div class="label" style="margin-top:14px">חבילת קלפים לפי תעשייה</div>
           <div class="seg sm" id="industrySeg" data-key="industry">
             <button data-v="">🎲 כללי</button>
@@ -206,6 +259,16 @@
     </div>
   </section>
 
+  <!-- ============ פתיחה קלילה (מצב צוות, קליל) ============ -->
+  <section class="screen" id="liteIntro" aria-label="פתיחה">
+    <div class="panel liteintro">
+      <div class="eyebrow">לפני שמתחילים</div>
+      <h2>ככה זה עובד</h2>
+      <div id="liteIntroBody"></div>
+      <div class="row" style="margin-top:22px"><button class="big pulsego" data-act="liteGo">יאללה, לסיבוב הראשון</button></div>
+    </div>
+  </section>
+
   <!-- ============ פתיח סיבוב ============ -->
   <section class="screen" id="intro" aria-label="פתיח סיבוב">
     <img data-role="orglogo" alt="" hidden style="max-height:64px;max-width:200px;margin-bottom:10px;border-radius:8px;background:#fff;padding:4px">
@@ -220,7 +283,8 @@
   <section class="screen" id="draw" aria-label="הקלפים שנשלפו">
     <div class="eyebrow" id="drawRnum" style="margin-bottom:2.2vmin">הבמה והאילוץ שלכם</div>
     <div class="cards2" id="drawCards"></div>
-    <div class="row" style="margin-top:24px">
+    <div class="drawguide" id="drawGuide" role="note"></div>
+    <div class="row" style="margin-top:16px">
       <button class="ghost" data-act="reDraw">🔀 שלוף שוב</button>
       <button class="ghost hintb" id="drawHintBtn" data-act="openerHint">💡 רמז לפתיחה</button>
       <button class="big" data-act="goCast">המשך ←</button>
@@ -229,7 +293,7 @@
 
   <!-- ============ מסגור ============ -->
   <section class="screen" id="cast" aria-label="מסגור הסצנה">
-    <div class="eyebrow">המנחה ממסגר את הסצנה</div>
+    <div class="eyebrow">לפני הסצנה · עוד לא מתחילים</div>
     <div class="framecard">
       <div class="place" id="castPlace">—</div>
       <div class="rel" id="castRel">—</div>
@@ -239,10 +303,13 @@
         <span id="castSeedTxt">—</span>
       </div>
     </div>
+    <div class="castwho" id="castWho" hidden></div>
     <div class="roleline" id="castCon">האילוץ: —</div>
-    <div class="row" style="margin-top:22px">
+    <div class="castnote" id="castNote" role="note" hidden></div>
+    <div class="readybar" role="note">⏸️ הסצנה <b>עוד לא התחילה.</b> קראו את הפרטים, עלו לבמה, ו<b>כשכולם מוכנים לחצו על הכפתור.</b> הסצנה מתחילה אחרי הספירה.</div>
+    <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="backToDraw">חזרה</button>
-      <button class="big" data-act="beginCountdown">3, 2, 1 — אקשן!</button>
+      <button class="big pulsego" data-act="beginCountdown">▶️ להתחלת הסצנה: 3, 2, 1, אקשן!</button>
     </div>
   </section>
 
@@ -342,7 +409,7 @@
   <section class="screen" id="play" aria-label="הסצנה רצה">
     <div class="timebar"><div class="fill" id="timefill"></div></div>
     <div class="playtop"><div class="smallcards" id="playCards"></div></div>
-    <div class="guide" id="guide" tabindex="-1"></div>
+    <div class="guide" id="playGuide" tabindex="-1"></div>
     <div class="ringtimer" id="ringtimer" style="--p:1"><div class="clock" id="clock" role="timer" aria-live="off">90</div></div>
     <div class="pausedbanner" id="pausedBanner">⏸️ מושהה</div>
     <div class="perform">על הבמה: <b id="playPerf">—</b></div>
@@ -354,7 +421,7 @@
           <button class="ghost topicb" data-act="throwTopic">🎲 נושא חדש</button>
           <button class="ghost stuckb" data-act="stuck">😅 תקוע?</button>
           <button class="ghost hintb" data-act="sceneHint">💡 רמז</button>
-          <button class="ghost" data-act="freeze">❄️ פריז!</button>
+          <button class="ghost" data-act="freeze">❄️ קפאו!</button>
           <button class="ghost" data-act="togglePause" data-role="pause">⏸️ השהה</button>
           <button class="ghost" data-act="endScene">⏹️ סיים</button>
         </div>
@@ -444,15 +511,10 @@
   </section>
 
   <!-- ============ תחקיר (מצב צוות) ============ -->
-  <section class="screen" id="debrief" aria-label="תחקיר צוות">
-    <div class="panel" style="text-align:right">
-      <h2 style="text-align:center">💬 תחקיר צוות</h2>
-      <p class="sub" style="text-align:center">רגע לפני סיום — שיחה קצרה שמחברת את מה שקרה במשחק לעבודה שלכם. סמנו את השאלות שדיברתם עליהן — הן ייכנסו לסיכום.</p>
-      <div id="debriefBody"></div>
-      <div class="row" style="margin-top:8px">
-        <button class="ghost" data-act="renderDebrief">🔀 שאלות אחרות</button>
-        <button class="big" data-act="finalEnd">סיום</button>
-      </div>
+  <section class="screen" id="debrief" aria-label="שיחת סיום">
+    <div class="panel dbpanel" style="text-align:right">
+      <div id="dbBody"></div>
+      <div class="row" id="dbNav" style="margin-top:12px"></div>
     </div>
   </section>
 
@@ -504,6 +566,7 @@
       </div>
       <div class="row" style="margin-top:14px">
         <button class="ghost" data-act="copySummary">📄 העתק טקסט</button>
+        <button class="ghost" id="mementoBtn" hidden data-act="shareMemento">🎬 מזכרת מהמשחק</button>
         <button class="ghost goldb" data-act="shareImage">🖼️ שתפו כתמונה</button>
         <button class="ghost goldb" data-act="shareSummary">📤 שתפו טקסט</button>
         <button class="big sm" data-act="newGame">משחק חדש</button>
@@ -570,11 +633,14 @@
       </div>
     </div>
     <div class="field">
-      <div class="label">קול (TTS)</div>
+      <div class="label">קול המנחה</div>
       <div class="seg sm" id="ttsSeg" data-skey="tts"><button data-v="on">🔊 דיבור פעיל</button><button data-v="off">🔇 כבוי</button></div>
+      <div class="seg sm" id="voiceSeg" data-skey="voice" style="margin-top:8px"><button data-v="rec">🎙️ קול מוקלט<small>מנחה אמיתי, עובד אופליין</small></button><button data-v="tts">🤖 קול הדפדפן<small>קורא כל משפט, איכות נמוכה</small></button></div>
+      <div id="ttsVoiceWrap" hidden>
       <div class="label" style="margin-top:12px">קול עברי במכשיר</div>
       <select id="voiceSel" aria-label="בחירת קול"></select>
-      <p class="sub" style="margin:8px 0 0;font-size:12.5px">משתמש בקול המובנה של הדפדפן (עובד אופליין). אם אין קול עברי — התקינו אחד בהגדרות המכשיר.</p>
+      <p class="sub" style="margin:8px 0 0;font-size:12.5px">משתמש בקול המובנה של הדפדפן. אם אין קול עברי, התקינו אחד בהגדרות המכשיר.</p>
+      </div>
     </div>
     <div class="field"><div class="label">רמזים ועזרה</div>
       <div class="seg sm" id="hintsSeg" data-skey="hints"><button data-v="on">💡 מופעלים</button><button data-v="off">🚫 כבויים</button></div></div>
@@ -588,11 +654,13 @@
     <div class="field"><div class="label">סטטיסטיקה (נשמרת במכשיר בלבד)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 בדוק קול</button><button class="ghost" data-act="resetAll">🧹 איפוס נתונים</button><button class="big sm" data-act="closeSettings">סגור</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.2.1</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.4.0</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.2.1"></script>
-<script src="js/app.js?v=2.2.1"></script>
+<script src="js/data.js?v=2.4.0"></script>
+<script src="js/app.js?v=2.4.0"></script>
+<script src="js/voice_map.js?v=2.4.0"></script>
+<script src="js/voice.js?v=2.4.0"></script>
 </body>
 </html>
