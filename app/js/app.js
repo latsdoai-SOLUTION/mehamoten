@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.4.0";
+const APP_VERSION = "2.5.0";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -202,18 +202,22 @@ function load() {
   if (S.set && !MM_CAT[S.conCat]) { S.conCat = null; S.con = null; }
   if (typeof S.guessIdx !== "number") S.guessIdx = 0;
   S.kids = !!S.kids; S.team = !!S.team; S.big = !!S.big; S.scored = !!S.scored;
-  /* מצב קליל (2.4.0): ברירת מחדל למצב צוות. מכשיר שעודכן מגרסה קודמת מקבל קליל. */
+  /* מצב קליל (2.4.0, לכולם מ-2.4.1): ברירת מחדל. מכשיר שעודכן מגרסה קודמת מקבל קליל. */
   S.lite = S.lite !== false;
   if (!S.ls || typeof S.ls !== "object" || !Array.isArray(S.ls.roles) || !Array.isArray(S.ls.lines)) S.ls = null;
-  if (S.liteEv && !["swap", "task"].includes(S.liteEv.kind)) S.liteEv = null;
+  if (S.liteEv && !["swap", "task", "style"].includes(S.liteEv.kind)) S.liteEv = null;
 }
-/* מצב קליל פעיל: רק במצב צוות, כשבחרו "קליל" (ברירת המחדל) */
-function isLite() { return !!(S.team && S.lite); }
+/* מצב קליל פעיל: ברירת המחדל לכולם (2.4.1), עד שבוחרים "מלא" בהגדרת המשחק */
+function isLite() { return !!S.lite; }
 function voiceHas(t) { try { return S.settings.voice === "tts" || (typeof MMV === "object" && MMV.has(t, S.settings.persona)); } catch (e) { return false; } }
 /* סיבוב "שובר" במצב קליל: כל סיבוב רביעי משהו אחר (ניחוש עם 3+ שחקנים, אחרת רגשות בשלט רחוק) */
 function liteBreaker(round) { return round > 0 && round % 4 === 0; }
 /* מה קורה באמצע הסיבוב במצב קליל: סיבוב 1 כלום, סיבוב 2 החלפת דמויות, סיבוב 3 משימה אישית, ואז לסירוגין */
-function liteEventKind(round) { if (round <= 1) return null; return round % 2 === 0 ? "swap" : "task"; }
+function liteEventKind(round) {
+  if (round <= 1) return null;
+  const idx = (round - 2) - Math.floor(round / 4); /* סיבוב שובר לא נספר */
+  return ["swap", "task", "style"][((idx % 3) + 3) % 3];
+}
 
 /* סטטיסטיקה מקומית בלבד (בלי שרת) */
 const STATS = Object.assign({ games: 0, rounds: 0, swaps: 0 }, lsGet(STATS_KEY, {}));
@@ -558,6 +562,7 @@ function liteCastNote() {
   const k = liteEventKind(S.round);
   if (k === "swap") return `🔔 באמצע הסיבוב תשמעו <b>"החלפה!"</b>: מתחלפים בדמויות (${esc(S.ls.who[0])} הופך/ת ל${esc(S.ls.roles[1])}, ${esc(S.ls.who[1])} ל${esc(S.ls.roles[0])}) וממשיכים מאותו מקום.`;
   if (k === "task") return `🎯 באמצע הסיבוב אחד/ת מכם יקבל/תקבל <b>משימה קטנה</b> על המסך. רק מי שהשם שלו/ה כתוב. השני/ה ממשיך/ה כרגיל.`;
+  if (k === "style") return `🎭 באמצע הסיבוב אחד/ת מכם יקבל/תקבל <b>סגנון</b> (למשל חנון או איש צבא) ומשחק/ת כך עד הסוף. השני/ה ממשיך/ה כרגיל.`;
   return `🟢 הסיבוב הזה בלי הפרעות: רק אתם, המקום והמשפט הראשון.`;
 }
 function liteGoCast() {
@@ -580,7 +585,7 @@ function litePlayCards() {
   return `<div class="scard set"><div class="k">📍 הבמה</div><div class="v">${esc(L.place)}</div><div class="vd">${esc(L.prob)}</div></div>` +
     `<div class="scard lite"><div class="k">🎭 מי זה מי</div><div class="v who2s"><span><b>${esc(L.who[0])}</b> ${esc(L.roles[0])}</span><span><b>${esc(L.who[1])}</b> ${esc(L.roles[1])}</span></div>` +
     (ev && ev.fired && ev.kind === "swap" ? `<div class="vd">התחלפתם בדמויות. ממשיכים מאותו מקום.</div>` : `<div class="vd">${esc(L.who[0])}: <q>${esc(L.lines[0])}</q> · ${esc(L.who[1])}: <q>${esc(L.lines[1])}</q></div>`) + `</div>` +
-    (ev && ev.fired && ev.kind === "task" ? `<div class="scard task"><div class="k">🎯 משימה ל${esc(ev.who)}</div><div class="v">${esc(ev.text)}</div><div class="vd">${esc(ev.other)} ממשיך/ה כרגיל</div></div>` : "");
+    (ev && ev.fired && (ev.kind === "task" || ev.kind === "style") ? `<div class="scard task"><div class="k">${ev.kind === "style" ? "🎭 סגנון" : "🎯 משימה"} ל${esc(ev.who)}</div><div class="v">${esc(ev.text)}</div><div class="vd">${esc(ev.other)} ממשיך/ה כרגיל</div></div>` : "");
 }
 /* האירוע היחיד של הסיבוב: החלפת דמויות (תמיד פעם אחת, באמצע) או משימה אישית (ב-120 שניות: שתיים, 40% ו-70%). */
 function scheduleLiteEvent() {
@@ -596,6 +601,18 @@ function scheduleLiteEvent() {
     fireLiteEvent(); if (ev.fired < ev.max) scheduleLiteEvent();
   }, delay * 1000);
 }
+/* 2.5.0: עצירה קצרה אחרי אירוע, כדי שיספיקו להבין מה השתנה לפני שממשיכים (השעון עומד) */
+let holdT = null;
+function liteHoldSoon(sec, msg) { setTimeout(() => { if (sceneRunning && !paused) liteHold(sec, msg); }, 1600); }
+function liteHold(sec, msg) {
+  if (!sceneRunning || paused) return;
+  togglePause(); const b = $("#pausedBanner"); let n = sec; b.textContent = `${msg} · ${n}`;
+  holdT = setInterval(() => {
+    n--;
+    if (n <= 0) { clearInterval(holdT); holdT = null; b.textContent = "⏸️ מושהה"; if (paused) togglePause(); }
+    else b.textContent = `${msg} · ${n}`;
+  }, 1000);
+}
 function fireLiteEvent() {
   const ev = S.liteEv, L = S.ls; if (!ev || !L) return; ev.fired++;
   if (ev.kind === "swap") {
@@ -603,12 +620,14 @@ function fireLiteEvent() {
     $("#flashTxt").textContent = "החלפה!"; $("#ringcount").textContent = `🔔 התחלפתם בדמויות: ${L.who[0]} = ${L.roles[0]} · ${L.who[1]} = ${L.roles[1]}`;
     flashSwap(false); sfx.swap(); speak("החלפה!");
   } else {
+    const isStyle = ev.kind === "style";
     const who = rand(L.who), other = L.who.find((p) => p !== who) || "";
-    ev.who = who; ev.other = other; ev.text = drawDeck("litetask", MM_LITE_TASK); S.tasks = (S.tasks || 0) + 1;
-    $("#flashTxt").textContent = `משימה ל${who}!`; $("#ringcount").textContent = `🎯 ${who}: ${ev.text}`;
+    ev.who = who; ev.other = other; ev.text = isStyle ? drawDeck("litestyle", MM_LITE_STYLE) : drawDeck("litetask", MM_LITE_TASK); S.tasks = (S.tasks || 0) + 1;
+    $("#flashTxt").textContent = `${isStyle ? "סגנון" : "משימה"} ל${who}!`; $("#ringcount").textContent = `${isStyle ? "🎭" : "🎯"} ${who}: ${ev.text}`;
     flashSwap(true); sfx.topic();
     const pc = $("#playCards"); if (pc) pc.innerHTML = litePlayCards();
   }
+  liteHoldSoon(ev.kind === "swap" ? 7 : 5, ev.kind === "swap" ? "🔄 מתחלפים בדמויות, קחו רגע להתארגן" : "👀 קוראים את המסך, קחו רגע");
   save();
 }
 function rolesForRound() {
@@ -1086,6 +1105,7 @@ function setPausedUI(on) {
 }
 function togglePause() {
   if (!sceneRunning) return;
+  if (holdT) { clearInterval(holdT); holdT = null; $("#pausedBanner").textContent = "⏸️ מושהה"; }
   if (!paused) {
     paused = true; pausedAt = Date.now(); if (swapT) clearTimeout(swapT); if (topicAutoT) clearTimeout(topicAutoT);
     stopVoice(); setPausedUI(true); updateClock();

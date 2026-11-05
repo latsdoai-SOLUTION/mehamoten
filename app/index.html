@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.4.0">
+<link rel="stylesheet" href="css/app.css?v=2.5.0">
 <script>
 /* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
    מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
@@ -90,7 +90,7 @@
     <p>מי שמחזיק את הטלפון או עומד ליד המסך ולוחץ על הכפתורים. הוא לא חייב לשחק. בכל סיבוב <b>שני שחקנים</b> עולים ל"במה" (כל מקום פנוי בחדר), וכל השאר הם <b>הקהל</b>.</p>
 
     <h3>קליל או מלא?</h3>
-    <p>במצב צוות יש שני סגנונות (בהגדרת המשחק, מתחת לשם הארגון). <b>🟢 קליל</b>: צוות שמשחק בפעם הראשונה, תמיד קליל. בכל סיבוב במה אחת מהיום-יום, המסך אומר <b>מי זה מי</b> ונותן <b>משפט פתיחה לכל אחד</b>. הסיבוב הראשון בלי שום הפרעה. מהסיבוב השני יש דבר אחד באמצע: <b>"החלפה!"</b> (מתחלפים בדמויות וממשיכים) או <b>משימה קטנה</b> לאחד מהשניים. כל סיבוב רביעי הוא משהו אחר ששובר את הקצב. <b>🔵 מלא</b>: הגרסה המתקדמת שמתוארת למטה, עם אילוצים, נושאים חדשים והרבה החלפות.</p>
+    <p>יש שני סגנונות (בהגדרת המשחק, "סגנון הסיבובים"). <b>🟢 קליל</b> הוא ברירת המחדל: מי שמשחק בפעם הראשונה, תמיד קליל. בכל סיבוב במה אחת מהיום-יום, המסך אומר <b>מי זה מי</b> ונותן <b>משפט פתיחה לכל אחד</b>. הסיבוב הראשון בלי שום הפרעה. מהסיבוב השני יש דבר אחד באמצע: <b>"החלפה!"</b> (מתחלפים בדמויות וממשיכים) או <b>משימה קטנה</b> לאחד מהשניים. כל סיבוב רביעי הוא משהו אחר ששובר את הקצב. <b>🔵 מלא</b>: הגרסה המתקדמת שמתוארת למטה, עם אילוצים, נושאים חדשים והרבה החלפות.</p>
 
     <h3>סיבוב אחד, צעד אחרי צעד</h3>
     <ol class="gsteps">
@@ -164,6 +164,14 @@
         <button class="ghost addp" data-act="newGroup">🧹 קבוצה חדשה</button>
       </div>
       <div class="field">
+        <div class="label">סגנון הסיבובים</div>
+        <div class="seg" id="liteSeg" data-key="lite">
+          <button data-v="on">🟢 קליל<small>מומלץ למי שמשחק בפעם הראשונה: במה אחת, מי זה מי, משפט פתיחה, בלי אילוצים</small></button>
+          <button data-v="off">🔵 מלא<small>אילוצים, נושאים חדשים, אוזניה, הרבה החלפות</small></button>
+        </div>
+        <div class="litenote" id="liteNote" hidden>במצב קליל המנחה הדיגיטלי מנהל לבד. הרמה, חבילות האילוצים ומצב הבמאי לא בשימוש.</div>
+      </div>
+      <div class="field">
         <div class="label">מצב מנחה</div>
         <div class="seg" id="modeSeg" data-key="mode">
           <button data-v="auto">🤖 אוטומטי<small>האפליקציה מנחה לבד עם קול</small></button>
@@ -199,12 +207,6 @@
         </div>
         <div id="teamExtra" hidden>
           <input id="companyInput" class="tinput" type="text" maxlength="40" placeholder="שם הארגון (לא חובה)" style="margin-top:10px" aria-label="שם הארגון" autocomplete="organization">
-          <div class="label" style="margin-top:14px">סגנון הסיבובים</div>
-          <div class="seg" id="liteSeg" data-key="lite">
-            <button data-v="on">🟢 קליל<small>מומלץ לצוות שמשחק בפעם הראשונה: במה אחת, מי זה מי, משפט פתיחה, בלי אילוצים</small></button>
-            <button data-v="off">🔵 מלא<small>אילוצים, נושאים חדשים, הרבה החלפות</small></button>
-          </div>
-          <div class="litenote" id="liteNote" hidden>במצב קליל המנחה הדיגיטלי מנהל לבד. הרמה, חבילות האילוצים ומצב הבמאי לא בשימוש.</div>
           <div class="label" style="margin-top:14px">חבילת קלפים לפי תעשייה</div>
           <div class="seg sm" id="industrySeg" data-key="industry">
             <button data-v="">🎲 כללי</button>
@@ -654,13 +656,13 @@
     <div class="field"><div class="label">סטטיסטיקה (נשמרת במכשיר בלבד)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 בדוק קול</button><button class="ghost" data-act="resetAll">🧹 איפוס נתונים</button><button class="big sm" data-act="closeSettings">סגור</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.4.0</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.5.0</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.4.0"></script>
-<script src="js/app.js?v=2.4.0"></script>
-<script src="js/voice_map.js?v=2.4.0"></script>
-<script src="js/voice.js?v=2.4.0"></script>
+<script src="js/data.js?v=2.5.0"></script>
+<script src="js/app.js?v=2.5.0"></script>
+<script src="js/voice_map.js?v=2.5.0"></script>
+<script src="js/voice.js?v=2.5.0"></script>
 </body>
 </html>
