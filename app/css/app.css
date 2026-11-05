@@ -507,7 +507,7 @@ body.noanim #cast .pulsego{animation:none}
 .castwho .wn{font-family:"Secular One",sans-serif;font-size:clamp(22px,4vmin,36px);color:var(--spot)}
 .castwho .wr{font-size:clamp(15px,2.4vmin,22px);color:#e9e3d4}
 .castwho .wl{grid-column:1/-1;font-size:clamp(15px,2.4vmin,21px);color:#cfc8da;line-height:1.4}
-.castwho .wl q{color:#fff;font-weight:700;quotes:"„" "“"}
+.castwho .wl q{color:#fff;font-weight:700;quotes:none}.castwho .wl q::before,.castwho .wl q::after{content:none}
 .castnote{width:min(760px,94vw);background:rgba(246,231,180,.1);border:1px dashed rgba(246,231,180,.4);border-radius:14px;
   padding:10px 14px;font-size:clamp(14px,2.2vmin,19px);color:#e9e3d4;line-height:1.45;text-align:right;margin:6px 0}
 .scard.lite{border-right-color:var(--spot)} .scard.task{border-right-color:var(--change);background:rgba(226,49,73,.12)}
@@ -518,3 +518,20 @@ body.noanim #cast .pulsego{animation:none}
 body.litescene #ringcount{font-size:clamp(14px,2.2vmin,19px);color:#fff}
 body.bigscreen .castwho .wn{font-size:clamp(30px,5vmin,48px)} body.bigscreen .castwho .wl{font-size:clamp(20px,3vmin,30px)}
 body.bigscreen .scard .v.who2s{font-size:clamp(20px,3vmin,32px)}
+
+/* 2.5.1: משפטי פתיחה בשורה נפרדת לכל שחקן */
+.plines{display:flex;flex-direction:column;gap:8px;margin-top:10px;text-align:right}.plines div{font-size:clamp(15px,2.3vmin,22px);line-height:1.45;color:#fff}.plines b{font-family:"Secular One",sans-serif;font-weight:400;color:var(--spot);margin-left:6px}
+
+/* 2.5.2: מסך ניחוש ברור: שלושה צעדים, חץ, וסימון על הקלף */
+.gstep{display:flex;align-items:center;gap:12px;width:min(560px,92vw);padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.07);text-align:right;font-size:clamp(16px,2.6vmin,22px);line-height:1.4;margin:6px auto}
+.gstep small{color:#cfc8da;font-size:.85em}
+.gstep.g1{background:rgba(226,49,73,.16);border:1px solid rgba(226,49,73,.55)}
+.gstep.g2{background:rgba(246,231,180,.12);border:1px solid rgba(246,231,180,.55)}
+.gstep.g3{margin-top:12px}
+.gnum{flex:none;width:34px;height:34px;border-radius:50%;background:var(--spot,#f6e7b4);color:#14101d;font-family:"Secular One",sans-serif;display:flex;align-items:center;justify-content:center;font-size:20px}
+.garrow{font-size:40px;line-height:1;text-align:center;animation:garrowbob 1s ease-in-out infinite}
+@keyframes garrowbob{50%{transform:translateY(9px)}}
+@media (prefers-reduced-motion:reduce){.garrow{animation:none}}
+.secretcard.blurred{outline:3px dashed var(--spot,#f6e7b4);outline-offset:5px}
+.presshere{position:absolute;left:0;right:0;bottom:12px;margin:0 auto;width:max-content;max-width:90%;padding:7px 16px;border-radius:999px;background:#f6e7b4;color:#14101d;font-weight:800;font-size:clamp(15px,2.4vmin,20px);text-align:center}
+.secretcard:not(.blurred) .presshere{display:none}

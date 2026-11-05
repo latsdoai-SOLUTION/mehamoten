@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.5.0";
+const APP_VERSION = "2.5.3";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -584,7 +584,7 @@ function litePlayCards() {
   const L = S.ls, ev = S.liteEv;
   return `<div class="scard set"><div class="k">📍 הבמה</div><div class="v">${esc(L.place)}</div><div class="vd">${esc(L.prob)}</div></div>` +
     `<div class="scard lite"><div class="k">🎭 מי זה מי</div><div class="v who2s"><span><b>${esc(L.who[0])}</b> ${esc(L.roles[0])}</span><span><b>${esc(L.who[1])}</b> ${esc(L.roles[1])}</span></div>` +
-    (ev && ev.fired && ev.kind === "swap" ? `<div class="vd">התחלפתם בדמויות. ממשיכים מאותו מקום.</div>` : `<div class="vd">${esc(L.who[0])}: <q>${esc(L.lines[0])}</q> · ${esc(L.who[1])}: <q>${esc(L.lines[1])}</q></div>`) + `</div>` +
+    (ev && ev.fired && ev.kind === "swap" ? `<div class="vd">התחלפתם בדמויות. ממשיכים מאותו מקום.</div>` : `<div class="plines"><div><b>${esc(L.who[0])}</b> פותח/ת: ${esc(L.lines[0])}</div><div><b>${esc(L.who[1])}</b> עונה: ${esc(L.lines[1])}</div></div>`) + `</div>` +
     (ev && ev.fired && (ev.kind === "task" || ev.kind === "style") ? `<div class="scard task"><div class="k">${ev.kind === "style" ? "🎭 סגנון" : "🎯 משימה"} ל${esc(ev.who)}</div><div class="v">${esc(ev.text)}</div><div class="vd">${esc(ev.other)} ממשיך/ה כרגיל</div></div>` : "");
 }
 /* האירוע היחיד של הסיבוב: החלפת דמויות (תמיד פעם אחת, באמצע) או משימה אישית (ב-120 שניות: שתיים, 40% ו-70%). */
@@ -917,7 +917,7 @@ function setupGuessRound() {
   S.curDir = ""; S.curPerf = ps.filter((p) => p !== S.guesser); if (S.curPerf.length) S.starter = S.curPerf[0];
   S.guess = { t: g.t, d: g.d, k: g.k, secret }; guessRound = true; guessWin = false; save();
   $("#guessRnum").textContent = "סיבוב " + S.round + " · ניחוש";
-  $("#guessTitle").textContent = g.t; $("#guessGuesser").textContent = S.guesser;
+  $("#guessTitle").textContent = g.t; $("#guessGuesser").textContent = S.guesser; $("#guessGuesser2").textContent = S.guesser;
   $("#secretKind").textContent = "🕵️ " + g.k; $("#secretVal").textContent = secret; $("#secretDesc").textContent = g.d;
   $("#secretCard").classList.add("blurred");
   show("guessIntro"); sfx.start();

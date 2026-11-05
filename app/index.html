@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.5.0">
+<link rel="stylesheet" href="css/app.css?v=2.5.3">
 <script>
 /* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
    מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
@@ -319,17 +319,20 @@
   <section class="screen" id="guessIntro" aria-label="סיבוב ניחוש">
     <div class="eyebrow" id="guessRnum">סיבוב ניחוש</div>
     <div class="who" id="guessTitle">—</div>
-    <div class="roleline"><b id="guessGuesser">—</b> — תסתכלו הצידה / צאו לרגע! 🙈</div>
-    <div class="roleline" style="color:#cfc8da">כל השאר: החזיקו את הקלף כדי לראות את הסוד</div>
+    <div class="gstep g1"><span class="gnum">1</span><div><b id="guessGuesser">—</b>: תסתכלו הצידה או צאו לרגע 🙈<br><small>בלי להציץ במסך</small></div></div>
+    <div class="gstep g2"><span class="gnum">2</span><div><b>כל השאר:</b> לחצו והחזיקו את האצבע על הקלף כדי לראות את הסוד</div></div>
+    <div class="garrow" aria-hidden="true">⬇️</div>
     <div class="secretwrap">
       <div class="secretcard blurred" id="secretCard" role="button" tabindex="0" aria-label="לחצו והחזיקו כדי לחשוף את הסוד">
         <div class="sk" id="secretKind">🕵️ הסוד</div>
         <div class="sv" id="secretVal">—</div>
         <div class="sd" id="secretDesc">—</div>
         <div class="eye" aria-hidden="true">🙈</div>
+        <div class="presshere" aria-hidden="true">👆 לחצו והחזיקו כאן</div>
       </div>
-      <div class="holdhint">👆 לחצו והחזיקו את הקלף כדי לחשוף — עוזבים והוא מסתתר</div>
+      <div class="holdhint">עוזבים את האצבע והסוד מסתתר שוב</div>
     </div>
+    <div class="gstep g3"><span class="gnum">3</span><div>כולם ראו? <b id="guessGuesser2">—</b> חוזר/ת, ולוחצים על הכפתור האדום</div></div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="reDraw">🔀 קלף אחר</button>
       <button class="big" data-act="beginCountdown">המנחש חוזר — אקשן!</button>
@@ -656,13 +659,13 @@
     <div class="field"><div class="label">סטטיסטיקה (נשמרת במכשיר בלבד)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 בדוק קול</button><button class="ghost" data-act="resetAll">🧹 איפוס נתונים</button><button class="big sm" data-act="closeSettings">סגור</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.5.0</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.5.3</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.5.0"></script>
-<script src="js/app.js?v=2.5.0"></script>
-<script src="js/voice_map.js?v=2.5.0"></script>
-<script src="js/voice.js?v=2.5.0"></script>
+<script src="js/data.js?v=2.5.3"></script>
+<script src="js/app.js?v=2.5.3"></script>
+<script src="js/voice_map.js?v=2.5.3"></script>
+<script src="js/voice.js?v=2.5.3"></script>
 </body>
 </html>
