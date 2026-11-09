@@ -2,168 +2,192 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מהמותן — סדנת גיבוש שהצוות יבקש לחזור עליה | 50% לחלוצים</title>
-<meta name="description" content="מנחה דיגיטלי למשחקי אלתור בעברית. 10 ארגוני פיילוט מקבלים 50% הנחה. השאירו פרטים ונחזור תוך יום.">
-<meta property="og:title" content="מהמותן — הצוות שלכם יצחק. אנחנו מבטיחים.">
-<meta property="og:image" content="https://mehamoten.onrender.com/brand/hero.png">
+<title>מהמותן | משחק אלתור לצוותים, בלי מנחה ובלי הכנה</title>
+<meta name="description" content="משחק אלתור בעברית שהצוות מריץ לבד. המשחק נותן מקום, דמויות ומשפט פתיחה, קריין סופר לאחור, ומשחקים. נסו סיבוב בחינם.">
+<meta property="og:title" content="מהמותן: משחק אלתור לצוותים. בלי מנחה. בלי הכנה.">
+<meta property="og:description" content="שניים עולים, המשחק נותן מקום, דמויות ומשפט פתיחה, והשאר צוחקים. נסו סיבוב בחינם.">
+<meta property="og:image" content="https://mehamoten.onrender.com/brand/og-lp.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://mehamoten.onrender.com/lp/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="../app/icons/favicon.svg">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--stage:#100c17;--red:#e23149;--red2:#ff5066;--gold:#f6e7b4;--ink:#f4f0fb;--muted:#b3a9c9;--line:rgba(246,231,180,.16);--card:rgba(255,255,255,.045)}
+:root{--stage:#100c17;--red:#e23149;--red2:#ff5066;--gold:#f6e7b4;--ink:#f4f0fb;--muted:#b9b0cb;--line:rgba(246,231,180,.16);--card:rgba(255,255,255,.045)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:17.5px;scroll-behavior:smooth}
-body{font-family:'Heebo',sans-serif;background:var(--stage);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
-body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(800px 500px at 75% -5%,rgba(226,49,73,.22),transparent 60%),radial-gradient(700px 500px at 10% 15%,rgba(140,47,201,.15),transparent 60%),radial-gradient(600px 400px at 50% 105%,rgba(226,49,73,.12),transparent 60%)}
+body{font-family:'Heebo',sans-serif;background:var(--stage);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(800px 500px at 75% -5%,rgba(226,49,73,.20),transparent 60%),radial-gradient(700px 500px at 10% 15%,rgba(140,47,201,.13),transparent 60%)}
 h1,h2,h3{font-family:'Secular One',sans-serif;font-weight:400;line-height:1.15}
-section,header{position:relative;z-index:1}
-.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:'Heebo';font-weight:800;font-size:1.15rem;padding:17px 34px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 14px 34px -8px rgba(226,49,73,.75);transition:transform .2s}
+section,header,footer{position:relative;z-index:1}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+a{color:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:'Heebo';font-weight:800;font-size:1.12rem;padding:16px 30px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 14px 34px -10px rgba(226,49,73,.75);transition:transform .2s}
 .btn:hover{transform:translateY(-2px)}
-.chip{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:.95rem;color:var(--muted)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);box-shadow:none;color:var(--ink)}
+.btn.wa{background:#1fa855;box-shadow:0 12px 30px -12px rgba(31,168,85,.8)}
+.btn:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 /* topbar */
-.top{position:sticky;top:0;z-index:50;background:rgba(16,12,23,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
-.logo{font-family:'Secular One';font-size:1.35rem}.logo span{color:var(--red2)}
-.top .btn{padding:10px 22px;font-size:1rem}
+.top{position:sticky;top:0;z-index:50;background:rgba(16,12,23,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-family:'Secular One';font-size:1.35rem;text-decoration:none}.logo span{color:var(--red2)}
+.top .btn{padding:9px 20px;font-size:.98rem}
 /* hero */
-.hero{padding:56px 0 40px}
-.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:start}
-.hero h1{font-size:clamp(2.2rem,5vw,3.6rem)}
-.hero h1 em{font-style:normal;background:linear-gradient(120deg,#ff5066,#ff7a45 60%,#f6e7b4);-webkit-background-clip:text;background-clip:text;color:transparent}
-.sub{margin:18px 0 20px;font-size:1.25rem;color:var(--muted);max-width:540px}
-.ticks{list-style:none;display:grid;gap:10px;margin:0 0 22px}
-.ticks li{display:flex;gap:10px;font-size:1.05rem}.ticks li b{color:var(--gold);font-weight:600}
-.ticks li::before{content:"✓";color:#3cc47a;font-weight:800}
-.chips{display:flex;gap:10px;flex-wrap:wrap}
-/* form card */
-.form{background:linear-gradient(180deg,rgba(226,49,73,.14),rgba(255,255,255,.04) 45%);border:1px solid rgba(255,80,102,.45);border-radius:24px;padding:28px;box-shadow:0 30px 70px rgba(0,0,0,.55)}
-.form h3{font-size:1.5rem;margin-bottom:4px}
-.form .fh{color:var(--gold);font-size:.98rem;margin-bottom:18px}
-.form label{display:block;font-weight:600;font-size:.92rem;color:var(--muted);margin:0 0 6px}
-.form input,.form select{width:100%;padding:14px 16px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--ink);font-family:'Heebo';font-size:1.05rem;margin-bottom:14px}
-.form input:focus,.form select:focus{outline:none;border-color:var(--red2)}
-.form .btn{width:100%;font-size:1.2rem}
-.priv{font-size:.8rem;color:var(--muted);text-align:center;margin-top:12px}
-.msg{display:none;margin-top:12px;padding:12px;border-radius:12px;background:rgba(44,158,91,.15);border:1px solid rgba(44,158,91,.5);color:#9ee6bb;text-align:center}
-.spots{display:flex;align-items:center;gap:10px;margin:0 0 16px;font-weight:800;color:var(--gold)}
-.spots .dot{width:10px;height:10px;border-radius:50%;background:#3cc47a;box-shadow:0 0 12px #3cc47a;animation:pulse 1.6s infinite}
-@keyframes pulse{50%{opacity:.4}}
+.hero{padding:48px 0 10px;text-align:center}
+.hero h1{font-size:clamp(2.1rem,5.4vw,3.7rem)}
+.hero h1 em{font-style:normal;color:var(--red2)}
+.sub{margin:16px auto 24px;font-size:1.22rem;color:var(--muted);max-width:640px}
+.ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+.chip{padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:.92rem;color:var(--muted)}
+.cardsrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:980px;margin:34px auto 0}.cardsrow img{width:100%;height:auto;display:block}
+.cap{color:var(--muted);font-size:.95rem;margin-top:6px}
 /* sections */
-.sec{padding:64px 0}
-.sec h2{font-size:clamp(1.7rem,3.4vw,2.5rem);text-align:center;margin-bottom:10px}
-.sec .lead{text-align:center;color:var(--muted);max-width:640px;margin:0 auto 36px;font-size:1.15rem}
-.vid{max-width:860px;margin:0 auto;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 26px 70px rgba(0,0,0,.6),0 0 80px -18px rgba(226,49,73,.4)}
-.vid video{display:block;width:100%;background:#000}
-.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.c{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px}
-.c .big{font-size:2rem;margin-bottom:8px}
-.c h3{font-size:1.25rem;margin-bottom:8px}.c p{color:var(--muted);font-size:1.02rem}
-/* offer */
-.offer{background:linear-gradient(120deg,rgba(226,49,73,.18),rgba(140,47,201,.14));border:1px solid rgba(255,80,102,.5);border-radius:26px;padding:40px;text-align:center}
-.offer .tag{display:inline-block;background:var(--gold);color:#2a2014;font-weight:800;padding:6px 18px;border-radius:999px;margin-bottom:14px}
-.offer h2{margin-bottom:8px}
-.offer p{color:var(--ink);font-size:1.15rem;max-width:600px;margin:0 auto 20px}
-.strike{color:var(--muted);text-decoration:line-through;font-size:1.2rem}
-.price{font-family:'Secular One';font-size:2.4rem;color:var(--gold)}
+.sec{padding:60px 0}
+.sec h2{font-size:clamp(1.7rem,3.6vw,2.5rem);text-align:center;margin-bottom:10px}
+.lead{text-align:center;color:var(--muted);max-width:640px;margin:0 auto 34px;font-size:1.12rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px}
+.c .ic{font-size:1.9rem;margin-bottom:6px}
+.c h3{font-size:1.25rem;margin-bottom:6px}.c p{color:var(--muted);font-size:1.02rem}
+.step{display:flex;gap:14px;align-items:flex-start}
+.num{flex:none;width:44px;height:44px;border-radius:50%;background:var(--red);font-family:'Secular One';font-size:1.3rem;display:flex;align-items:center;justify-content:center}
+.quote{max-width:760px;margin:0 auto;text-align:center;font-family:'Secular One';font-size:clamp(1.35rem,3vw,1.9rem);line-height:1.35}
+.quote small{display:block;font-family:'Heebo';font-size:1rem;color:var(--muted);margin-top:12px}
+/* pricing */
+.price{display:flex;flex-direction:column}
+.price .amt{font-family:'Secular One';font-size:2.2rem;color:var(--gold);margin:4px 0 2px}
+.price .amt small{font-size:1rem;color:var(--muted);font-family:'Heebo'}
+.price ul{list-style:none;color:var(--muted);margin:10px 0 18px;display:grid;gap:6px;font-size:1rem}
+.price li::before{content:"✓ ";color:#3cc47a;font-weight:800}
+.price .btn{margin-top:auto;font-size:1rem;padding:13px 20px}
+.price.hot{border-color:rgba(255,80,102,.55);background:linear-gradient(180deg,rgba(226,49,73,.13),rgba(255,255,255,.03) 55%)}
+.tag{display:inline-block;align-self:flex-start;background:var(--gold);color:#2a2014;font-weight:800;font-size:.85rem;padding:3px 12px;border-radius:999px;margin-bottom:8px}
+.season{margin-top:18px;border:1px dashed rgba(246,231,180,.45);border-radius:18px;padding:18px 22px;text-align:center;color:var(--ink)}
+.season b{color:var(--gold)}
+.note{text-align:center;color:var(--muted);font-size:.92rem;margin-top:14px}
 /* faq */
-details{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;padding:0 20px}
-summary{cursor:pointer;font-weight:800;font-size:1.1rem;padding:18px 0;list-style:none}
-summary::-webkit-details-marker{display:none}
-details p{color:var(--muted);padding-bottom:18px}
 .faqw{max-width:760px;margin:0 auto}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;padding:0 20px}
+summary{cursor:pointer;font-weight:800;font-size:1.08rem;padding:17px 0;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";float:left;color:var(--gold)}
+details[open] summary::after{content:"−"}
+details p{color:var(--muted);padding-bottom:18px}
+.final{text-align:center;background:linear-gradient(120deg,rgba(226,49,73,.16),rgba(140,47,201,.12));border:1px solid rgba(255,80,102,.45);border-radius:26px;padding:40px 22px}
+.final p{color:var(--muted);margin:8px 0 22px;font-size:1.1rem}
 /* sticky mobile cta */
-.sticky{position:fixed;bottom:0;right:0;left:0;z-index:60;padding:10px 14px;background:rgba(16,12,23,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:none}
-.sticky .btn{width:100%;padding:14px}
-footer{padding:34px 0 90px;text-align:center;color:var(--muted);font-size:.9rem;position:relative;z-index:1}
-footer a{color:var(--muted)}
-@media(max-width:900px){.grid{grid-template-columns:1fr}.cards3{grid-template-columns:1fr}.sticky{display:block}.hero{padding-top:32px}}
-.wa-float{position:fixed;bottom:84px;left:18px;z-index:70;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 22px rgba(0,0,0,.45)}.wa-float svg{width:30px;height:30px;fill:#fff}@media(min-width:901px){.wa-float{bottom:22px}}
+.sticky{position:fixed;bottom:0;right:0;left:0;z-index:60;padding:10px 14px;background:rgba(16,12,23,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:none;gap:10px}
+.sticky .btn{flex:1;padding:13px 10px;font-size:1rem}
+footer{padding:30px 0 100px;text-align:center;color:var(--muted);font-size:.9rem}
+@media(max-width:900px){.grid3{grid-template-columns:1fr}.cardsrow{grid-template-columns:1fr;max-width:460px;gap:4px}.sticky{display:flex}.hero{padding-top:30px}.top .btn{display:none}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 <body>
 
 <div class="top"><div class="wrap">
-  <div class="logo">מהמותן<span>.</span></div>
-  <a class="btn" href="#form">לקבלת 50% הנחה</a>
+  <a class="logo" href="../">מהמותן<span>.</span></a>
+  <a class="btn" href="../app/" target="_blank" rel="noopener">נסו סיבוב בחינם</a>
 </div></div>
 
-<header class="hero"><div class="wrap grid">
-  <div>
-    <h1>יום הגיבוש הבא שלכם:<br><em>כולם צוחקים, אפס הכנה</em></h1>
-    <p class="sub">מנחה דיגיטלי למשחקי אלתור בעברית. פותחים מסך אחד — והוא מוביל את הצוות, סופר את הזמן, וזורק "החלפה!" בדיוק ברגע הנכון.</p>
-    <ul class="ticks">
-      <li><b>בלי מנחה חיצוני ובלי לוגיסטיקה</b> — עובד בחדר ישיבות, בזום ובהיברידי</li>
-      <li><b>אף אחד לא צריך להיות מצחיק</b> — המשחק עושה את העבודה, גם לביישנים</li>
-      <li><b>מבוסס מדע</b> — השיטה שגוגל מצאה כגורם מס' 1 לביצועי צוות</li>
-    </ul>
-    <div class="chips"><span class="chip">⏱️ 20–90 דקות</span><span class="chip">👥 5–200 משתתפים</span><span class="chip">🇮🇱 עברית מלאה</span></div>
+<header class="hero"><div class="wrap">
+  <h1>משחק אלתור לצוותים.<br><em>בלי מנחה. בלי הכנה.</em></h1>
+  <p class="sub">שניים עולים, המשחק נותן להם מקום, דמויות ומשפט פתיחה, והשאר צוחקים. קריין מוביל את הכל, סופר לאחור ואומר מתי מתחילים.</p>
+  <div class="ctas">
+    <a class="btn" href="../app/" target="_blank" rel="noopener">▶ נסו סיבוב בחינם</a>
+    <a class="btn ghost" href="#prices">מחירים והזמנה</a>
   </div>
-
-  <div class="form" id="form">
-    <div class="spots"><span class="dot"></span>10 מקומות בלבד לפיילוט</div>
-    <h3>קבלו 50% הנחת חלוצים</h3>
-    <p class="fh">השאירו פרטים — נחזור אליכם תוך יום עבודה עם הצעה</p>
-    <form action="https://formsubmit.co/latsdoai@gmail.com" method="POST">
-      <input type="hidden" name="_subject" value="ליד חם מדף הנחיתה — מהמותן!">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_next" value="https://mehamoten.onrender.com/lp/?sent=1#form">
-      <label>שם מלא</label><input name="name" required placeholder="ישראל ישראלי">
-      <label>טלפון / וואטסאפ</label><input name="phone" required placeholder="050-0000000">
-      <label>אימייל עבודה</label><input type="email" name="email" required placeholder="you@company.co.il">
-      <label>גודל הצוות</label>
-      <select name="team"><option>5–20</option><option>21–50</option><option>51–100</option><option>100+</option></select>
-      <button class="btn" type="submit">שריינו לי מקום פיילוט ←</button>
-      <div class="msg" id="msg">🎉 מעולה! קיבלנו את הפרטים — נחזור אליכם תוך יום עבודה.</div>
-      <p class="priv">בלי ספאם. הפרטים ישמשו רק לחזרה אליכם.</p>
-    </form>
+  <div class="chips"><span class="chip">📱 נפתח בדפדפן, בלי הורדה</span><span class="chip">🖥️ בטלפון או על מסך בחדר</span><span class="chip">🎙️ עברית, עם קריין מוקלט</span></div>
+  <div class="cardsrow">
+    <img src="card-set.webp" width="800" height="421" alt="קלף במה מתוך המשחק: מכון כושר, מאמן אישי ומתאמן שמשקר על הכושר שלו">
+    <img src="card-con.webp" width="790" height="418" alt="קלף אילוץ מתוך המשחק: רק שאלות, אסור משפט חיווי">
   </div>
+  <p class="cap">ככה זה נראה על המסך: המשחק שולף במה, ולפעמים גם אילוץ.</p>
 </div></header>
 
-<section class="sec" style="padding-top:20px"><div class="wrap">
-  <h2>60 שניות — ותבינו הכל</h2>
-  <p class="lead">ואם בא לכם לנסות בעצמכם: <a href="../app/" target="_blank" style="color:var(--gold)">פתחו את המשחק ושחקו סיבוב עכשיו</a> — בלי הרשמה.</p>
-  <div class="vid"><video controls preload="metadata" poster="../media/poster.jpg" playsinline><source src="../media/promo.mp4" type="video/mp4"></video></div>
-</div></section>
-
 <section class="sec"><div class="wrap">
-  <h2>למה דווקא זה יעבוד לצוות שלכם?</h2>
-  <p class="lead">כי זה בנוי הפוך מפעילות גיבוש רגילה:</p>
-  <div class="cards3">
-    <div class="c"><div class="big">🎭</div><h3>תהליך, לא כישרון</h3><p>מנצחים על תגובה מהירה — לא על "מי הכי מצחיק". לכן גם השקטים נכנסים פנימה, בלי מבוכה.</p></div>
-    <div class="c"><div class="big">⚡</div><h3>אפס חיכוך</h3><p>בלי ספק חיצוני, בלי תיאומים, בלי הסעות. נפתח בדפדפן תוך 30 שניות — מתי שמתאים לכם.</p></div>
-    <div class="c"><div class="big">📈</div><h3>נשאר אחרי הצחוק</h3><p>תחקיר מובנה שמחבר את המשחק להקשבה, גמישות ואמון — הכישורים שמנהלים מחפשים.</p></div>
+  <h2>איך זה עובד</h2>
+  <p class="lead">שלושה צעדים, ואף אחד לא צריך לדעת לשחק.</p>
+  <div class="grid3">
+    <div class="c step"><span class="num">1</span><div><h3>פותחים לינק</h3><p>בטלפון, בלפטופ או על מסך גדול בחדר. כותבים את שמות המשתתפים, וזהו.</p></div></div>
+    <div class="c step"><span class="num">2</span><div><h3>המשחק מחליט מי עולה</h3><p>הוא שולף מקום, קובע מי זה מי, ונותן לכל אחד משפט פתיחה. לא צריך להמציא כלום.</p></div></div>
+    <div class="c step"><span class="num">3</span><div><h3>3, 2, 1, אקשן</h3><p>הקריין סופר לאחור, ומשחקים בערך דקה וחצי. אחרי כמה סיבובים יש שיחת סיום קצרה ומסודרת.</p></div></div>
   </div>
 </div></section>
 
+<section class="sec" style="padding-top:10px"><div class="wrap">
+  <p class="quote">"ניסינו את זה עם צוות אמיתי. אחרי שתי דקות אף אחד כבר לא שאל איך משחקים."<small>לירן שעיה, מהפיילוט הראשון</small></p>
+</div></section>
+
 <section class="sec"><div class="wrap">
-  <div class="offer">
-    <span class="tag">מבצע השקה — 10 ארגונים בלבד</span>
-    <h2>סדנת פיילוט מונחית</h2>
-    <p>סדנה מלאה עד 25 משתתפים + מפגש הכנה + תחקיר מסכם + קלפים מותאמים עם הבדיחות הפנימיות שלכם — חינם.</p>
-    <div><span class="strike">‏4,500 ₪</span> &nbsp; <span class="price">‏2,250 ₪</span></div>
-    <p style="font-size:.95rem;color:var(--muted);margin-top:6px">והמחיר מוקפא לכם לשנתיים קדימה</p>
-    <a class="btn" href="#form" style="margin-top:14px">אני רוצה את אחד המקומות ←</a>
+  <h2>למי זה מתאים</h2>
+  <p class="lead">לכל מקום שיש בו קבוצה, חדר, ועשרים דקות.</p>
+  <div class="grid3">
+    <div class="c"><div class="ic">💼</div><h3>צוותים בעבודה</h3><p>ערב צוות, יום גיבוש, פתיחה של ישיבה ארוכה או מסיבת סוף שנה. מתחילים תוך דקה, בלי ספק חיצוני ובלי תיאומים.</p></div>
+    <div class="c"><div class="ic">🍎</div><h3>חדרי מורים ומוסדות</h3><p>הפסקה מצחיקה בישיבת צוות או במפגש. בלי ציוד ובלי הכנה. מה שצריך זה מסך אחד.</p></div>
+    <div class="c"><div class="ic">🎪</div><h3>מפיקים וחברות גיבוש</h3><p>תוספת של עשרים דקות לאירוע שכבר מכרתם. אנחנו נותנים לכם מחיר נטו, ואתם מוסיפים אותו לשלכם.</p></div>
   </div>
 </div></section>
 
-<section class="sec" style="padding-top:0"><div class="wrap faqw">
+<section class="sec" id="prices"><div class="wrap">
+  <h2>מחירים</h2>
+  <p class="lead">קודם מנסים בחינם. אם אהבתם, כותבים לנו בוואטסאפ ומקבלים לינק אישי שפותח את הכל, בלי קודים ובלי הרשמה.</p>
+  <div class="grid3">
+    <div class="c price hot">
+      <span class="tag">הכי פשוט</span>
+      <h3>לאירוע אחד</h3>
+      <div class="amt">590 ₪</div>
+      <ul><li>מצב צוות מלא ל-30 יום</li><li>צוות אחד</li><li>שיחת סיום וסיכום למנהל</li></ul>
+      <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%90%D7%A0%D7%97%D7%A0%D7%95%20%D7%A8%D7%95%D7%A6%D7%99%D7%9D%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%20%D7%9C%D7%90%D7%99%D7%A8%D7%95%D7%A2%20%D7%90%D7%97%D7%93%20(590%20%E2%82%AA).">להזמנה בוואטסאפ</a>
+    </div>
+    <div class="c price">
+      <h3>רישיון שנתי</h3>
+      <div class="amt">3,900 ₪</div>
+      <ul><li>שנה שלמה, כמה פעמים שרוצים</li><li>הלוגו שלכם על המסך</li><li>קלפים עם הבדיחות הפנימיות שלכם</li></ul>
+      <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%9E%D7%A2%D7%A0%D7%99%D7%99%D7%9F%20%D7%90%D7%95%D7%AA%D7%A0%D7%95%20%D7%A8%D7%99%D7%A9%D7%99%D7%95%D7%9F%20%D7%A9%D7%A0%D7%AA%D7%99%20%D7%9C%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F.">להזמנה בוואטסאפ</a>
+    </div>
+    <div class="c price">
+      <h3>סדנה מונחית</h3>
+      <div class="amt">3,500 ₪ <small>אונליין</small></div>
+      <div class="amt" style="font-size:1.6rem;margin-top:0">4,500 ₪ <small>פרונטלי</small></div>
+      <ul><li>אני מנחה, עד 25 משתתפים</li><li>90 דקות</li><li>כולל קוד לצוות ל-30 יום אחרי</li></ul>
+      <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%A8%D7%A6%D7%99%D7%A0%D7%95%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%A1%D7%93%D7%A0%D7%94%20%D7%9E%D7%95%D7%A0%D7%97%D7%99%D7%AA%20%D7%A9%D7%9C%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F.">לתיאום סדנה</a>
+    </div>
+  </div>
+  <div class="season">🎉 <b>חבילת סוף שנה:</b> סדנה מונחית + קוד לצוות ל-30 יום, במחיר הסדנה בלבד. להזמנה עד 15.12, הסדנה עד 31.12.</div>
+  <p class="note">המחירים לפני מע"מ. חשבונית מס על כל תשלום. מפיקים: כתבו לנו לקבלת מחיר נטו.</p>
+</div></section>
+
+<section class="sec" style="padding-top:10px"><div class="wrap faqw">
   <h2 style="margin-bottom:24px">שאלות של רגע לפני</h2>
-  <details><summary>הצוות שלנו ביישן / ציני — זה יעבוד?</summary><p>בדיוק בשבילם זה נבנה. יש רמת "מתחילים" עם משפטי פתיחה מוכנים, המנחה מוביל הכל, ואף אחד לא נמדד על להצחיק. הציניקנים בדרך כלל נשברים בסיבוב השני.</p></details>
-  <details><summary>כמה זמן זה דורש מאיתנו?</summary><p>מפגש הכנה של 15 דקות בזום — וזהו. את כל השאר המנחה הדיגיטלי ואנחנו עושים. הסדנה עצמה: 60–90 דקות.</p></details>
-  <details><summary>מה עם פרטיות ואבטחת מידע?</summary><p>האפליקציה לא אוספת מידע אישי בכלל — שמות וניקוד נשמרים על המכשיר שלכם בלבד ולא נשלחים לשום שרת.</p></details>
-  <details><summary>ואם לא נהיה מרוצים?</summary><p>אם אחרי הסדנה תרגישו שזה לא היה שווה — לא תשלמו. ככה בטוחים אנחנו בצחוק.</p></details>
+  <details><summary>צריך להוריד משהו או להירשם?</summary><p>לא. המשחק נפתח בדפדפן, בטלפון או במחשב. לוחצים על הלינק ומשחקים.</p></details>
+  <details><summary>אף אחד אצלנו לא שחקן. זה יעבוד?</summary><p>בשביל זה הוא נבנה. המשחק נותן מקום, דמויות ומשפט פתיחה לכל אחד, כך שלא צריך להמציא מאפס. וגם לא צריך להצחיק: מי שמקשיב לשני, מצליח.</p></details>
+  <details><summary>כמה אנשים צריך?</summary><p>מספיק שניים על הבמה בכל סיבוב, וכל השאר קהל שמתחלף. הכי טוב כשכולם באותו חדר ורואים מסך אחד.</p></details>
+  <details><summary>מי מנחה?</summary><p>המשחק עצמו. יש קריין מוקלט שמסביר, סופר לאחור ואומר מתי מתחילים ומתי מסיימים. אם תרצו מנחה אנושי, יש סדנה מונחית.</p></details>
+  <details><summary>איך משלמים?</summary><p>כותבים לנו בוואטסאפ, מקבלים פרטי תשלום וחשבונית מס, ואחרי התשלום מקבלים לינק אישי שפותח את הכל בלחיצה.</p></details>
+  <details><summary>מה עם פרטיות?</summary><p>המשחק לא שולח את השמות שאתם כותבים לשום שרת. הם נשמרים רק על המכשיר שלכם.</p></details>
 </div></section>
 
-<footer>מהמותן © 2026 · latsdoai@gmail.com · <a href="../app/privacy.html">פרטיות</a> · <a href="../terms.html">תנאים</a></footer>
+<section class="sec" style="padding-top:10px"><div class="wrap">
+  <div class="final">
+    <h2>הדרך הכי מהירה להבין: לשחק סיבוב</h2>
+    <p>שתי דקות, עם מי שיושב לידכם עכשיו.</p>
+    <div class="ctas">
+      <a class="btn" href="../app/" target="_blank" rel="noopener">▶ נסו סיבוב בחינם</a>
+      <a class="btn wa" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%A8%D7%90%D7%99%D7%AA%D7%99%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%20%D7%95%D7%99%D7%A9%20%D7%9C%D7%99%20%D7%A9%D7%90%D7%9C%D7%94." target="_blank" rel="noopener">שאלה בוואטסאפ</a>
+    </div>
+  </div>
+</div></section>
 
-<a class="wa-float" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%A8%D7%90%D7%99%D7%AA%D7%99%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%A1%D7%93%D7%A0%D7%AA%20%D7%92%D7%99%D7%91%D7%95%D7%A9%20%D7%9C%D7%A6%D7%95%D7%95%D7%AA" target="_blank" rel="noopener" aria-label="שיחת וואטסאפ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.6.8-.8 1-.1.2-.3.2-.5.1-.3-.1-1.1-.4-2-1.2-.7-.7-1.2-1.5-1.4-1.7-.1-.3 0-.4.1-.5l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.1s.9 2.5 1 2.6c.1.2 1.8 2.7 4.3 3.8.6.3 1.1.4 1.5.6.6.2 1.2.2 1.6.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3z"/></svg></a>
-<div class="sticky"><a class="btn" href="#form">🎁 50% הנחת חלוצים — שריינו מקום</a></div>
+<footer>מהמותן © 2026 · לירן שעיה · latsdoai@gmail.com · <a href="../app/privacy.html">פרטיות</a> · <a href="../terms.html">תנאים</a></footer>
 
-<script>
-if(location.search.indexOf('sent=1')>-1){var m=document.getElementById('msg');if(m)m.style.display='block';}
-</script>
+<div class="sticky">
+  <a class="btn" href="../app/" target="_blank" rel="noopener">▶ נסו בחינם</a>
+  <a class="btn wa" href="#prices">מחירים</a>
+</div>
 </body>
 </html>
