@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.5.3";
+const APP_VERSION = "2.6.0";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -120,7 +120,7 @@ function teamAllowed() { return licActive() || !S.teamTrialUsed; }
 const DEFAULT_SETTINGS = { persona: "compere", tts: true, sfx: true, hints: true, motion: true, voiceURI: "", voice: "rec" };
 const S = {
   players: ["", "", ""], mode: "auto", scored: false, level: "easy", kids: false, team: false, company: "", industry: "",
-  packs: ["style", "lang", "body"], sceneLen: 90, big: false, lite: true, ls: null, liteEv: null,
+  packs: ["style", "lang", "body"], sceneLen: 90, big: false, lite: true, warm: true, ls: null, liteEv: null,
   scores: {}, honors: {}, directorIdx: 0, round: 0, dirCounts: {}, curDir: "", curPerf: [], starter: "",
   guessIdx: 0, inGame: false, startedAt: 0, teamTrialUsed: false, trialRound: false,
   set: null, con: null, conCat: null, rings: 0, topics: 0,
@@ -204,6 +204,10 @@ function load() {
   S.kids = !!S.kids; S.team = !!S.team; S.big = !!S.big; S.scored = !!S.scored;
   /* מצב קליל (2.4.0, לכולם מ-2.4.1): ברירת מחדל. מכשיר שעודכן מגרסה קודמת מקבל קליל. */
   S.lite = S.lite !== false;
+  /* חימום בפתיחה (2.6.0): ברירת מחדל כן */
+  S.warm = S.warm !== false;
+  /* רענון לפני הסיבוב הראשון (למשל באמצע החימום): סיבוב הניסיון לא נשרף */
+  if (S.trialRound && !S.round && !(S.log && S.log.length)) { S.teamTrialUsed = false; S.trialRound = false; }
   if (!S.ls || typeof S.ls !== "object" || !Array.isArray(S.ls.roles) || !Array.isArray(S.ls.lines)) S.ls = null;
   if (S.liteEv && !["swap", "task", "style"].includes(S.liteEv.kind)) S.liteEv = null;
 }
@@ -420,6 +424,7 @@ function syncSetupUI() {
   setOn("kidsSeg", S.kids ? "on" : "off"); setOn("teamSeg", S.team ? "on" : "off"); setOn("bigSeg", S.big ? "on" : "off");
   setOn("timeSeg", String(S.sceneLen)); setOn("industrySeg", S.industry || "");
   $("#teamExtra").hidden = !S.team; $("#companyInput").value = S.company || ""; renderLicBoxes();
+  setOn("warmSeg", S.warm ? "on" : "off");
   setOn("liteSeg", S.lite ? "on" : "off"); if (isLite()) setOn("modeSeg", "auto");
   /* במצב קליל: המנחה אוטומטי, והאילוצים, הרמה ומשחקי המיני לא בשימוש */
   const lite = isLite(); const ln = $("#liteNote"); if (ln) ln.hidden = !lite;
@@ -439,6 +444,7 @@ function onSetupSeg(seg, btn) {
   }
   else if (key === "team") S.team = v === "on";
   else if (key === "lite") S.lite = v === "on";
+  else if (key === "warm") S.warm = v === "on";
   else if (key === "industry") { S.industry = v; clearDecks(); }
   else if (key === "sceneLen") S.sceneLen = +v;
   else if (key === "big") {
@@ -519,7 +525,7 @@ async function startGame() {
   guessRound = false; guessWin = false; earRound = false; miniRound = false; gameActive = true; S.inGame = true; clearDecks();
   S.ls = null; S.liteEv = null;
   bumpStat("games"); keepAwake(true); save();
-  if (isLite()) liteIntro(); else nextRound();
+  if (S.warm) warmOpen(); else if (isLite()) liteIntro(); else nextRound();
 }
 /* ---------- מצב קליל: פתיחה, במה, מי זה מי ---------- */
 function liteIntro() {
@@ -527,6 +533,155 @@ function liteIntro() {
   show("liteIntro"); sfx.start();
 }
 function liteGo() { nextRound(); }
+
+/* ---------- חימום קבוצתי (2.6.0) ----------
+   W.mode: "open" = לפני הסיבוב הראשון (סט קבוע של 3, משימה אחרת מאותו שלב), "mid" = משימה אחת מהתפריט, חזרה למסך הקודם.
+   phase: ready (מקריאים ולוחצים התחילו) → run (טיימר) → done (עוד אחד / הבא). לא נשמר במכשיר: רענון חוזר ללוח. */
+let W = null, wuIv = null;
+function wuTask(id) { return MM_WARMUP.find((t) => t.id === id); }
+function wuDrawItems(t) { const it = S.kids && t.kidsItems ? t.kidsItems : t.items; return it ? shuffleCopy(it) : []; }
+function wuSetTask(id) {
+  const t = wuTask(id); W.task = t; W.items = wuDrawItems(t); W.ii = 0; W.phase = "ready"; W.left = t.secs; W.stage = -1; W.swapped = false; W.did = false;
+}
+function warmOpen() {
+  wuClear();
+  W = { mode: "open", list: MM_WARMUP_OPEN.slice(), i: 0, back: "" };
+  try { pushGameState(); } catch (e) {}
+  $("#wuBtns").dataset.k = ""; wuSetTask(W.list[0]); renderWu(); show("warmup"); sfx.start();
+}
+function wuMenu() {
+  wuClear();
+  const btn = (t) => `<button class="wupick" data-act="wuPickOne" data-id="${t.id}"><span class="wi">${t.ic}</span><b>${esc(t.n)}</b><small>${MM_WARMUP_TIER[t.tier]}</small></button>`;
+  $("#wuMid").innerHTML = MM_WARMUP_MID.map((id) => btn(wuTask(id))).join("");
+  $("#wuAll").innerHTML = ["quiet", "pair", "group"].map((tr) =>
+    `<div class="label">${MM_WARMUP_TIER[tr]}</div><div class="wulist">${MM_WARMUP.filter((t) => t.tier === tr).map(btn).join("")}</div>`).join("");
+  $(".wuall").open = false;
+  W = { mode: "mid", list: [], i: 0, back: currentScreen === "wuPick" || currentScreen === "warmup" ? (W && W.back) || "roundend" : currentScreen };
+  show("wuPick");
+}
+function wuPickOne(id) {
+  const back = W ? W.back : "roundend";
+  W = { mode: "mid", list: [id], i: 0, back };
+  $("#wuBtns").dataset.k = ""; wuSetTask(id); renderWu(); show("warmup"); sfx.start();
+}
+function wuSurprise() {
+  const ids = MM_WARMUP.filter((t) => t.id !== 20).map((t) => t.id);
+  wuPickOne(drawDeck("wumid", ids));
+}
+/* משימה אחרת: בפתיחה מאותו שלב (רק open:true), באמצע מכל המשימות */
+function wuOther() {
+  if (!W || W.phase === "run") return;
+  const cur = W.task;
+  const cands = MM_WARMUP.filter((t) => t.id !== cur.id && (W.mode === "mid" ? t.id !== 20 : (t.open && t.tier === cur.tier && !W.list.includes(t.id))));
+  if (!cands.length) return;
+  const nx = cands[Math.floor(Math.random() * cands.length)];
+  W.list[W.i] = nx.id; wuSetTask(nx.id); renderWu();
+}
+function wuStages(t) {
+  if (t.stagesFromItems) return W.items.slice(0, Math.max(1, Math.round(t.secs / 5)));
+  return t.stages || null;
+}
+function wuTxt(el, v) { if (el.textContent !== v) el.textContent = v; }
+function renderWu() {
+  if (!W || !W.task) return;
+  const t = W.task, open = W.mode === "open";
+  $("#wuStep").textContent = (open ? `חימום ${W.i + 1} מתוך ${W.list.length}` : "חימום") + " · " + MM_WARMUP_TIER[t.tier];
+  $("#wuLead").hidden = !(open && W.i === 0 && W.phase === "ready");
+  $("#wuName").textContent = t.ic + " " + t.n;
+  const tags = (t.seat ? `<span>🪑 אפשר בישיבה</span>` : `<span>🧍 עדיף בעמידה</span>`) + (t.secs ? `<span>⏱️ ${t.secs} שניות</span>` : "");
+  if ($("#wuTags").dataset.h !== tags) { $("#wuTags").innerHTML = tags; $("#wuTags").dataset.h = tags; }
+  wuTxt($("#wuHow"), t.how);
+  const st = wuStages(t);
+  const showItem = W.items.length && !t.stagesFromItems;
+  wuTxt($("#wuItem"), showItem ? W.items[W.ii % W.items.length] : (t.stagesFromItems && W.phase !== "run" ? "📺" : (W.items.length ? "" : t.ic)));
+  $("#wuItem").classList.toggle("emoji", !showItem);
+  const stg = $("#wuStage");
+  if (t.stagesFromItems && W.phase === "run" && st && W.stage >= 0) { wuTxt($("#wuItem"), st[Math.min(W.stage, st.length - 1)]); $("#wuItem").classList.remove("emoji"); wuTxt(stg, ""); stg.hidden = true; }
+  else if (W.phase === "run" && st && W.stage >= 0) { wuTxt(stg, st[Math.min(W.stage, st.length - 1)]); stg.hidden = false; }
+  else if (W.phase === "done" && t.end) { wuTxt(stg, t.end); stg.hidden = false; }
+  else if (W.phase === "ready" && st && !t.stagesFromItems) { wuTxt(stg, st.join(" ← ")); stg.hidden = false; stg.classList.add("dim"); }
+  else { wuTxt(stg, ""); stg.hidden = true; }
+  if (!(W.phase === "ready")) stg.classList.remove("dim");
+  const tm = $("#wuTime");
+  wuTxt(tm, W.phase === "run" && t.secs ? String(Math.max(0, Math.ceil(W.left))) : "");
+  tm.hidden = !(W.phase === "run" && t.secs);
+  $("#wuEx").hidden = !t.ex || W.phase === "run"; $("#wuEx").textContent = t.ex ? "לדוגמה: " + t.ex : "";
+  $("#wuPair").hidden = !t.pair || W.phase === "run"; $("#wuPair").textContent = t.pair ? "👫 " + MM_WARMUP_PAIR : "";
+  $("#wuNote").hidden = !t.note || W.phase === "run"; $("#wuNote").textContent = t.note || "";
+  const last = !open || W.i >= W.list.length - 1;
+  const nextLbl = open ? (last ? "לסיבוב הראשון! ←" : "למשימה הבאה ←") : "חזרה למשחק ←";
+  let b = "";
+  if (W.phase === "ready") {
+    b = (W.did ? `<button class="ghost" data-act="wuNext">${nextLbl}</button>` : `<button class="ghost" data-act="wuOther">🔄 משימה אחרת</button>`) + `<button class="big pulsego" data-act="wuStart">▶️ התחילו</button>`;
+  } else if (W.phase === "run") {
+    b = t.secs ? `<button class="ghost" data-act="wuStop">⏹️ סיימנו</button>` : `<button class="big" data-act="wuStop">🎉 הצלחנו!</button>`;
+  } else {
+    b = (W.items.length > 1 && !t.stagesFromItems ? `<button class="ghost" data-act="wuMore">🔁 עוד אחד</button>` : `<button class="ghost" data-act="wuMore">🔁 שוב</button>`) +
+        `<button class="big" data-act="wuNext">${nextLbl}</button>`;
+  }
+  const bk = W.phase + "|" + (W.did ? 1 : 0) + "|" + W.i + "|" + t.id + "|" + W.mode; /* לא מחליפים כפתורים כל 200ms (לחיצה הולכת לאיבוד) */
+  if ($("#wuBtns").dataset.k !== bk) {
+    const hadFocus = $("#wuBtns").contains(document.activeElement);
+    $("#wuBtns").innerHTML = b; $("#wuBtns").dataset.k = bk; W.lockUntil = Date.now() + 450; /* לחיצה כפולה לא מדלגת על מסך */
+    if (hadFocus) { const f = $("#wuBtns .big") || $("#wuBtns button"); if (f) f.focus({ preventScroll: true }); }
+  }
+  $("#wuSkipBtn").textContent = open ? "דלגו על החימום" : "חזרה בלי חימום";
+  $("#wuSkipBtn").hidden = W.phase === "run" || (!open && W.did);
+}
+function wuClear() { if (wuIv) { clearInterval(wuIv); wuIv = null; } }
+function wuStart() {
+  if (!W || W.phase === "run" || Date.now() < (W.lockUntil || 0)) return;
+  const t = W.task; ac();
+  W.phase = "run"; W.left = t.secs; W.stage = -1; W.swapped = false; W.lastTick = -1;
+  sfx.start();
+  if (!t.secs) { renderWu(); return; } /* בלי טיימר: מחכים ל"הצלחנו!" */
+  const st0 = wuStages(t), st = st0 && st0.length ? st0 : null, t0 = Date.now(), total = t.secs * 1000;
+  if (st) W.stage = 0;
+  renderWu();
+  wuClear();
+  wuIv = setInterval(() => {
+    if (!W || W.phase !== "run") { wuClear(); return; }
+    const el = Date.now() - t0; W.left = Math.max(0, (total - el) / 1000);
+    if (st) { const si = Math.min(st.length - 1, Math.floor(el / (total / st.length))); if (si !== W.stage) { W.stage = si; sfx.hint(); } }
+    if (t.swap && !W.swapped && el >= total / 2) {
+      W.swapped = true; sfx.swap();
+      if (W.items.length > 1) W.ii++;
+      flashWu("מתחלפים! 🔄");
+    }
+    const sec = Math.ceil(W.left);
+    if (sec <= 3 && sec > 0 && sec !== W.lastTick) { W.lastTick = sec; sfx.tick(); }
+    if (el >= total) { wuDone(); return; }
+    renderWu();
+  }, 200);
+}
+function flashWu(txt) {
+  const f = document.createElement("div"); f.className = "wuflash"; f.setAttribute("role", "alert"); f.textContent = txt;
+  $("#warmup").appendChild(f); setTimeout(() => f.remove(), 1600);
+}
+function wuDone() {
+  wuClear(); if (!W) return;
+  W.phase = "done"; W.left = 0; W.did = true;
+  if (W.task.end) sfx.freeze(); else sfx.bell();
+  renderWu();
+}
+function wuStop() { if (W && W.phase === "run") wuDone(); }
+function wuMore() {
+  if (!W || W.phase !== "done" || Date.now() < (W.lockUntil || 0)) return;
+  if (W.items.length) { W.ii++; if (W.task.stagesFromItems) W.items = wuDrawItems(W.task); }
+  W.phase = "ready"; W.stage = -1; W.swapped = false; renderWu();
+}
+function wuNext() {
+  if (!W || Date.now() < (W.lockUntil || 0)) return; wuClear();
+  if (W.mode === "open" && W.i < W.list.length - 1) { W.i++; wuSetTask(W.list[W.i]); renderWu(); sfx.start(); return; }
+  wuFinish();
+}
+function wuSkip() { wuClear(); wuFinish(); }
+function wuFinish() {
+  wuClear(); const w = W; W = null;
+  if (!w || w.mode === "open") { if (isLite()) liteIntro(); else nextRound(); return; }
+  show(w.back && $("#" + w.back) ? w.back : "roundend");
+}
+function wuBack() { const back = W && W.back; wuClear(); W = null; show(back && $("#" + back) ? back : "roundend"); }
 /* קלף הבמה הקליל: מקום + בעיה קטנה + מי זה מי. דמות 1 תמיד למי שמתחיל. */
 function liteDraw() {
   const st = drawDeck("lite", MM_LITE_SET);
@@ -1293,7 +1448,8 @@ function stopGameToHome() { stopGame(); syncGroupUI(); show("home"); }
 function stopGame() {
   if (sceneRunning) { sceneRunning = false; paused = false; stopSceneTimers(); hideHint(); hideTopic(); }
   countdownRunning = false; if (countIv) { clearInterval(countIv); countIv = null; } $("#count").classList.remove("go"); $("#count .n").classList.remove("pop");
-  stopVoice();
+  if (W && W.mode === "open" && S.trialRound && !(S.log && S.log.length)) { S.teamTrialUsed = false; S.trialRound = false; } /* יצאו באמצע חימום: סיבוב הניסיון לא נשרף */
+  stopVoice(); wuClear(); W = null;
   gameActive = false; keepAwake(false); save();
 }
 
@@ -1551,6 +1707,7 @@ const ACTIONS = {
   dbFinish: () => { const D = dbState(); const again = !!D.done; D.done = true; save(); if (again) showSummary(); else finalEnd(); }, shareMemento,
   dbEdit: () => { const D = dbState(); D.step = 3; D.done = true; save(); renderDb(); show("debrief"); },
   showSummary, copySummary, shareSummary, pickDebrief: (b) => pickDebrief(b.dataset.q, b),
+  wuMenu, wuPickOne: (b) => wuPickOne(+b.dataset.id), wuSurprise, wuOther, wuStart, wuStop, wuMore, wuNext, wuSkip, wuBack,
   hideHint, hideTopic, enterCode, removeCode, continueFree, shareImage, pickLogo, removeLogo
 };
 document.addEventListener("click", (e) => {

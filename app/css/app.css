@@ -535,3 +535,37 @@ body.bigscreen .scard .v.who2s{font-size:clamp(20px,3vmin,32px)}
 .secretcard.blurred{outline:3px dashed var(--spot,#f6e7b4);outline-offset:5px}
 .presshere{position:absolute;left:0;right:0;bottom:12px;margin:0 auto;width:max-content;max-width:90%;padding:7px 16px;border-radius:999px;background:#f6e7b4;color:#14101d;font-weight:800;font-size:clamp(15px,2.4vmin,20px);text-align:center}
 .secretcard:not(.blurred) .presshere{display:none}
+
+/* ---------- חימום קבוצתי (2.6.0) ---------- */
+.wu{text-align:center;position:relative}
+.wulead{font-size:clamp(15px,2.4vmin,20px);color:#e9e3d4;margin:6px 0 4px;line-height:1.45}
+.wuname{font-family:"Secular One",sans-serif;font-size:clamp(28px,6vmin,58px);margin:6px 0 6px;color:var(--spot)}
+.wutags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.wutags span{font-size:13px;color:#cfc7dd;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:99px;padding:3px 10px}
+.wuhow{font-size:clamp(17px,2.9vmin,27px);line-height:1.45;color:#f3eee3;margin:6px auto 10px;max-width:40em}
+.wuitem{font-family:"Secular One",sans-serif;font-size:clamp(30px,7.5vmin,76px);line-height:1.15;color:#fff;margin:8px 0;min-height:1.1em}
+.wuitem.emoji{font-size:clamp(40px,9vmin,90px)}
+.wustage{font-family:"Rubik",sans-serif;font-weight:800;font-size:clamp(22px,4.6vmin,44px);color:var(--change2);margin:4px 0}
+.wustage.dim{font-size:clamp(14px,2.2vmin,19px);color:#b3acc4;font-weight:600}
+.wutime{font-family:"Rubik",sans-serif;font-weight:800;font-size:clamp(46px,11vmin,110px);color:var(--spot);line-height:1;margin:6px 0}
+.wuex{font-size:clamp(14px,2.3vmin,19px);color:#cfc7dd;font-style:italic;margin:6px 0}
+.wupair{font-size:clamp(14px,2.3vmin,19px);color:#9fe3ff;margin:6px 0}
+.wunote{font-size:13px;color:#b3acc4;margin:6px 0}
+.wubtns{margin-top:14px}
+.wuskip{font-size:14px;opacity:.8}
+.wuflash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Secular One",sans-serif;
+  font-size:clamp(44px,12vmin,130px);color:#fff;background:rgba(226,49,73,.88);z-index:50;pointer-events:none;animation:wuflash 1.6s ease forwards}
+@keyframes wuflash{0%{opacity:0;transform:scale(.9)}12%{opacity:1;transform:scale(1)}75%{opacity:1}100%{opacity:0}}
+.noanim .wuflash{animation:none}
+.wulist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
+.wupick{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 8px;border-radius:16px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line);color:#fff;font:inherit;cursor:pointer;min-height:var(--tap)}
+.wupick .wi{font-size:26px} .wupick b{font-size:15px} .wupick small{font-size:12px;color:#b3acc4}
+.wupick:hover,.wupick:focus-visible{background:rgba(255,255,255,.12)}
+.wuall{margin-top:12px;text-align:right} .wuall summary{cursor:pointer;color:var(--spot);font-weight:700;padding:8px 0;text-align:center}
+.noanim .wuflash{opacity:1}
+/* מסך גדול / מקרן */
+.bigscreen .wutags span{font-size:20px;padding:5px 14px}
+.bigscreen .wunote,.bigscreen .wuex,.bigscreen .wupair,.bigscreen .wulead{font-size:clamp(20px,2.8vmin,30px)}
+.bigscreen .wuskip{font-size:20px}
+.bigscreen .wuhow{font-size:clamp(24px,3.6vmin,40px)}

@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.5.3">
+<link rel="stylesheet" href="css/app.css?v=2.6.0">
 <script>
 /* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
    מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
@@ -91,6 +91,9 @@
 
     <h3>קליל או מלא?</h3>
     <p>יש שני סגנונות (בהגדרת המשחק, "סגנון הסיבובים"). <b>🟢 קליל</b> הוא ברירת המחדל: מי שמשחק בפעם הראשונה, תמיד קליל. בכל סיבוב במה אחת מהיום-יום, המסך אומר <b>מי זה מי</b> ונותן <b>משפט פתיחה לכל אחד</b>. הסיבוב הראשון בלי שום הפרעה. מהסיבוב השני יש דבר אחד באמצע: <b>"החלפה!"</b> (מתחלפים בדמויות וממשיכים) או <b>משימה קטנה</b> לאחד מהשניים. כל סיבוב רביעי הוא משהו אחר ששובר את הקצב. <b>🔵 מלא</b>: הגרסה המתקדמת שמתוארת למטה, עם אילוצים, נושאים חדשים והרבה החלפות.</p>
+
+    <h3>🔥 חימום</h3>
+    <p>לפני הסיבוב הראשון כל החדר עושה <b>3 משימות קצרות בבת אחת</b>: אחת בלי מילים, אחת בזוגות עם מי שיושב ליד, ואחת של כל הקבוצה בקול. אף אחד לא עומד לבד מול קהל, והכול אפשר גם בישיבה. אתם מקריאים את המסך ולוחצים <b>"התחילו"</b>. משימה לא מתאימה לחדר? <b>"משימה אחרת"</b>. אפשר תמיד לדלג. באמצע המשחק, במסך שבין הסיבובים, יש כפתור <b>🔥 חימום</b> עם עוד משימות, למשל כשהאנרגיה יורדת. לכבות את החימום בפתיחה: בהגדרת המשחק, "חימום בפתיחה".</p>
 
     <h3>סיבוב אחד, צעד אחרי צעד</h3>
     <ol class="gsteps">
@@ -170,6 +173,13 @@
           <button data-v="off">🔵 מלא<small>אילוצים, נושאים חדשים, אוזניה, הרבה החלפות</small></button>
         </div>
         <div class="litenote" id="liteNote" hidden>במצב קליל המנחה הדיגיטלי מנהל לבד. הרמה, חבילות האילוצים ומצב הבמאי לא בשימוש.</div>
+      </div>
+      <div class="field">
+        <div class="label">חימום בפתיחה</div>
+        <div class="seg" id="warmSeg" data-key="warm">
+          <button data-v="on">🔥 כן<small>3 משימות קצרות לכל החדר לפני הסיבוב הראשון (כ־3 דקות)</small></button>
+          <button data-v="off">⏭️ לא<small>ישר לסיבוב הראשון</small></button>
+        </div>
       </div>
       <div class="field">
         <div class="label">מצב מנחה</div>
@@ -258,6 +268,39 @@
         <button class="ghost" data-act="goHome">חזרה</button>
         <button class="big" data-act="startGame">להתחיל!</button>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ חימום קבוצתי (2.6.0) ============ -->
+  <section class="screen" id="warmup" aria-label="חימום">
+    <div class="panel wu">
+      <div class="eyebrow" id="wuStep">חימום</div>
+      <p class="wulead" id="wuLead" hidden>לפני שמישהו עולה לבמה: כמה משימות קצרות, כולם ביחד. אף אחד לא צופה באף אחד.</p>
+      <h2 class="wuname" id="wuName"></h2>
+      <div class="wutags" id="wuTags"></div>
+      <p class="wuhow" id="wuHow"></p>
+      <div class="wuitem" id="wuItem" aria-live="polite"></div>
+      <div class="wustage" id="wuStage" aria-live="polite"></div>
+      <div class="wutime" id="wuTime" role="timer" aria-live="off"></div>
+      <p class="wuex" id="wuEx" hidden></p>
+      <p class="wupair" id="wuPair" hidden></p>
+      <p class="wunote" id="wuNote" hidden></p>
+      <div class="row wubtns" id="wuBtns"></div>
+      <div class="row" style="margin-top:6px"><button class="ghost wuskip" id="wuSkipBtn" data-act="wuSkip">דלגו על החימום</button></div>
+    </div>
+  </section>
+
+  <!-- ============ בחירת חימום באמצע המשחק ============ -->
+  <section class="screen" id="wuPick" aria-label="בחירת חימום">
+    <div class="panel wu">
+      <div class="eyebrow">חימום באמצע</div>
+      <h2>🔥 משימה לכל החדר</h2>
+      <p class="sub">כשהאנרגיה יורדת, או סתם בין סיבובים. כולם עושים בבת אחת.</p>
+      <div class="row"><button class="big" data-act="wuSurprise">🎲 הפתעה</button></div>
+      <div class="label" style="margin-top:16px">מומלצים</div>
+      <div class="wulist" id="wuMid"></div>
+      <details class="wuall"><summary>כל 20 המשימות</summary><div id="wuAll"></div></details>
+      <div class="row" style="margin-top:14px"><button class="ghost" data-act="wuBack">חזרה</button></div>
     </div>
   </section>
 
@@ -484,6 +527,7 @@
     <div class="muted" id="roundendSub"></div>
     <div class="row" style="margin-top:26px">
       <button class="ghost" data-act="endGameNow">סיים משחק</button>
+      <button class="ghost" data-act="wuMenu">🔥 חימום</button>
       <button class="big" data-act="nextRound">סיבוב הבא</button>
     </div>
   </section>
@@ -495,6 +539,7 @@
     <div class="board" id="board"></div>
     <div class="row" style="margin-top:24px">
       <button class="ghost" data-act="endGameNow">סיים משחק</button>
+      <button class="ghost" data-act="wuMenu">🔥 חימום</button>
       <button class="big" id="declareWinBtn" hidden data-act="declareWinner">🏆 הכרז מנצח</button>
       <button class="big" data-act="nextRound">סיבוב הבא</button>
     </div>
@@ -659,13 +704,13 @@
     <div class="field"><div class="label">סטטיסטיקה (נשמרת במכשיר בלבד)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 בדוק קול</button><button class="ghost" data-act="resetAll">🧹 איפוס נתונים</button><button class="big sm" data-act="closeSettings">סגור</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.5.3</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.6.0</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.5.3"></script>
-<script src="js/app.js?v=2.5.3"></script>
-<script src="js/voice_map.js?v=2.5.3"></script>
-<script src="js/voice.js?v=2.5.3"></script>
+<script src="js/data.js?v=2.6.0"></script>
+<script src="js/app.js?v=2.6.0"></script>
+<script src="js/voice_map.js?v=2.6.0"></script>
+<script src="js/voice.js?v=2.6.0"></script>
 </body>
 </html>
