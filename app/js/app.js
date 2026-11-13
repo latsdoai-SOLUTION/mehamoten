@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.0";
+const APP_VERSION = "2.6.1";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -539,7 +539,7 @@ function liteGo() { nextRound(); }
    phase: ready (מקריאים ולוחצים התחילו) → run (טיימר) → done (עוד אחד / הבא). לא נשמר במכשיר: רענון חוזר ללוח. */
 let W = null, wuIv = null;
 function wuTask(id) { return MM_WARMUP.find((t) => t.id === id); }
-function wuDrawItems(t) { const it = S.kids && t.kidsItems ? t.kidsItems : t.items; return it ? shuffleCopy(it) : []; }
+function wuDrawItems(t) { const it = S.kids && t.kidsItems ? t.kidsItems : t.items; return it ? (t.ordered ? it.slice() : shuffleCopy(it)) : []; }
 function wuSetTask(id) {
   const t = wuTask(id); W.task = t; W.items = wuDrawItems(t); W.ii = 0; W.phase = "ready"; W.left = t.secs; W.stage = -1; W.swapped = false; W.did = false;
 }
@@ -565,14 +565,14 @@ function wuPickOne(id) {
   $("#wuBtns").dataset.k = ""; wuSetTask(id); renderWu(); show("warmup"); sfx.start();
 }
 function wuSurprise() {
-  const ids = MM_WARMUP.filter((t) => t.id !== 20).map((t) => t.id);
+  const ids = MM_WARMUP.filter((t) => t.id !== 20 && t.id !== 25).map((t) => t.id);
   wuPickOne(drawDeck("wumid", ids));
 }
 /* משימה אחרת: בפתיחה מאותו שלב (רק open:true), באמצע מכל המשימות */
 function wuOther() {
   if (!W || W.phase === "run") return;
   const cur = W.task;
-  const cands = MM_WARMUP.filter((t) => t.id !== cur.id && (W.mode === "mid" ? t.id !== 20 : (t.open && t.tier === cur.tier && !W.list.includes(t.id))));
+  const cands = MM_WARMUP.filter((t) => t.id !== cur.id && (W.mode === "mid" ? t.id !== 20 && t.id !== 25 : (t.open && t.tier === cur.tier && !W.list.includes(t.id))));
   if (!cands.length) return;
   const nx = cands[Math.floor(Math.random() * cands.length)];
   W.list[W.i] = nx.id; wuSetTask(nx.id); renderWu();
@@ -593,7 +593,7 @@ function renderWu() {
   wuTxt($("#wuHow"), t.how);
   const st = wuStages(t);
   const showItem = W.items.length && !t.stagesFromItems;
-  wuTxt($("#wuItem"), showItem ? W.items[W.ii % W.items.length] : (t.stagesFromItems && W.phase !== "run" ? "📺" : (W.items.length ? "" : t.ic)));
+  wuTxt($("#wuItem"), showItem ? W.items[W.ii % W.items.length] : (t.stagesFromItems && W.phase !== "run" ? t.ic : (W.items.length ? "" : t.ic)));
   $("#wuItem").classList.toggle("emoji", !showItem);
   const stg = $("#wuStage");
   if (t.stagesFromItems && W.phase === "run" && st && W.stage >= 0) { wuTxt($("#wuItem"), st[Math.min(W.stage, st.length - 1)]); $("#wuItem").classList.remove("emoji"); wuTxt(stg, ""); stg.hidden = true; }
