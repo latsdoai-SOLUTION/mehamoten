@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.1";
+const APP_VERSION = "2.6.2";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -531,6 +531,7 @@ async function startGame() {
 function liteIntro() {
   $("#liteIntroBody").innerHTML = MM_LITE_INTRO.map((t) => `<p>${esc(t)}</p>`).join("");
   show("liteIntro"); sfx.start();
+  speak(MM_LITE_INTRO.join(" "), MM_LITE_INTRO.map((t, i) => "lite-intro-" + i)); /* 2.6.2: הפתיחה מוקלטת */
 }
 function liteGo() { nextRound(); }
 
@@ -547,7 +548,7 @@ function warmOpen() {
   wuClear();
   W = { mode: "open", list: MM_WARMUP_OPEN.slice(), i: 0, back: "" };
   try { pushGameState(); } catch (e) {}
-  $("#wuBtns").dataset.k = ""; wuSetTask(W.list[0]); renderWu(); show("warmup"); sfx.start();
+  $("#wuBtns").dataset.k = ""; wuSetTask(W.list[0]); renderWu(); show("warmup"); sfx.start(); wuAnnounce();
 }
 function wuMenu() {
   wuClear();
@@ -562,7 +563,7 @@ function wuMenu() {
 function wuPickOne(id) {
   const back = W ? W.back : "roundend";
   W = { mode: "mid", list: [id], i: 0, back };
-  $("#wuBtns").dataset.k = ""; wuSetTask(id); renderWu(); show("warmup"); sfx.start();
+  $("#wuBtns").dataset.k = ""; wuSetTask(id); renderWu(); show("warmup"); sfx.start(); wuAnnounce();
 }
 function wuSurprise() {
   const ids = MM_WARMUP.filter((t) => t.id !== 20 && t.id !== 25).map((t) => t.id);
@@ -575,12 +576,26 @@ function wuOther() {
   const cands = MM_WARMUP.filter((t) => t.id !== cur.id && (W.mode === "mid" ? t.id !== 20 && t.id !== 25 : (t.open && t.tier === cur.tier && !W.list.includes(t.id))));
   if (!cands.length) return;
   const nx = cands[Math.floor(Math.random() * cands.length)];
-  W.list[W.i] = nx.id; wuSetTask(nx.id); renderWu();
+  W.list[W.i] = nx.id; wuSetTask(nx.id); renderWu(); wuAnnounce();
 }
 function wuStages(t) {
   if (t.stagesFromItems) return W.items.slice(0, Math.max(1, Math.round(t.secs / 5)));
   return t.stages || null;
 }
+/* קול לחימום (2.6.2): קבצים wu-* מוקלטים ב-ElevenLabs (tools/gpt_voice). מה שלא הוקלט נשאר שקט. */
+function wuItemKey(t, txt) {
+  const i = (t.items || []).indexOf(txt); if (i >= 0) return `wu-${t.id}-i${i}`;
+  const k = (t.kidsItems || []).indexOf(txt); return k >= 0 ? `wu-${t.id}-k${k}` : null;
+}
+function wuSay(seq, txt) { seq = seq.filter(Boolean); if (seq.length) speak(txt || "", seq); }
+function wuAnnounce(itemOnly) {
+  if (!W || !W.task) return; const t = W.task;
+  const item = W.items.length && !t.stagesFromItems ? W.items[W.ii % W.items.length] : "";
+  const seq = itemOnly ? [] : [W.mode === "open" && W.i === 0 ? "wu-lead" : "", "wu-how-" + t.id, t.pair ? "wu-pair" : ""];
+  if (item) seq.push(wuItemKey(t, item));
+  wuSay(seq, (itemOnly ? "" : t.n + ". " + t.how + " ") + item);
+}
+function wuStageKey(t, st, si) { return t.stagesFromItems ? wuItemKey(t, st[si]) : `wu-${t.id}-s${si}`; }
 function wuTxt(el, v) { if (el.textContent !== v) el.textContent = v; }
 function renderWu() {
   if (!W || !W.task) return;
@@ -636,17 +651,19 @@ function wuStart() {
   sfx.start();
   if (!t.secs) { renderWu(); return; } /* בלי טיימר: מחכים ל"הצלחנו!" */
   const st0 = wuStages(t), st = st0 && st0.length ? st0 : null, t0 = Date.now(), total = t.secs * 1000;
-  if (st) W.stage = 0;
+  if (st) { W.stage = 0; wuSay([wuStageKey(t, st, 0)], st[0]); } else stopVoice();
   renderWu();
   wuClear();
   wuIv = setInterval(() => {
     if (!W || W.phase !== "run") { wuClear(); return; }
     const el = Date.now() - t0; W.left = Math.max(0, (total - el) / 1000);
-    if (st) { const si = Math.min(st.length - 1, Math.floor(el / (total / st.length))); if (si !== W.stage) { W.stage = si; sfx.hint(); } }
+    if (st) { const si = Math.min(st.length - 1, Math.floor(el / (total / st.length))); if (si !== W.stage) { W.stage = si; sfx.hint(); wuSay([wuStageKey(t, st, si)], st[si]); } }
     if (t.swap && !W.swapped && el >= total / 2) {
       W.swapped = true; sfx.swap();
       if (W.items.length > 1) W.ii++;
       flashWu("מתחלפים! 🔄");
+      const nIt = W.items.length > 1 && !t.stagesFromItems ? W.items[W.ii % W.items.length] : "";
+      wuSay(["wu-swap", nIt ? wuItemKey(t, nIt) : ""], "מתחלפים! " + nIt);
     }
     const sec = Math.ceil(W.left);
     if (sec <= 3 && sec > 0 && sec !== W.lastTick) { W.lastTick = sec; sfx.tick(); }
@@ -662,26 +679,27 @@ function wuDone() {
   wuClear(); if (!W) return;
   W.phase = "done"; W.left = 0; W.did = true;
   if (W.task.end) sfx.freeze(); else sfx.bell();
+  wuSay([W.task.end ? `wu-${W.task.id}-end` : "wu-done"], W.task.end || "וזהו! כל הכבוד.");
   renderWu();
 }
 function wuStop() { if (W && W.phase === "run") wuDone(); }
 function wuMore() {
   if (!W || W.phase !== "done" || Date.now() < (W.lockUntil || 0)) return;
   if (W.items.length) { W.ii++; if (W.task.stagesFromItems) W.items = wuDrawItems(W.task); }
-  W.phase = "ready"; W.stage = -1; W.swapped = false; renderWu();
+  W.phase = "ready"; W.stage = -1; W.swapped = false; renderWu(); wuAnnounce(true);
 }
 function wuNext() {
   if (!W || Date.now() < (W.lockUntil || 0)) return; wuClear();
-  if (W.mode === "open" && W.i < W.list.length - 1) { W.i++; wuSetTask(W.list[W.i]); renderWu(); sfx.start(); return; }
+  if (W.mode === "open" && W.i < W.list.length - 1) { W.i++; wuSetTask(W.list[W.i]); renderWu(); sfx.start(); wuAnnounce(); return; }
   wuFinish();
 }
 function wuSkip() { wuClear(); wuFinish(); }
 function wuFinish() {
-  wuClear(); const w = W; W = null;
+  wuClear(); stopVoice(); const w = W; W = null;
   if (!w || w.mode === "open") { if (isLite()) liteIntro(); else nextRound(); return; }
   show(w.back && $("#" + w.back) ? w.back : "roundend");
 }
-function wuBack() { const back = W && W.back; wuClear(); W = null; show(back && $("#" + back) ? back : "roundend"); }
+function wuBack() { const back = W && W.back; wuClear(); stopVoice(); W = null; show(back && $("#" + back) ? back : "roundend"); }
 /* קלף הבמה הקליל: מקום + בעיה קטנה + מי זה מי. דמות 1 תמיד למי שמתחיל. */
 function liteDraw() {
   const st = drawDeck("lite", MM_LITE_SET);
@@ -779,7 +797,7 @@ function fireLiteEvent() {
     const who = rand(L.who), other = L.who.find((p) => p !== who) || "";
     ev.who = who; ev.other = other; ev.text = isStyle ? drawDeck("litestyle", MM_LITE_STYLE) : drawDeck("litetask", MM_LITE_TASK); S.tasks = (S.tasks || 0) + 1;
     $("#flashTxt").textContent = `${isStyle ? "סגנון" : "משימה"} ל${who}!`; $("#ringcount").textContent = `${isStyle ? "🎭" : "🎯"} ${who}: ${ev.text}`;
-    flashSwap(true); sfx.topic();
+    flashSwap(true); sfx.topic(); speak(isStyle ? "סגנון חדש!" : "משימה חדשה!", [isStyle ? "lite-style" : "lite-task"]);
     const pc = $("#playCards"); if (pc) pc.innerHTML = litePlayCards();
   }
   liteHoldSoon(ev.kind === "swap" ? 7 : 5, ev.kind === "swap" ? "🔄 מתחלפים בדמויות, קחו רגע להתארגן" : "👀 קוראים את המסך, קחו רגע");
