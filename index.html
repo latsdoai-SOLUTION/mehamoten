@@ -242,6 +242,7 @@ section{position:relative;z-index:1}
 .pkg h3{font-size:1.55rem;margin:8px 0 6px}
 .pkg .val{color:var(--muted);font-size:1rem;margin-bottom:18px;min-height:48px}
 .pkg .price{font-family:'Secular One';font-size:1.9rem;color:var(--ink);margin-bottom:4px}
+.pkg .hl{color:var(--gold);font-weight:700;font-size:.95rem;margin:8px 0 0}
 .pkg .price small{font-family:'Rubik';font-size:.85rem;color:var(--muted-2);font-weight:400}
 .pkg ul{list-style:none;margin:18px 0 26px;display:flex;flex-direction:column;gap:11px}
 .pkg li{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:1.04rem}
@@ -250,6 +251,8 @@ section{position:relative;z-index:1}
 
 /* ---------- Social proof ---------- */
 .tcards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.tcards.two{grid-template-columns:repeat(2,1fr);max-width:820px;margin-inline:auto}
+@media(max-width:920px){.tcards.two{grid-template-columns:1fr}}
 .tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 28px;position:relative}
 .tcard .qm{font-family:'Secular One';font-size:3rem;color:rgba(226,49,73,.4);line-height:.6;height:26px}
 .tcard p{color:var(--ink);font-size:1.09rem;margin:8px 0 20px;font-style:italic}
@@ -365,7 +368,7 @@ section{position:relative;z-index:1}
 .wa-inline svg{width:20px;height:20px;fill:#25D366}
 .wa-inline:hover{text-decoration:underline}
 </style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"מהמותן","description":"מנחה דיגיטלי למשחק אילתור לגיבוש צוותים — בעברית, בלי הכנה, על כל מסך.","image":"https://mehamoten.onrender.com/brand/hero.png","brand":{"@type":"Brand","name":"מהמותן"},"url":"https://mehamoten.onrender.com/","offers":{"@type":"AggregateOffer","priceCurrency":"ILS","lowPrice":"590","highPrice":"7900","offerCount":"3"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"מהמותן","description":"מנחה דיגיטלי למשחק אילתור לגיבוש צוותים — בעברית, בלי הכנה, על כל מסך.","image":"https://mehamoten.onrender.com/brand/hero.png","brand":{"@type":"Brand","name":"מהמותן"},"url":"https://mehamoten.onrender.com/","offers":{"@type":"AggregateOffer","priceCurrency":"ILS","lowPrice":"690","highPrice":"5900","offerCount":"3"}}</script>
 <noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 </head>
 <body>
@@ -584,51 +587,47 @@ section{position:relative;z-index:1}
     <div class="sec-head center reveal">
       <span class="eyebrow">חבילות</span>
       <h2>בחרו את הדרך שמתאימה לארגון שלכם</h2>
-      <p>מקוד לאירוע אחד ועד רישיון לכל הארגון. המחירים כאן, בלי "צרו קשר לקבלת הצעה".</p>
+      <p>מערב צוות אחד ועד שנה פתוחה לכל הארגון. המחירים כאן, בלי "צרו קשר לקבלת הצעה".</p>
     </div>
     <div class="pkgs">
       <div class="pkg reveal">
-        <span class="tier">Event Code</span>
-        <h3>קוד לאירוע</h3>
-        <p class="val">מצב צוות מלא ל-30 יום. הצוות מריץ לבד, בישיבה או ביום גיבוש.</p>
-        <div class="price">₪590<br><small>לצוות אחד · תשלום בכרטיס, בלי ועדת רכש</small></div>
+        <h3>ערב צוות</h3>
+        <p class="val">קונים לערב אחד ומשחקים מתי שנוח.</p>
+        <div class="price">690 ₪<br><small>לצוות אחד · תשלום בכרטיס, בלי ועדת רכש</small></div>
+        <p class="hl">מי שקונה עכשיו: המשחק פתוח לכם עד 1.1.2027.</p>
         <ul>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>שם הארגון על המסך</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>קלפי במה לפי התעשייה שלכם</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>תחקיר מונחה בסוף המפגש</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>סיכום מפגש לשליחה למנהל/ת</li>
         </ul>
-        <a href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A7%D7%91%D7%9C%20%D7%A7%D7%95%D7%93%20%D7%9C%D7%90%D7%99%D7%A8%D7%95%D7%A2%20%D7%9C%D7%A6%D7%95%D7%95%D7%AA%20%D7%A9%D7%9C%D7%99" target="_blank" rel="noopener" class="btn btn-ghost" data-wa>לקבלת קוד בוואטסאפ</a>
+        <a href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A7%D7%A0%D7%95%D7%AA%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%3A%20%D7%A2%D7%A8%D7%91%20%D7%A6%D7%95%D7%95%D7%AA%20%28690%20%E2%82%AA%29" data-buy="event" target="_blank" rel="noopener" class="btn btn-ghost" data-wa>לקנות</a>
       </div>
 
       <div class="pkg feat reveal">
-        <span class="tier">Facilitated Workshop</span>
-        <h3>סדנה מונחית</h3>
-        <p class="val">מנחה מגיע אליכם (או בזום), 90 דקות, כולל תחקיר וסיכום. ואחרי הסדנה: קוד לאירוע לחודש, במתנה.</p>
-        <div class="price">₪4,500<br><small>עד 25 משתתפים · עד 60: ₪7,500 · בזום: ₪3,500</small></div>
+        <h3>שנה פתוחה</h3>
+        <p class="val">המשחק פתוח לכם שנה שלמה, כמה פעמים שרוצים, עם הלוגו שלכם על המסך.</p>
+        <div class="price">4,100 ₪<br><small>לכל הצוותים בארגון</small></div>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>מנחה אנושי מקצועי</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>מפגש הכנה קצר לפני</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>התאמת קלפים למטרות הצוות</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>קוד לאירוע לחודש אחרי הסדנה</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>כל מה שבערב צוות, בלי הגבלה</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>לוגו הארגון על המסך</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>קלפים עם הבדיחות הפנימיות שלכם</li>
         </ul>
-        <a href="#contact" class="btn btn-gold">לתיאום סדנה</a>
+        <a href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A7%D7%A0%D7%95%D7%AA%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%3A%20%D7%A9%D7%A0%D7%94%20%D7%A4%D7%AA%D7%95%D7%97%D7%94%20%284%2C100%20%E2%82%AA%29" data-buy="year" target="_blank" rel="noopener" class="btn btn-gold" data-wa>לקנות</a>
       </div>
 
       <div class="pkg reveal">
-        <span class="tier">Annual License</span>
-        <h3>רישיון שנתי</h3>
-        <p class="val">מצב צוות פתוח כל השנה, לכל הצוותים בארגון. לחברות שרוצות שזה יהיה חלק מהשגרה.</p>
-        <div class="price">₪3,900<br><small>עד 50 עובדים · עד 250: ₪7,900 · מעל: הצעה</small></div>
+        <h3>שנה + ערב עם לירן</h3>
+        <p class="val">אני מגיע ומנחה לכם ערב של שעה, והמשחק נשאר פתוח לכם שנה שלמה.</p>
+        <div class="price">5,900 ₪<br><small>ערב מונחה של שעה + שנה פתוחה</small></div>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>כל מה שבקוד לאירוע, ללא הגבלה</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>לוגו הארגון על המסך</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>10 קלפים שנכתוב במיוחד לכם</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>הסמכת מנחה פנימי: ₪2,500 למנחה</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>כל מה שבשנה פתוחה</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>ערב מונחה של שעה עם לירן</li>
         </ul>
-        <a href="#contact" class="btn btn-ghost">לפרטים ותמחור</a>
+        <a href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A7%D7%A0%D7%95%D7%AA%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%3A%20%D7%A9%D7%A0%D7%94%20%2B%20%D7%A2%D7%A8%D7%91%20%D7%A2%D7%9D%20%D7%9C%D7%99%D7%A8%D7%9F%20%285%2C900%20%E2%82%AA%29" data-buy="yearPlus" target="_blank" rel="noopener" class="btn btn-ghost" data-wa>לקנות</a>
       </div>
     </div>
+    <p class="lead center reveal" style="margin:14px auto 0;font-size:.9rem">המחירים כוללים מע"מ.</p>
     <p class="lead center reveal" style="margin:26px auto 0;font-size:.95rem">חברות הפקה, סוכנויות אירועים ומנחים עצמאיים: יש מחירון שותפים. <a href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%9E%D7%97%D7%91%D7%A8%D7%AA%20%D7%94%D7%A4%D7%A7%D7%94%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%9E%D7%97%D7%99%D7%A8%D7%95%D7%9F%20%D7%A9%D7%95%D7%AA%D7%A4%D7%99%D7%9D" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline" data-wa>דברו איתנו</a>.</p>
   </div>
 </section>
@@ -637,20 +636,15 @@ section{position:relative;z-index:1}
 <section class="section-pad">
   <div class="wrap">
     <div class="sec-head center reveal">
-      <span class="eyebrow">מבצע השקה</span>
+      <span class="eyebrow">שלב הפיילוט</span>
       <h2>היו בין הארגונים הראשונים</h2>
-      <p>מהמותן בשלב הפיילוטים — וזה בדיוק הרגע שבו הכי משתלם להצטרף.</p>
+      <p>מהמותן בשלב הפיילוטים, וזה הזמן להצטרף ולהשפיע על המוצר.</p>
     </div>
-    <div class="tcards">
-      <div class="tcard reveal">
-        <div class="qm" style="font-size:2.2rem;height:auto;color:inherit"><span aria-hidden="true">🎁</span></div>
-        <h3 style="font-size:1.35rem;margin:10px 0 10px">50% הנחה לחלוצים</h3>
-        <p style="font-style:normal">עשרת הארגונים הראשונים מקבלים סדנה מונחית בחצי מחיר — והמחיר מוקפא לשנתיים.</p>
-      </div>
+    <div class="tcards two">
       <div class="tcard reveal">
         <div class="qm" style="font-size:2.2rem;height:auto;color:inherit"><span aria-hidden="true">🤝</span></div>
         <h3 style="font-size:1.35rem;margin:10px 0 10px">ליווי אישי מלא</h3>
-        <p style="font-style:normal">מפגש הכנה, ליווי בסדנה הראשונה ותחקיר מסכם — ישירות מהצוות שבנה את המוצר.</p>
+        <p style="font-style:normal">מפגש הכנה, ליווי בערב הראשון ותחקיר מסכם, ישירות מהצוות שבנה את המוצר.</p>
       </div>
       <div class="tcard reveal">
         <div class="qm" style="font-size:2.2rem;height:auto;color:inherit"><span aria-hidden="true">🛠️</span></div>
@@ -670,12 +664,12 @@ section{position:relative;z-index:1}
       <h2>כל מה שמנהל/ת HR רוצה לדעת</h2>
     </div>
     <div class="faq-list">
-      <details class="faq reveal"><summary>איך מקבלים קוד לאירוע?<span class="plus">+</span></summary><div class="ans">שולחים הודעה בוואטסאפ, מקבלים לינק לתשלום וחשבונית, ותוך דקות מגיע קוד עם לינק מוכן שפותח את המשחק עם שם הארגון והחבילה שלכם. אפשר גם לנסות קודם: מצב צוות פתוח לסיבוב ניסיון אחד בחינם.</div></details>
+      <details class="faq reveal"><summary>איך קונים ערב צוות?<span class="plus">+</span></summary><div class="ans">שולחים הודעה בוואטסאפ, מקבלים לינק לתשלום וחשבונית, ותוך דקות מגיע קוד עם לינק מוכן שפותח את המשחק עם שם הארגון והחבילה שלכם. אפשר גם לנסות קודם: כל אחד יכול לשחק שני סיבובים בחינם.</div></details>
       <details class="faq reveal"><summary>האם צריך ניסיון קודם באילתור או משחק?<span class="plus">+</span></summary><div class="ans">בכלל לא. מהמותן בנוי לאנשים שמעולם לא עלו על במה. המנחה הדיגיטלי מסביר כל משחק צעד-צעד, והמשחקים מתחילים מפשוטים ומזמינים — כך שכולם מרגישים בנוח כבר מהדקה הראשונה.</div></details>
-      <details class="faq reveal"><summary>כמה זמן לוקח מפגש?<span class="plus">+</span></summary><div class="ans">גמיש לחלוטין. אפשר להריץ מפגש קצר ואנרגטי של 15–20 דקות כשובר-קרח, או סדנה מלאה של שעה עד שעתיים כולל Debrief מובנה. אתם בוחרים את האורך לפי הזמן והמטרה.</div></details>
+      <details class="faq reveal"><summary>כמה זמן לוקח מפגש?<span class="plus">+</span></summary><div class="ans">גמיש לחלוטין. אפשר להריץ מפגש קצר ואנרגטי של 15–20 דקות כשובר-קרח, או ערב מלא של שעה עד שעתיים, כולל שיחת סיום מובנית. אתם בוחרים את האורך לפי הזמן והמטרה.</div></details>
       <details class="faq reveal"><summary>האם זה עובד גם לצוותים מרחוק/היברידיים?<span class="plus">+</span></summary><div class="ans">כן, מהמותן תוכנן לעבוד מצוין דרך המסך. משתפים מסך בזום או בכל פלטפורמת וידאו, המנחה הדיגיטלי מוביל את כולם — והחוויה המשותפת מייצרת חיבור אמיתי גם בין אנשים שלא באותו חדר.</div></details>
       <details class="faq reveal"><summary>מה לגבי אבטחת מידע ופרטיות?<span class="plus">+</span></summary><div class="ans">מהמותן בנוי על עיקרון של מינימום מידע: האפליקציה אינה אוספת מידע אישי מזהה, וכל נתון (שמות, ניקוד, הגדרות) נשמר מקומית במכשיר בלבד ואינו נשלח לשרת.</div></details>
-      <details class="faq reveal"><summary>כמה זה עולה?<span class="plus">+</span></summary><div class="ans">קוד לאירוע: ₪590 לצוות ל-30 יום. סדנה מונחית: מ-₪4,500 (עד 25 משתתפים). רישיון שנתי: מ-₪3,900. המשחק למשפחות וחברים חינם, תמיד. המחירים לא כוללים מע"מ.</div></details>
+      <details class="faq reveal"><summary>כמה זה עולה?<span class="plus">+</span></summary><div class="ans">ערב צוות: 690 ₪ (מי שקונה עכשיו: המשחק פתוח עד 1.1.2027). שנה פתוחה: 4,100 ₪. שנה + ערב מונחה של שעה עם לירן: 5,900 ₪. כל אחד יכול לנסות שני סיבובים בחינם. המחירים כוללים מע"מ.</div></details>
     </div>
   </div>
 </section>
@@ -694,7 +688,7 @@ section{position:relative;z-index:1}
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>הצעת מחיר ללא התחייבות</li>
         </ul>
       </div>
-      <form class="form" id="demoForm" action="https://formsubmit.co/latsdoai@gmail.com" method="POST">
+      <form class="form" id="demoForm" data-mm-form action="" method="POST">
         <input type="hidden" name="_subject" value="ליד חדש מאתר מהמותן!">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
@@ -738,7 +732,7 @@ section{position:relative;z-index:1}
         <a href="#packages">חבילות</a>
         <a href="#contact">צרו קשר</a>
         <a href="go/">למשפחות וחברים</a>
-        <a href="mailto:latsdoai@gmail.com">latsdoai@gmail.com</a>
+        <a href="#contact" data-mm-email>מייל</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -812,5 +806,6 @@ if(GA_ID){
   document.querySelectorAll('[data-wa]').forEach(function(el){el.addEventListener('click',function(){gtag('event','generate_lead',{method:'whatsapp'});});});
 }
 </script>
+<script src="site.js"></script>
 </body>
 </html>

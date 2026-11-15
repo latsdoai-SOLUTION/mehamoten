@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מהמותן | הצוות שלכם יצחק ביחד</title>
+<meta name="description" content="משחק אלתור לצוותים, בלי מנחה ובלי הכנה. שני סיבובים ראשונים בחינם, ואז קונים ישר.">
+<meta property="og:title" content="הצוות שלכם יצחק ביחד כבר בסיבוב הראשון">
+<meta property="og:description" content="משחק אלתור לצוותים, בלי מנחה ובלי הכנה. שני סיבובים ראשונים בחינם.">
+<meta property="og:image" content="https://mehamoten.onrender.com/free/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://mehamoten.onrender.com/free/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="../app/icons/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--stage:#100c17;--stage2:#14101d;--red:#e23149;--red2:#ff5066;--gold:#f6e7b4;--ink:#f4f0fb;--muted:#b9b0cb;--line:rgba(246,231,180,.16);--card:rgba(255,255,255,.045)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:17.5px;scroll-behavior:smooth}
+body{font-family:'Heebo',sans-serif;background:var(--stage);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(800px 500px at 80% -8%,rgba(226,49,73,.22),transparent 60%),radial-gradient(700px 520px at 5% 20%,rgba(140,47,201,.13),transparent 60%)}
+header,section,footer,.top{position:relative;z-index:1}
+h1,h2,h3{font-family:'Secular One',sans-serif;font-weight:400;line-height:1.15}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+.narrow{max-width:720px;margin:0 auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:'Heebo';font-weight:800;font-size:1.12rem;padding:16px 30px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 14px 34px -10px rgba(226,49,73,.75);transition:transform .2s}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);box-shadow:none;color:var(--ink)}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible,a:focus-visible,input:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:3px}
+.eyebrow{display:inline-block;font-size:.92rem;font-weight:800;color:var(--gold);border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px}
+.small{font-size:.92rem;color:var(--muted)}
+/* top */
+.top{position:sticky;top:0;z-index:50;background:rgba(16,12,23,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-family:'Secular One';font-size:1.3rem;text-decoration:none}.logo span{color:var(--red2)}
+.top .btn{padding:9px 20px;font-size:.95rem}
+/* hero */
+.hero{padding:52px 0 24px;text-align:center}
+.hero h1{font-size:clamp(2.2rem,6vw,3.9rem);margin-top:18px}
+.hero h1 em{font-style:normal;color:var(--red2)}
+.sub{margin:18px auto 26px;font-size:1.22rem;color:var(--muted);max-width:620px}
+.free-line{margin-top:12px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:900px;margin:40px auto 0}
+.cards img{width:100%;height:auto;display:block}
+/* blocks */
+.sec{padding:56px 0}
+.sec h2{font-size:clamp(1.7rem,4vw,2.5rem);margin-bottom:12px}
+.center{text-align:center}
+.punch{font-family:'Secular One';font-size:clamp(1.5rem,3.6vw,2.2rem);line-height:1.25}
+.punch span{color:var(--red2)}
+.para{color:var(--muted);font-size:1.12rem;margin-top:12px}
+.divider{height:1px;background:var(--line);max-width:720px;margin:0 auto}
+/* about */
+.about{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:start}
+.badge{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--red),#8c2fc9);display:flex;align-items:center;justify-content:center;font-family:'Secular One';font-size:2.2rem;box-shadow:0 0 0 4px var(--stage),0 0 0 6px var(--gold)}
+.about p{color:#dcd5e6;font-size:1.08rem;margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:30px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 14px;text-align:center}
+.stat b{display:block;font-family:'Secular One';font-size:2rem;color:var(--gold);line-height:1.1}
+.stat span{font-size:.95rem;color:var(--muted)}
+/* offer */
+.offers{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+.offer{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px;display:flex;flex-direction:column}
+.offer.hot{border-color:rgba(255,80,102,.55);background:linear-gradient(180deg,rgba(226,49,73,.14),rgba(255,255,255,.03) 60%)}
+.offer .ic{font-size:2rem}
+.offer h3{font-size:1.45rem;margin:6px 0 6px}
+.offer p{color:var(--muted)}
+.offer ul{list-style:none;margin:12px 0 18px;display:grid;gap:6px}
+.offer li::before{content:"✓ ";color:#3cc47a;font-weight:800}
+.offer .price{margin-top:auto;font-family:'Secular One';font-size:1.6rem;color:var(--gold)}
+.offer .price .pn{display:block;font-family:'Heebo';font-size:1rem;color:var(--muted);margin-inline-start:6px}
+/* plan */
+.plan{display:grid;gap:14px;margin-top:26px}
+.stage{display:grid;grid-template-columns:auto 1fr;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px}
+.num{width:52px;height:52px;border-radius:50%;background:var(--red);font-family:'Secular One';font-size:1.6rem;display:flex;align-items:center;justify-content:center}
+.stage.s2 .num{background:var(--gold);color:#1c1720}.stage.s3 .num{background:#8c2fc9}
+.stage .lbl{font-size:.88rem;font-weight:800;color:var(--gold);letter-spacing:.2px}
+.stage h3{font-size:1.35rem;margin:2px 0 6px}
+.stage p{color:var(--muted)}
+.get{margin-top:10px;background:rgba(0,0,0,.28);border-radius:12px;padding:10px 14px;font-size:1rem}
+.get b{color:var(--gold)}
+/* proof */
+.quote{font-family:'Secular One';font-size:clamp(1.4rem,3.4vw,2rem);line-height:1.35;text-align:center}
+.quote small{display:block;font-family:'Heebo';font-size:1rem;color:var(--muted);margin-top:12px}
+.proof{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px}
+.proof div{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px}
+.proof h3{font-size:1.15rem;margin-bottom:6px;color:var(--gold)}
+.proof p{color:var(--muted);font-size:1rem}
+/* ticket + form */
+.ticket{display:grid;grid-template-columns:1fr auto;border-radius:22px;overflow:hidden;border:1px solid rgba(255,80,102,.5);margin:26px auto 0;max-width:640px;background:linear-gradient(120deg,rgba(226,49,73,.16),rgba(140,47,201,.12))}
+.ticket .l{padding:22px 24px}
+.ticket .l h3{font-size:1.35rem}
+.ticket dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin-top:10px;font-size:1rem}
+.ticket dt{color:var(--muted)}.ticket dd{font-weight:600}
+.ticket .r{border-inline-start:2px dashed rgba(246,231,180,.35);padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:130px}
+.ticket .r b{font-family:'Secular One';font-size:2.4rem;color:var(--gold);line-height:1}
+.ticket .r span{font-size:.85rem;color:var(--muted)}
+.form{max-width:640px;margin:22px auto 0;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:22px;padding:26px}
+.form label.f{display:block;font-weight:600;font-size:.95rem;color:var(--muted);margin:0 0 6px}
+.form input[type=text],.form input[type=tel],.form input[type=email]{width:100%;padding:14px 16px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--ink);font-family:'Heebo';font-size:1.05rem;margin-bottom:14px}
+.form input:focus{outline:none;border-color:var(--red2)}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 16px}
+.choice label{display:flex;gap:10px;align-items:flex-start;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;font-size:1rem}
+.choice input{margin-top:5px;accent-color:#e23149;width:18px;height:18px;flex:none}
+.choice label:has(input:checked){border-color:var(--red2);background:rgba(226,49,73,.12)}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:var(--muted);margin-bottom:16px}
+.consent input{margin-top:4px;accent-color:#e23149;width:17px;height:17px;flex:none}
+.form .btn{width:100%;font-size:1.2rem}
+.thanks{display:none;max-width:640px;margin:22px auto 0;text-align:center;background:rgba(44,158,91,.12);border:1px solid rgba(44,158,91,.5);border-radius:22px;padding:28px}
+.thanks h3{font-size:1.6rem;margin-bottom:8px}
+.thanks p{color:#cfe9da;margin-bottom:16px}
+.disclaimer{max-width:720px;margin:0 auto;font-size:.88rem;color:var(--muted);text-align:center;line-height:1.7}
+footer{padding:26px 0 100px;text-align:center;color:var(--muted);font-size:.9rem}
+.sticky{position:fixed;bottom:0;right:0;left:0;z-index:60;padding:10px 14px;background:rgba(16,12,23,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:none}
+.sticky .btn{width:100%;padding:13px}
+@media(max-width:860px){.offers,.proof{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr;max-width:440px;gap:2px}.sticky{display:block}.top .btn{display:none}.about{grid-template-columns:1fr;justify-items:center;text-align:center}.choice{grid-template-columns:1fr}.ticket{grid-template-columns:1fr}.ticket .r{border-inline-start:none;border-top:2px dashed rgba(246,231,180,.35);flex-direction:row;gap:12px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="wrap">
+  <a class="logo" href="../">מהמותן<span>.</span></a>
+  <a class="btn" href="#prices">לקנות עכשיו</a>
+</div></div>
+
+<header class="hero"><div class="wrap">
+  <span class="eyebrow">משחק אלתור לצוותים · שני סיבובים ראשונים עלינו</span>
+  <h1>הצוות שלכם יצחק ביחד<br><em>כבר בסיבוב הראשון.</em></h1>
+  <p class="sub">גם אם אף אחד שם לא שחקן. גם אם כולם עייפים בסוף יום. המשחק נותן לכל אחד מקום, דמות ומשפט פתיחה, קריין סופר לאחור, ואתם רק עולים.</p>
+  <div class="ctas" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a class="btn" href="https://mehamoten.onrender.com/app/?preset=team" target="_blank" rel="noopener">▶ לנסות שני סיבובים</a>
+    <a class="btn ghost" href="#prices">לקנות עכשיו</a>
+  </div>
+  <p class="small free-line">פותחים בטלפון או על מסך בחדר. בלי הרשמה ובלי כרטיס אשראי לסיבובי הניסיון.</p>
+  <div class="cards">
+    <img src="card-set.webp" width="800" height="421" alt="קלף במה מתוך המשחק: מכון כושר, מאמן אישי ומתאמן שמשקר על הכושר שלו">
+    <img src="card-con.webp" width="790" height="418" alt="קלף אילוץ מתוך המשחק: רק שאלות">
+  </div>
+</div></header>
+
+<section class="sec"><div class="wrap narrow center">
+  <p class="punch">ברוב ימי הגיבוש שלושה אנשים משחקים,<br><span>ושאר הצוות מסתכל בטלפון.</span></p>
+  <p class="para">כשאומרים לאנשים "יאללה, תאלתרו", הם קופאים. לא חסר להם הומור. חסרה להם נקודת התחלה. אז נתנו להם אחת.</p>
+</div></section>
+
+<div class="divider"></div>
+
+<section class="sec"><div class="wrap narrow">
+  <div class="about">
+    <div class="badge" aria-hidden="true">ל</div>
+    <div>
+      <h2>נעים מאוד, אני לירן שעיה.</h2>
+      <p>25 שנה אני עובד עם אנשים בקבוצות. ילדים, נוער, מבוגרים ומנהלים מכל התחומים. ניהלתי תלמידים, מדריכים ובעלים של מכונים ובתי ספר.</p>
+      <p>שנים הרצתי פעילויות ODT לארגונים גדולים ולחברות הפקה. תכננתי, בניתי וניהלתי חדרי בריחה שחברות גדולות הביאו אליהם צוותים לימי גיבוש, ומנהלים ואנשי משאבי אנוש השתמשו בהם כדי להכיר צוות חדש ולראות איך הוא עובד ביחד. הפקתי הרבה אירועים והנחיתי אירועים גדולים.</p>
+      <p>את התחום למדתי בחו"ל. מה שלמדתי שם ומה שראיתי בעשרים וחמש שנה מול קבוצות נכנס למשחק הזה: לא מבקשים מאנשים להיות מצחיקים. נותנים להם משהו ברור להגיד בשנייה הראשונה, ומשם זה קורה לבד.</p>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>25</b><span>שנים מול קבוצות</span></div>
+    <div class="stat"><b>ODT</b><span>לארגונים ולחברות הפקה</span></div>
+    <div class="stat"><b>🔐</b><span>חדרי בריחה לחברות</span></div>
+    <div class="stat"><b>🎤</b><span>הנחיית אירועים גדולים</span></div>
+  </div>
+</div></section>
+
+<section class="sec" id="free"><div class="wrap narrow">
+  <div class="center">
+    <h2>קודם מנסים. שני סיבובים, המשחק האמיתי.</h2>
+    <p class="para">לא דוגמה ולא סרטון. פותחים את המשחק, מכניסים שמות ומשחקים שני סיבובים מלאים עם הקריין. אחרי זה תדעו אם זה בשבילכם.</p>
+  </div>
+  <div class="offer hot" style="margin-top:24px">
+    <div class="ic">🎭</div>
+    <h3>מה יש בסיבובי הניסיון</h3>
+    <ul><li>קריין מוקלט שמסביר וסופר לאחור</li><li>במה מהיומיום, מי זה מי ומשפט פתיחה לכל אחד</li><li>בסיבוב השני גם משימה קטנה באמצע הסצנה</li></ul>
+    <a class="btn" href="https://mehamoten.onrender.com/app/?preset=team" target="_blank" rel="noopener" style="align-self:flex-start">▶ לנסות עכשיו</a>
+  </div>
+</div></section>
+
+<section class="sec" id="prices"><div class="wrap narrow">
+  <div class="center">
+    <h2>3 שלבים, ואתם מחליטים איפה לעצור</h2>
+    <p class="para">משלמים פעם אחת. בלי מנוי שמתחדש לבד ובלי קודים.</p>
+  </div>
+  <div class="plan">
+    <div class="stage">
+      <div class="num">1</div>
+      <div><span class="lbl">ניסיון · חינם</span><h3>שני סיבובים</h3>
+      <p>המשחק המלא, שני סיבובים, עם מי שיושב לידכם עכשיו.</p>
+      <div class="get"><b>מה מקבלים:</b> לראות בעיניים איך הצוות שלכם נכנס לזה, לפני שמשלמים שקל.</div>
+      <a class="btn ghost" href="https://mehamoten.onrender.com/app/?preset=team" target="_blank" rel="noopener" style="margin-top:12px">▶ לנסות</a></div>
+    </div>
+    <div class="stage s2">
+      <div class="num">2</div>
+      <div><span class="lbl">ערב צוות · 690 ₪</span><h3>ערב צוות שלם, בלי מנחה</h3>
+      <p>קונים לערב אחד ומשחקים מתי שנוח לכם.</p>
+      <div class="get"><b>מה מקבלים:</b> המשחק המלא עם הקריין, חימום לכל הקבוצה, במות ומשימות, שיחת סיום מסודרת וסיכום קצר למנהל.</div>
+      <div class="get" style="background:rgba(226,49,73,.16);border:1px solid rgba(255,80,102,.45)"><b>מי שקונה עכשיו:</b> המשחק פתוח לכם עד 1.1.2027.</div>
+      <a data-buy="event" class="btn" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A7%D7%A0%D7%95%D7%AA%20%D7%A2%D7%A8%D7%91%20%D7%A6%D7%95%D7%95%D7%AA%20%D7%A9%D7%9C%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%20%28690%20%E2%82%AA%29." target="_blank" rel="noopener" style="margin-top:12px">לקנות ערב צוות</a></div>
+    </div>
+    <div class="stage s3">
+      <div class="num">3</div>
+      <div><span class="lbl">כל השנה</span><h3>משחק שהוא שלכם</h3>
+      <p>לצוותים שרוצים לחזור לזה בישיבות, בפתיחת רבעון ובסוף שנה.</p>
+      <div class="get"><b>שנה פתוחה · 4,100 ₪:</b> המשחק פתוח לכם שנה שלמה, כמה פעמים שרוצים, עם הלוגו שלכם על המסך.</div>
+      <div class="get"><b>שנה פתוחה + ערב איתי · 5,900 ₪:</b> אני מגיע ומנחה לכם ערב של שעה של חוויה וכיף, והמשחק נשאר פתוח לכם שנה שלמה אחרי.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <a data-buy="year" class="btn" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A7%D7%A0%D7%95%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%20%D7%9C%D7%A9%D7%A0%D7%94%20%284%2C100%20%E2%82%AA%29." target="_blank" rel="noopener">לקנות שנה</a>
+        <a data-buy="yearPlus" class="btn ghost" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%90%D7%AA%20%D7%94%D7%97%D7%91%D7%99%D7%9C%D7%94%20%D7%94%D7%A9%D7%A0%D7%AA%D7%99%D7%AA%20%D7%A2%D7%9D%20%D7%A1%D7%93%D7%A0%D7%94%20%285%2C900%20%E2%82%AA%29." target="_blank" rel="noopener">שנה + ערב איתי</a>
+      </div></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <p class="quote narrow">"ניסינו את זה עם צוות אמיתי. אחרי שתי דקות אף אחד כבר לא שאל איך משחקים."<small>מהפיילוט הראשון, עם צוות עבודה</small></p>
+  <div class="proof">
+    <div><h3>מה עבד הכי טוב</h3><p>מכון כושר וספינת חלל. מקומות שכולם מכירים, עם בעיה קטנה וברורה. משם הצחוק הגיע לבד.</p></div>
+    <div><h3>מה שינינו בעקבותיו</h3><p>פחות הוראות על המסך, משפט פתיחה לכל אחד, והמשחק מחליט מי זה מי. ככה אף אחד לא נתקע בהתחלה.</p></div>
+    <div><h3>מה נשאר בדיוק אותו דבר</h3><p>אין ניקוד ואין מפסידים. לא צריך להצחיק אף אחד: מי שמקשיב לשני, מצליח.</p></div>
+  </div>
+</div></section>
+
+<section class="sec" id="join"><div class="wrap">
+  <div class="center">
+    <h2>רוצים לדבר לפני?</h2>
+    <p class="para narrow">משאירים פרטים, מסמנים מה מעניין אתכם, ואני חוזר אליכם בוואטסאפ תוך יום עבודה.</p>
+  </div>
+
+  <form class="form" id="form" data-mm-form action="" method="POST">
+    <input type="hidden" name="_subject" value="מהמותן: פנייה חדשה מהאתר">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="https://mehamoten.onrender.com/free/?sent=1#thanks">
+    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="f" for="nm">שם</label><input id="nm" type="text" name="name" required autocomplete="name" placeholder="איך קוראים לך?">
+    <label class="f" for="ph">טלפון (וואטסאפ)</label><input id="ph" type="tel" name="phone" required autocomplete="tel" inputmode="tel" pattern="[0-9+\-\s]{9,15}" placeholder="050-0000000">
+    <label class="f" for="em">מייל</label><input id="em" type="email" name="email" required autocomplete="email" placeholder="you@example.co.il">
+    <span style="display:block;font-weight:600;font-size:.95rem;color:var(--muted);margin-bottom:6px">מה מעניין אותך?</span>
+    <div class="choice" role="radiogroup">
+      <label><input type="radio" name="want" value="ערב צוות 690" checked><span><b>ערב צוות</b><br><span class="small">690 ₪</span></span></label>
+      <label><input type="radio" name="want" value="שנה פתוחה 4,100"><span><b>שנה פתוחה</b><br><span class="small">4,100 ₪</span></span></label>
+      <label><input type="radio" name="want" value="שנה + ערב עם לירן 5,900"><span><b>שנה + ערב איתי</b><br><span class="small">5,900 ₪</span></span></label>
+      <label><input type="radio" name="want" value="שאלה"><span><b>יש לי שאלה</b><br><span class="small">נדבר</span></span></label>
+    </div>
+    <label class="consent"><input type="checkbox" name="updates" value="כן">אפשר לשלוח לי מדי פעם רעיון חדש למשחק. (לא חובה. אפשר להפסיק בכל רגע.)</label>
+    <button class="btn" type="submit">שלחו ←</button>
+    <p class="small" style="text-align:center;margin-top:12px">הפרטים משמשים רק כדי לחזור אליכם. <a href="../app/privacy.html">פרטיות</a></p>
+  </form>
+
+  <div class="thanks" id="thanks">
+    <h3>תודה! קיבלתי 🙌</h3>
+    <p>אחזור אליכם בוואטסאפ תוך יום עבודה. בינתיים אפשר לשחק את שני סיבובי הניסיון.</p>
+    <a class="btn" href="https://mehamoten.onrender.com/app/?preset=team" target="_blank" rel="noopener">▶ לנסות עכשיו</a>
+  </div>
+</div></section>
+
+<section class="sec" style="padding-top:10px"><div class="wrap">
+  <p class="disclaimer">כל צוות שונה. המשחק לא מבטיח שכולם יעלו לבמה, ואף אחד גם לא חייב. מה שכן מובטח: אף אחד לא יצטרך להמציא את המשפט הראשון לבד. המחירים כוללים מע"מ. מי שקונה עכשיו: המשחק פתוח עד 1.1.2027.</p>
+</div></section>
+
+<footer>מהמותן © 2026 · לירן שעיה · <a href="https://wa.me/972506325398" target="_blank" rel="noopener">וואטסאפ</a> · <a href="../app/privacy.html">פרטיות</a> · <a href="../terms.html">תנאים</a> · <a href="../app/">למשחק</a></footer>
+
+<div class="sticky"><a class="btn" href="https://mehamoten.onrender.com/app/?preset=team" target="_blank" rel="noopener">▶ לנסות שני סיבובים</a></div>
+
+<script>
+if (location.search.indexOf('sent=1') > -1) {
+  var f = document.getElementById('form'), t = document.getElementById('thanks');
+  if (f) f.style.display = 'none';
+  if (t) t.style.display = 'block';
+  var s = document.querySelector('.sticky'); if (s) s.style.display = 'none';
+}
+</script>
+<script src="../site.js"></script>
+</body>
+</html>

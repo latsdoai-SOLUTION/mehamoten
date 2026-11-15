@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.2";
+const APP_VERSION = "2.6.3";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -16,8 +16,18 @@ const CUSTOM_KEY = "mehamoten_custom";
 const SEEN_KEY = "mehamoten_seen";
 const LIC_KEY = "mehamoten_license";
 const LOGO_KEY = "mehamoten_logo";
+const TRIAL_KEY = "mehamoten_trial"; /* 2.6.3: מונה סיבובי ניסיון, נפרד מ-S כדי ש"קבוצה חדשה" לא יאפס אותו */
+const TRIAL_ROUNDS = 2;
 const WA_NUMBER = "972506325398";
 const SITE_URL = "https://mehamoten.onrender.com";
+/* 2.6.3: כפתורי "לקנות" במסך ההצעה: דפי התשלום (ישראכרט pay360). צריך להיות זהה ל-MM_BUY_LINKS ב-deploy/site.js.
+   ריק = הכפתור פותח וואטסאפ עם הודעה מוכנה שמציינת את החבילה. */
+const BUY_LINKS = {
+  event: "https://pay360.isracard.co.il/CustomerPayment/GenericURL?SaleId=179B1335-AAC4-A149-8ABB-F479E6B60D55",    /* ערב צוות, 690 ₪ */
+  year: "https://pay360.isracard.co.il/CustomerPayment/GenericURL?SaleId=B7BE0722-5BA9-1614-21CE-CC3FE8FBACF2",     /* שנה פתוחה, 4,100 ₪ */
+  yearPlus: "https://pay360.isracard.co.il/CustomerPayment/GenericURL?SaleId=B37C2305-3B65-4C4C-4A41-65563EE81FF4"  /* שנה + ערב עם לירן, 5,900 ₪ */
+};
+const BUY_NAMES = { event: "ערב צוות (690 ₪)", year: "שנה פתוחה (4,100 ₪)", yearPlus: "שנה + ערב עם לירן (5,900 ₪)" };
 
 /* ---------- עזרים ---------- */
 const $ = (s) => document.querySelector(s);
@@ -82,19 +92,23 @@ function renderLicBoxes() {
   const html = licActive()
     ? `✅ קוד ארגוני פעיל: ${licLabel()}` + (licDaysLeft() <= 14 ? `<br>⏳ נותרו ${licDaysLeft()} ימים. <a href="${waLink("renew")}" target="_blank" rel="noopener" style="color:var(--spot)">לחידוש בוואטסאפ</a>` : "")
     : LIC ? `⛔ הקוד של <b>${esc(LIC.org)}</b> פג תוקף. <a href="${waLink("renew")}" target="_blank" rel="noopener" style="color:var(--spot)">לחידוש בוואטסאפ</a>` + BTN
-    : `${S.teamTrialUsed ? "🔒 סיבוב הניסיון במצב צוות נוצל. להמשך צריך קוד ארגוני (מ-590 ₪)." : "🔓 ניסיון חינם: סיבוב אחד במצב צוות. להמשך, צריך קוד ארגוני (מ-590 ₪)."}` + BTN;
+    : `${trialOver() ? "🔒 שני סיבובי הניסיון נוצלו. להמשך צריך קוד (מ-690 ₪)." : `🔓 ניסיון חינם: שני סיבובים בכל מצב (נשארו ${trialLeft()}). להמשך צריך קוד (מ-690 ₪).`}` + BTN;
   $$("#licBox, #licBox2").forEach((el) => { el.innerHTML = el.id === "licBox2" ? html.replace(BTN, "") : html; el.classList.toggle("ok", licActive()); el.classList.toggle("warn", !!LIC && !licActive()); });
   const rb = $("#licRemoveBtn"); if (rb) rb.hidden = !LIC;
   renderLogo();
   $$('[data-role="mgrcta"]').forEach((el) => el.hidden = licActive());
   $$('[data-role="mgrwa"]').forEach((a) => a.href = waLink("manager"));
-  const ow = $("#offerWa"); if (ow) ow.href = waLink("offer");
+  $$("#offer [data-buy]").forEach((el) => el.href = buyLink(el.dataset.buy));
+}
+function buyLink(k) {
+  if (BUY_LINKS[k]) return BUY_LINKS[k];
+  const org = (S.company || (LIC && LIC.org) || "").trim();
+  return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`היי, אני רוצה לקנות את מהמותן: ${BUY_NAMES[k] || BUY_NAMES.event}${org ? ", עבור " + org : ""}`)}`;
 }
 function waLink(kind) {
   const org = (S.company || (LIC && LIC.org) || "").trim();
   const msgs = {
     manager: `היי, שיחקנו במהמותן${org ? " (" + org + ")" : ""} ואשמח לשמוע על קוד ארגוני לצוות`,
-    offer: `היי, סיימנו סיבוב ניסיון במצב צוות${org ? " (" + org + ")" : ""} ואשמח לקבל קוד ארגוני`,
     renew: `היי, אשמח לחדש את הקוד הארגוני${org ? " של " + org : ""}`
   };
   return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msgs[kind] || msgs.manager)}`;
@@ -104,17 +118,30 @@ async function enterCode() {
   if (v === null) return; const p = parseLicense(v);
   if (!p.ok) { await notify("הקוד לא זוהה", p.reason === "sig" ? "הקוד לא תקין. בדקו שהעתקתם את כולו, או פנו אלינו בוואטסאפ." : "הפורמט לא נכון. קוד נראה כך: MM-ACME-1026-50-K7Q2MX"); return; }
   if (p.exp <= Date.now()) { await notify("הקוד פג תוקף", "פנו אלינו בוואטסאפ לחידוש."); return; }
-  LIC = p; lsSet(LIC_KEY, { code: p.code }); S.teamTrialUsed = false; S.trialRound = false;
+  LIC = p; lsSet(LIC_KEY, { code: p.code });
   const onOffer = $("#offer").classList.contains("active");
-  if (!S.inGame || onOffer) S.team = true;
+  if (!S.inGame || (onOffer && offerFromStart)) S.team = true; /* 2.6.3: באמצע משחק (משפחה, ילדים) לא עוברים למצב צוות */
   save(); renderLicBoxes(); syncSetupUI(); sfx.bell(); toastMsg(`הקוד הופעל! מצב צוות פתוח ל-${p.org}`);
-  if (onOffer) { if (S.scored) showBoard(`סיבוב ${S.round} הסתיים`); else roundEnd2(); }
+  if (onOffer) { if (offerFromStart || !S.inGame) goSetup(); else nextRound(); } /* ההצעה הופיעה בניסיון להתחיל סיבוב: ממשיכים אליו */
 }
 async function removeCode() {
   const ok = await dialog({ title: "להסיר את הקוד הארגוני?", text: "אפשר להזין אותו שוב בכל עת.", okText: "הסר", danger: true }); if (!ok) return;
   LIC = null; try { localStorage.removeItem(LIC_KEY); } catch (e) {} renderLicBoxes(); syncSetupUI();
 }
-function teamAllowed() { return licActive() || !S.teamTrialUsed; }
+/* 2.6.3: שני סיבובי ניסיון בכל מצב (צוות, רגיל, משפחה, ילדים, קליל ומלא). חימום לא נספר.
+   סיבוב נספר כשהוא מתחיל (nextRound), כך שיציאה באמצע לא נותנת ניסיון נוסף. קוד בתוקף = בלי הגבלה. */
+function trialCount() { const t = lsGet(TRIAL_KEY, null); return t && +t.n > 0 ? Math.floor(+t.n) : 0; }
+function trialSpend() { lsSet(TRIAL_KEY, { n: trialCount() + 1 }); }
+function trialLeft() { return Math.max(0, TRIAL_ROUNDS - trialCount()); }
+function trialOver() { return !licActive() && trialCount() >= TRIAL_ROUNDS; }
+/* fromStart: ההצעה הופיעה בלחיצה על "התחל" (משחק חדש). אחרי הזנת קוד חוזרים להגדרות, לא למשחק הקודם */
+let offerFromStart = false, offerBackTo = "";
+function showOffer(fromStart) { offerFromStart = !!fromStart; if (currentScreen !== "offer") offerBackTo = currentScreen; stopVoice(); renderLicBoxes(); show("offer"); }
+/* "חזרה" במסך ההצעה: למסך שממנו הגיעו (סוף סיבוב או לוח תוצאות, ומשם לסיום ולסיכום). מ"התחל": חזרה להגדרות */
+function offerBack() {
+  const t = offerBackTo && offerBackTo !== "offer" && $("#" + offerBackTo) ? offerBackTo : (S.inGame && S.round > 0 ? (S.scored ? "scoreboard" : "roundend") : "setup");
+  if (t === "scoreboard") renderBoard(); if (t === "setup") goSetup(); else show(t);
+}
 
 /* ---------- מצב ---------- */
 const DEFAULT_SETTINGS = { persona: "compere", tts: true, sfx: true, hints: true, motion: true, voiceURI: "", voice: "rec" };
@@ -122,7 +149,7 @@ const S = {
   players: ["", "", ""], mode: "auto", scored: false, level: "easy", kids: false, team: false, company: "", industry: "",
   packs: ["style", "lang", "body"], sceneLen: 90, big: false, lite: true, warm: true, ls: null, liteEv: null,
   scores: {}, honors: {}, directorIdx: 0, round: 0, dirCounts: {}, curDir: "", curPerf: [], starter: "",
-  guessIdx: 0, inGame: false, startedAt: 0, teamTrialUsed: false, trialRound: false,
+  guessIdx: 0, inGame: false, startedAt: 0,
   set: null, con: null, conCat: null, rings: 0, topics: 0,
   log: [], debriefPicked: [], debrief: null, freezes: 0,
   settings: { ...DEFAULT_SETTINGS }
@@ -142,7 +169,7 @@ function clearGroup() {
   S.scores = {}; S.honors = {}; S.dirCounts = {}; S.log = []; S.debriefPicked = []; S.debrief = null;
   S.round = 0; S.directorIdx = 0; S.guessIdx = 0; S.earIdx = 0; S.miniIdx = 0;
   S.curDir = ""; S.curPerf = []; S.starter = ""; S.set = null; S.con = null; S.conCat = null;
-  S.rings = 0; S.topics = 0; S.startedAt = 0; S.inGame = false; S.trialRound = false; S.ls = null; S.liteEv = null;
+  S.rings = 0; S.topics = 0; S.startedAt = 0; S.inGame = false; S.ls = null; S.liteEv = null;
   S.guesser = ""; S.earListener = ""; S.earAgent = ""; S.mini = null; S.ear = null; S.guess = null;
   gameActive = false; save();
   const ci = $("#companyInput"); if (ci) ci.value = "";
@@ -207,7 +234,7 @@ function load() {
   /* חימום בפתיחה (2.6.0): ברירת מחדל כן */
   S.warm = S.warm !== false;
   /* רענון לפני הסיבוב הראשון (למשל באמצע החימום): סיבוב הניסיון לא נשרף */
-  if (S.trialRound && !S.round && !(S.log && S.log.length)) { S.teamTrialUsed = false; S.trialRound = false; }
+  delete S.teamTrialUsed; delete S.trialRound; /* שדות של 2.6.2 (ניסיון צוות), לא בשימוש */
   if (!S.ls || typeof S.ls !== "object" || !Array.isArray(S.ls.roles) || !Array.isArray(S.ls.lines)) S.ls = null;
   if (S.liteEv && !["swap", "task", "style"].includes(S.liteEv.kind)) S.liteEv = null;
 }
@@ -508,6 +535,7 @@ let earRound = false, earRevealed = false, earNextAt = 0; const earCaught = new 
 let miniRound = false, miniCueIdx = 0, miniExtra = 0, miniTopicShown = false;
 async function startGame() {
   S.company = ($("#companyInput").value || "").trim().slice(0, 40);
+  if (trialOver()) { save(); showOffer(true); return; } /* 2.6.3: הניסיון נוצל, לא מתחילים חימום */
   const ps = activeP();
   if (S.kids) { S.scored = false; S.packs = S.packs.filter((p) => p !== "guess"); if (!S.packs.length) S.packs = ["style", "lang", "body"]; }
   if (isLite()) S.mode = "auto"; /* במצב קליל המנחה הדיגיטלי מנהל, אין במאי */
@@ -517,11 +545,6 @@ async function startGame() {
   if (new Set(norm).size !== norm.length) { toastMsg("יש שני שחקנים עם אותו שם — שנו אחד מהם"); return; }
   S.scores = {}; S.dirCounts = {}; S.honors = {}; ps.forEach((p) => { S.scores[p] = 0; S.dirCounts[p] = 0; S.honors[p] = 0; });
   S.round = 0; S.directorIdx = 0; S.guessIdx = 0; S.earIdx = 0; S.miniIdx = 0; S.log = []; S.debriefPicked = []; S.debrief = null; S.startedAt = Date.now();
-  S.trialRound = false;
-  if (S.team && !licActive()) {
-    if (S.teamTrialUsed) { S.team = false; S.industry = ""; toastMsg("סיבוב הניסיון במצב צוות נוצל. ממשיכים במצב רגיל."); }
-    else { S.trialRound = true; S.teamTrialUsed = true; } /* מסומן כבר בהתחלה: יציאה באמצע לא נותנת ניסיון נוסף */
-  }
   guessRound = false; guessWin = false; earRound = false; miniRound = false; gameActive = true; S.inGame = true; clearDecks();
   S.ls = null; S.liteEv = null;
   bumpStat("games"); keepAwake(true); save();
@@ -708,45 +731,28 @@ function liteDraw() {
   /* מי שמתחיל = דמות 1, השני = דמות 2 (בלי בחירה, בלי דיון) */
   const other = S.curPerf.find((p) => p !== S.starter) || S.curPerf[1] || "";
   S.ls.who = [S.starter, other]; S.liteEv = null;
-  $("#drawRnum").textContent = "סיבוב " + S.round + " · הבמה שלכם";
-  $("#drawCards").innerHTML = liteCardHTML(true);
-  renderLiteDrawGuide(); applyHintsVis(); show("draw"); sfx.start();
+  renderLiteScene(); show("liteScene"); sfx.start();
   /* במה שעוד לא הוקלטה: המנחה אומר רק "קדימה!" (משפט חצי מוקלט לא מושמע) */
   speak(`הבמה: ${S.ls.place}. קדימה!`, voiceHas(S.ls.place) ? ["draw-a-1", S.ls.place, "draw-b-1"] : ["draw-b-1"]);
   save();
 }
-function liteCardHTML(big) {
-  const L = S.ls; if (!L) return "";
-  return `<div class="gcard set b-set lite${big ? "" : " sm"}">
-    <div class="band"><span class="cdot"></span><span class="lbl">הבמה</span><span class="ic">📍</span></div>
-    <div class="body"><h3 class="t">${esc(L.place)}</h3><div class="rule"></div><p class="d">${esc(L.prob)}</p>
-    <div class="who2"><div><b>${esc(L.who[0])}</b><span>${esc(L.roles[0])}</span></div><div><b>${esc(L.who[1])}</b><span>${esc(L.roles[1])}</span></div></div>
-    <div class="wm" aria-hidden="true">במה</div><div class="foot">מהמותן</div></div></div>`;
-}
-function renderLiteDrawGuide() {
-  const g = $("#drawGuide"), L = S.ls; if (!g || !L) return;
-  g.innerHTML =
-    `<div class="gl"><span class="gi">📍</span><span><b>איפה:</b> ${esc(L.place)}. ${esc(L.prob)}</span></div>` +
-    `<div class="gl"><span class="gi">🎭</span><span><b>מי זה מי:</b> ${esc(L.who[0])} = ${esc(L.roles[0])}. ${esc(L.who[1])} = ${esc(L.roles[1])}.</span></div>` +
-    `<div class="gl next"><span class="gi">👉</span><span>עוד לא משחקים. לחצו <b>"המשך"</b> ותקבלו משפט פתיחה לכל אחד. לא מתאים? <b>"שלוף שוב"</b>.</span></div>`;
-}
-/* ההסבר על מה שיקרה באמצע הסיבוב, רק כשזה רלוונטי (לא מעמיסים הכל מראש) */
+/* 2.6.3: שורה קצרה אחת על מה שיקרה באמצע הסיבוב (מסך הסצנה האחד) */
 function liteCastNote() {
   const k = liteEventKind(S.round);
-  if (k === "swap") return `🔔 באמצע הסיבוב תשמעו <b>"החלפה!"</b>: מתחלפים בדמויות (${esc(S.ls.who[0])} הופך/ת ל${esc(S.ls.roles[1])}, ${esc(S.ls.who[1])} ל${esc(S.ls.roles[0])}) וממשיכים מאותו מקום.`;
-  if (k === "task") return `🎯 באמצע הסיבוב אחד/ת מכם יקבל/תקבל <b>משימה קטנה</b> על המסך. רק מי שהשם שלו/ה כתוב. השני/ה ממשיך/ה כרגיל.`;
-  if (k === "style") return `🎭 באמצע הסיבוב אחד/ת מכם יקבל/תקבל <b>סגנון</b> (למשל חנון או איש צבא) ומשחק/ת כך עד הסוף. השני/ה ממשיך/ה כרגיל.`;
-  return `🟢 הסיבוב הזה בלי הפרעות: רק אתם, המקום והמשפט הראשון.`;
+  if (k === "swap") return `🔔 באמצע תשמעו <b>"החלפה!"</b>: מתחלפים בדמויות וממשיכים מאותו מקום.`;
+  if (k === "task") return `🎯 באמצע, אחד מכם יקבל <b>משימה קטנה</b> על המסך.`;
+  if (k === "style") return `🎭 באמצע, אחד מכם יקבל <b>סגנון</b> ומשחק כך עד הסוף.`;
+  return `🟢 סיבוב בלי הפרעות: רק אתם, המקום והמשפט הראשון.`;
 }
-function liteGoCast() {
-  const L = S.ls;
-  $("#castPlace").textContent = L.place; $("#castRel").textContent = L.prob;
-  $("#castStarter").textContent = L.who[0];
-  $("#castSeed").hidden = true; $("#castCon").hidden = true;
-  const w = $("#castWho"); w.hidden = false;
-  w.innerHTML = [0, 1].map((i) => `<div class="whorow"><div class="wn">${esc(L.who[i])}</div><div class="wr">${esc(L.roles[i])}</div><div class="wl">${i ? "עונה" : "פותח/ת"}: <q>${esc(L.lines[i])}</q></div></div>`).join("");
-  const n = $("#castNote"); n.hidden = false; n.innerHTML = liteCastNote();
-  show("cast"); if (voiceHas(L.place)) speak(persona().frame(L.place, L.roles.join(" ו"), L.who[0]), ["frame-a-2", L.place]);
+/* 2.6.3: מסך אחד במקום "קלף" + "לפני הסצנה". הקול של השליפה נשאר, הקול של "לפני הסצנה" יורד (חזר על המקום). */
+function renderLiteScene() {
+  const L = S.ls; if (!L) return;
+  $("#lsRnum").textContent = "סיבוב " + S.round + " · הבמה שלכם";
+  $("#lsCard").innerHTML = `<div class="band"><span class="lbl">📍 הבמה</span></div><div class="body"><h3 class="t">${esc(L.place)}</h3><p class="d">${esc(L.prob)}</p></div>`;
+  $("#lsWho").innerHTML = [0, 1].map((i) =>
+    `<div class="lsrow${i ? "" : " first"}"><div class="lshead"><span class="tag">${i ? "עונה" : "פותח/ת"}</span><b class="wn">${esc(L.who[i])}</b><span class="wr">${esc(L.roles[i])}</span></div>` +
+    `<div class="wl">"${esc(L.lines[i])}"</div></div>`).join("");
+  $("#lsNote").innerHTML = liteCastNote();
 }
 function liteSwapRoles() {
   const L = S.ls; if (!L) return;
@@ -812,7 +818,8 @@ function rolesForRound() {
 }
 function nextRound() {
   gameActive = true; S.inGame = true; keepAwake(true);
-  if (S.team && !licActive() && S.teamTrialUsed && !S.trialRound) { S.team = false; S.industry = ""; save(); }
+  if (trialOver()) { save(); showOffer(); return; }
+  if (!licActive()) trialSpend(); /* נספר כבר בהתחלה */
   S.round++; const { dir, perf } = rolesForRound();
   S.curDir = dir; S.curPerf = perf; S.starter = rand(perf);
   $("#introRnum").textContent = "סיבוב " + S.round + (S.company ? " · " + S.company : ""); renderLogo();
@@ -867,7 +874,7 @@ function drawCards() {
   if (S.settings.tts && S.settings.voice !== "tts" && typeof MMV === "object") MMV.prefetch([S.set[1]], S.settings.persona); /* התפקיד של המסך הבא */
 }
 function goCast() {
-  if (isLite() && S.ls) { liteGoCast(); return; }
+  if (isLite() && S.ls) { show("liteScene"); return; } /* 2.6.3: במצב קליל אין מסך "לפני הסצנה" */
   $("#castWho").hidden = true; $("#castNote").hidden = true; $("#castCon").hidden = false;
   $("#castPlace").textContent = S.set[0]; $("#castRel").textContent = S.set[1]; $("#castStarter").textContent = S.starter;
   $("#castCon").textContent = "האילוץ: " + S.con[0] + " — " + S.con[1];
@@ -1328,19 +1335,12 @@ function applyScore() {
   showBoard(allDir ? "כולם היו במאי פעמיים!" : `סיבוב ${S.round} הסתיים`);
 }
 function showBoard(sub) {
-  if (trialGate()) return;
   renderBoard(); const top = Math.max(0, ...Object.values(S.scores));
   $("#boardSub").textContent = top >= WIN_TOKENS ? `מישהו הגיע ל-${WIN_TOKENS}!` : sub;
   $("#declareWinBtn").hidden = !(top >= WIN_TOKENS); show("scoreboard");
 }
-function trialGate() {
-  if (!S.trialRound) return false;
-  if (licActive()) { S.trialRound = false; save(); return false; }
-  S.trialRound = false; S.teamTrialUsed = true; save(); renderLicBoxes(); show("offer"); return true;
-}
-function roundEnd2() { if (trialGate()) return; $("#roundendSub").textContent = `סיבוב ${S.round} הסתיים · מוכנים לעוד?`; show("roundend"); miniConfetti(); }
-function roundEnd() { advanceRound(); if (trialGate()) return; $("#roundendSub").textContent = `סיבוב ${S.round} הסתיים · מוכנים לעוד?`; show("roundend"); miniConfetti(); }
-function continueFree() { S.team = false; S.industry = ""; save(); if (S.scored) showBoard(`סיבוב ${S.round} הסתיים`); else { $("#roundendSub").textContent = `סיבוב ${S.round} הסתיים · מוכנים לעוד?`; show("roundend"); } }
+function roundEnd2() { $("#roundendSub").textContent = `סיבוב ${S.round} הסתיים · מוכנים לעוד?`; show("roundend"); miniConfetti(); }
+function roundEnd() { advanceRound(); $("#roundendSub").textContent = `סיבוב ${S.round} הסתיים · מוכנים לעוד?`; show("roundend"); miniConfetti(); }
 function advanceRound() { if (S.curDir) S.dirCounts[S.curDir] = (S.dirCounts[S.curDir] || 0) + 1; S.directorIdx = (S.directorIdx + 1) % activeP().length; save(); }
 function renderBoard() {
   const arr = activeP().map((p) => ({ p, t: S.scores[p] || 0 })).sort((a, b) => b.t - a.t); const max = arr.length ? arr[0].t : 0;
@@ -1466,7 +1466,6 @@ function stopGameToHome() { stopGame(); syncGroupUI(); show("home"); }
 function stopGame() {
   if (sceneRunning) { sceneRunning = false; paused = false; stopSceneTimers(); hideHint(); hideTopic(); }
   countdownRunning = false; if (countIv) { clearInterval(countIv); countIv = null; } $("#count").classList.remove("go"); $("#count .n").classList.remove("pop");
-  if (W && W.mode === "open" && S.trialRound && !(S.log && S.log.length)) { S.teamTrialUsed = false; S.trialRound = false; } /* יצאו באמצע חימום: סיבוב הניסיון לא נשרף */
   stopVoice(); wuClear(); W = null;
   gameActive = false; keepAwake(false); save();
 }
@@ -1715,7 +1714,7 @@ const ACTIONS = {
   openSettings, closeSettings, testVoice, resetAll, install, reloadApp,
   goSetup, goHome: () => { S.company = ($("#companyInput").value || "").trim().slice(0, 40); save(); show("home"); syncGroupUI(); },
   addPlayer, delPlayer: (b) => delPlayer(+b.dataset.i), openEditor, closeEditor, addCustomCard, delCustomCard: (b) => delCustomCard(+b.dataset.i), exportCustom, importCustom,
-  startGame, resumeGame, confirmHome, newGroup, liteGo, drawCards, reDraw: drawCards, openerHint, goCast, backToDraw: () => show("draw"), beginCountdown,
+  startGame, resumeGame, confirmHome, newGroup, liteGo, drawCards, reDraw: drawCards, openerHint, goCast, backToDraw: () => show("draw"), liteSceneBack: () => { stopVoice(); show("intro"); }, beginCountdown,
   manualSwap, throwTopic, stuck, sceneHint, freeze, togglePause, endScene, guessSuccess, applyGuessScore,
   earNext: () => earNext(false), earRedrawSet, earReveal, applyEarScore,
   miniNext: () => fireMiniCue(true), miniRedraw, miniShowTopic, miniRevealExpert, miniExpertWin: () => miniExpertDone(true), miniExpertLose: () => miniExpertDone(false),
@@ -1726,7 +1725,7 @@ const ACTIONS = {
   dbEdit: () => { const D = dbState(); D.step = 3; D.done = true; save(); renderDb(); show("debrief"); },
   showSummary, copySummary, shareSummary, pickDebrief: (b) => pickDebrief(b.dataset.q, b),
   wuMenu, wuPickOne: (b) => wuPickOne(+b.dataset.id), wuSurprise, wuOther, wuStart, wuStop, wuMore, wuNext, wuSkip, wuBack,
-  hideHint, hideTopic, enterCode, removeCode, continueFree, shareImage, pickLogo, removeLogo
+  hideHint, hideTopic, enterCode, removeCode, offerBack, shareImage, pickLogo, removeLogo
 };
 document.addEventListener("click", (e) => {
   const seg = e.target.closest(".seg[data-key], .seg[data-skey]");
@@ -1800,8 +1799,8 @@ document.addEventListener("keydown", (e) => {
   if (location.hash === "#play") { lsSet(SEEN_KEY, true); if (staleGroup) askStaleGroup().then(goSetup); else goSetup(); history.replaceState(null, "", location.pathname + location.search); }
   else if (staleGroup) askStaleGroup();
   else if (!S.team || !$("#setup").classList.contains("active")) openOnboard(false);
-  if (LIC && licActive() && licDaysLeft() <= 7) setTimeout(() => toastMsg(`הקוד הארגוני של ${LIC.org} פג בעוד ${licDaysLeft()} ימים — אפשר לחדש בוואטסאפ מההגדרות`), 1200);
-  else if (LIC && !licActive()) setTimeout(() => toastMsg(`הקוד הארגוני של ${LIC.org} פג תוקף — מצב צוות חזר לניסיון`), 1200);
+  if (LIC && licActive() && licDaysLeft() <= 7) setTimeout(() => toastMsg(`הקוד הארגוני של ${LIC.org} פג בעוד ${licDaysLeft()} ימים. אפשר לחדש בוואטסאפ מההגדרות`), 1200);
+  else if (LIC && !licActive()) setTimeout(() => toastMsg(`הקוד הארגוני של ${LIC.org} פג תוקף. אפשר לחדש בוואטסאפ מההגדרות`), 1200);
   renderLicBoxes();
   registerSW();
 })();

@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="מהמותן">
 <meta property="og:title" content="מהמותן — המנחה הדיגיטלי למשחק אלתור">
-<meta property="og:description" content="פותחים מסך, מקלידים שמות, והמנחה הדיגיטלי מוביל את כולם. חינם, בעברית, בלי הרשמה.">
+<meta property="og:description" content="פותחים מסך, מקלידים שמות, והמנחה הדיגיטלי מוביל את כולם. שני סיבובים בחינם, בעברית, בלי הרשמה.">
 <meta property="og:image" content="https://mehamoten.onrender.com/brand/hero.png">
 <meta property="og:url" content="https://mehamoten.onrender.com/app/">
 <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.6.2">
+<link rel="stylesheet" href="css/app.css?v=2.6.3">
 <script>
 /* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
    מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
@@ -359,6 +359,18 @@
   </section>
 
   <!-- ============ ניחוש: פתיח ============ -->
+  <!-- 2.6.3: מצב קליל, מסך סצנה אחד (קלף + שני שחקנים + התחלה) -->
+  <section class="screen" id="liteScene" aria-label="הסצנה שלכם">
+    <div class="eyebrow" id="lsRnum">הבמה שלכם</div>
+    <div class="lscard" id="lsCard"></div>
+    <div class="lswho" id="lsWho"></div>
+    <div class="lsnote" id="lsNote" role="note"></div>
+    <div class="row lsbtns">
+      <button class="big pulsego" data-act="beginCountdown">▶️ להתחלת הסצנה: 3, 2, 1, אקשן!</button>
+      <button class="ghost" data-act="reDraw">🔀 שלוף שוב</button>
+      <button class="ghost" data-act="liteSceneBack">חזרה</button>
+    </div>
+  </section>
   <section class="screen" id="guessIntro" aria-label="סיבוב ניחוש">
     <div class="eyebrow" id="guessRnum">סיבוב ניחוש</div>
     <div class="who" id="guessTitle">—</div>
@@ -550,7 +562,7 @@
     <div class="crown">👑</div><div class="eyebrow">המנצח/ת</div>
     <div class="wname" id="winName">—</div><div class="muted" id="winSub"></div>
       <div class="mgrcta" data-role="mgrcta">
-        <b>מנהל/ת צוות?</b> ככה זה יכול להיראות גם בצוות שלכם: קלפים לפי התעשייה, תחקיר מונחה וסיכום למנהל. קוד לאירוע מ-590 ₪.
+        <b>מנהל/ת צוות?</b> ככה זה יכול להיראות גם בצוות שלכם: קלפים לפי התעשייה, תחקיר מונחה וסיכום למנהל. ערב צוות מ-690 ₪.
         <div class="row" style="margin-top:10px"><a class="ghost goldb" data-role="mgrwa" href="#" target="_blank" rel="noopener">💬 פרטים בוואטסאפ</a><button class="ghost" data-act="enterCode">🔑 יש לי קוד</button></div>
       </div>
     <div class="row" style="margin-top:28px">
@@ -574,7 +586,7 @@
     <div class="wname">תודה ששיחקתם!</div>
     <div class="muted" id="partyendSub"></div>
       <div class="mgrcta" data-role="mgrcta">
-        <b>מנהל/ת צוות?</b> ככה זה יכול להיראות גם בצוות שלכם: קלפים לפי התעשייה, תחקיר מונחה וסיכום למנהל. קוד לאירוע מ-590 ₪.
+        <b>מנהל/ת צוות?</b> ככה זה יכול להיראות גם בצוות שלכם: קלפים לפי התעשייה, תחקיר מונחה וסיכום למנהל. ערב צוות מ-690 ₪.
         <div class="row" style="margin-top:10px"><a class="ghost goldb" data-role="mgrwa" href="#" target="_blank" rel="noopener">💬 פרטים בוואטסאפ</a><button class="ghost" data-act="enterCode">🔑 יש לי קוד</button></div>
       </div>
     <div class="row" style="margin-top:28px">
@@ -583,23 +595,32 @@
     </div>
   </section>
 
-  <!-- ============ הצעה למנהלים (אחרי סיבוב ניסיון במצב צוות) ============ -->
-  <section class="screen" id="offer" aria-label="מצב צוות מלא">
-    <div class="panel" style="text-align:right">
-      <div class="eyebrow" style="text-align:center">סיבוב הניסיון הסתיים</div>
-      <h2 style="text-align:center">אהבתם? ככה זה נראה כל השנה</h2>
-      <p class="sub" style="text-align:center;font-size:16px;color:#e9e3d4">מצב צוות מלא נפתח עם קוד ארגוני: שם הארגון על המסך, קלפים לפי התעשייה שלכם, תחקיר מונחה וסיכום מפגש לשליחה למנהל/ת.</p>
+  <!-- ============ הצעה (2.6.3: אחרי שני סיבובי ניסיון, בכל מצב) ============ -->
+  <section class="screen" id="offer" aria-label="להמשך המשחק">
+    <div class="panel offerpanel">
+      <div class="eyebrow">שני סיבובי הניסיון הסתיימו</div>
+      <h2>אהבתם? אפשר להמשיך כבר עכשיו.</h2>
       <div class="offergrid">
-        <div class="offer"><div class="op">590 ₪</div><div class="ot">קוד לאירוע</div><div class="od">מצב צוות מלא ל-30 יום, לצוות אחד</div></div>
-        <div class="offer"><div class="op">3,900 ₪</div><div class="ot">רישיון שנתי</div><div class="od">כל השנה, עד 50 עובדים, לוגו וקלפים משלכם</div></div>
+        <div class="offer">
+          <div class="ot">ערב צוות</div><div class="op">690 ₪</div>
+          <div class="od">קונים לערב אחד ומשחקים מתי שנוח.</div>
+          <div class="ohl">מי שקונה עכשיו: המשחק פתוח לכם עד 1.1.2027.</div>
+          <a class="big sm buy" data-buy="event" href="#" target="_blank" rel="noopener">לקנות</a>
+        </div>
+        <div class="offer">
+          <div class="ot">שנה פתוחה</div><div class="op">4,100 ₪</div>
+          <div class="od">המשחק פתוח לכם שנה שלמה, כמה פעמים שרוצים, עם הלוגו שלכם על המסך.</div>
+          <a class="big sm buy" data-buy="year" href="#" target="_blank" rel="noopener">לקנות</a>
+        </div>
+        <div class="offer">
+          <div class="ot">שנה + ערב עם לירן</div><div class="op">5,900 ₪</div>
+          <div class="od">אני מגיע ומנחה לכם ערב של שעה, והמשחק נשאר פתוח לכם שנה שלמה.</div>
+          <a class="big sm buy" data-buy="yearPlus" href="#" target="_blank" rel="noopener">לקנות</a>
+        </div>
       </div>
-      <div class="row" style="margin-top:16px">
-        <a class="big sm" id="offerWa" href="#" target="_blank" rel="noopener">💬 לקבלת קוד בוואטסאפ</a>
-        <button class="ghost goldb" data-act="enterCode">🔑 יש לי קוד</button>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="ghost" data-act="continueFree">להמשיך לשחק במצב רגיל</button>
-      </div>
+      <div class="ovat">המחירים כוללים מע"מ.</div>
+      <button class="linkbtn" data-act="enterCode">כבר קניתם? יש לי קוד</button>
+      <button class="linkbtn backlink" data-act="offerBack">חזרה</button>
     </div>
   </section>
 
@@ -611,7 +632,7 @@
       <div class="stats" id="summaryStats"></div>
       <div id="summaryBody"></div>
       <div class="mgrcta" data-role="mgrcta">
-        <b>מנהל/ת צוות?</b> ככה זה יכול להיראות גם בצוות שלכם: קלפים לפי התעשייה, תחקיר מונחה וסיכום למנהל. קוד לאירוע מ-590 ₪.
+        <b>מנהל/ת צוות?</b> ככה זה יכול להיראות גם בצוות שלכם: קלפים לפי התעשייה, תחקיר מונחה וסיכום למנהל. ערב צוות מ-690 ₪.
         <div class="row" style="margin-top:10px"><a class="ghost goldb" data-role="mgrwa" href="#" target="_blank" rel="noopener">💬 פרטים בוואטסאפ</a><button class="ghost" data-act="enterCode">🔑 יש לי קוד</button></div>
       </div>
       <div class="row" style="margin-top:14px">
@@ -704,13 +725,13 @@
     <div class="field"><div class="label">סטטיסטיקה (נשמרת במכשיר בלבד)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 בדוק קול</button><button class="ghost" data-act="resetAll">🧹 איפוס נתונים</button><button class="big sm" data-act="closeSettings">סגור</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.6.2</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.6.3</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.6.2"></script>
-<script src="js/app.js?v=2.6.2"></script>
-<script src="js/voice_map.js?v=2.6.2"></script>
-<script src="js/voice.js?v=2.6.2"></script>
+<script src="js/data.js?v=2.6.3"></script>
+<script src="js/app.js?v=2.6.3"></script>
+<script src="js/voice_map.js?v=2.6.3"></script>
+<script src="js/voice.js?v=2.6.3"></script>
 </body>
 </html>

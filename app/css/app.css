@@ -569,3 +569,61 @@ body.bigscreen .scard .v.who2s{font-size:clamp(20px,3vmin,32px)}
 .bigscreen .wunote,.bigscreen .wuex,.bigscreen .wupair,.bigscreen .wulead{font-size:clamp(20px,2.8vmin,30px)}
 .bigscreen .wuskip{font-size:20px}
 .bigscreen .wuhow{font-size:clamp(24px,3.6vmin,40px)}
+
+/* ---------- 2.6.3: מצב קליל, מסך סצנה אחד ---------- */
+#liteScene{gap:clamp(8px,1.6vmin,16px)}
+#liteScene .eyebrow{margin:0}
+.lscard{width:min(820px,100%);background:#fff;color:var(--ink);border-radius:var(--r);overflow:hidden;text-align:right;
+  box-shadow:0 14px 36px rgba(0,0,0,.4);animation:fade .4s ease}
+.lscard .band{background:var(--set);color:#fff;padding:clamp(6px,1.2vmin,12px) clamp(14px,2.4vmin,24px);font-family:"Rubik",sans-serif;font-weight:900;font-size:clamp(13px,2vmin,20px)}
+.lscard .body{padding:clamp(10px,2vmin,24px) clamp(14px,2.8vmin,32px)}
+.lscard .t{font-family:"Secular One",sans-serif;font-weight:400;font-size:clamp(26px,5.6vmin,64px);line-height:1.05;margin:0;color:var(--ink)}
+.lscard .d{font-size:clamp(15px,2.6vmin,28px);color:#4d4659;line-height:1.4;margin:6px 0 0}
+.lswho{width:min(820px,100%);display:flex;flex-direction:column;gap:clamp(6px,1.2vmin,12px)}
+.lsrow{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:16px;padding:clamp(8px,1.6vmin,16px) clamp(12px,2.2vmin,22px);text-align:right}
+.lsrow.first{border-color:rgba(246,231,180,.55);background:rgba(246,231,180,.1)}
+.lshead{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.lshead .tag{font-family:"Rubik",sans-serif;font-weight:800;font-size:clamp(11px,1.7vmin,17px);padding:2px 9px;border-radius:999px;background:rgba(255,255,255,.12);color:#e9e3d4;align-self:center}
+.lsrow.first .tag{background:var(--spot);color:var(--ink)}
+.lshead .wn{font-family:"Secular One",sans-serif;font-weight:400;font-size:clamp(22px,4.2vmin,46px);color:var(--spot);line-height:1.1}
+.lshead .wr{font-size:clamp(15px,2.5vmin,26px);color:#e9e3d4}
+.lsrow .wl{margin-top:4px;font-size:clamp(16px,2.7vmin,30px);color:#fff;font-weight:700;line-height:1.35}
+.lsnote{width:min(820px,100%);font-size:clamp(13px,2.1vmin,22px);color:#e9e3d4;line-height:1.4;text-align:right}
+.lsnote:empty{display:none}
+.lsbtns{margin-top:clamp(2px,1vmin,10px)}
+.lsbtns .big{flex:1 1 100%;max-width:820px}
+.lsbtns .ghost{min-height:44px}
+#liteScene .pulsego{animation:mmPulseGo 1.6s ease-in-out infinite}
+body.noanim #liteScene .pulsego{animation:none}
+@media (prefers-reduced-motion:reduce){#liteScene .pulsego{animation:none}}
+@media (max-width:480px){
+  #liteScene{padding-left:14px;padding-right:14px}
+  .lsbtns{gap:8px}
+  .lsbtns .big{font-size:20px;padding:14px 12px}
+  .lsbtns .ghost{flex:1 1 0;padding:8px 10px;font-size:15px}
+}
+body.bigscreen .lscard .t{font-size:clamp(34px,7vmin,80px)}
+body.bigscreen .lshead .wn{font-size:clamp(28px,5.2vmin,56px)}
+body.bigscreen .lsrow .wl{font-size:clamp(20px,3.4vmin,38px)}
+
+/* ---------- 2.6.3: מסך ההצעה ---------- */
+.offerpanel{width:min(1040px,100%);text-align:center;box-sizing:border-box;max-height:none;overflow:visible;flex:0 0 auto}
+.offerpanel .eyebrow{margin-bottom:6px}
+.offerpanel h2{margin:0 0 16px}
+.offerpanel .offergrid{grid-template-columns:repeat(3,1fr);gap:14px;margin-top:0}
+.offerpanel .offer{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:18px 16px}
+.offerpanel .ot{font-family:"Secular One",sans-serif;font-weight:400;font-size:clamp(20px,2.8vmin,26px);margin:0}
+.offerpanel .op{font-size:clamp(30px,5vmin,44px)}
+.offerpanel .od{font-size:clamp(14px,1.9vmin,16px);color:#e9e3d4;flex:1}
+.offerpanel .ohl{font-size:clamp(14px,1.9vmin,16px);font-weight:800;color:var(--spot);line-height:1.4}
+.offerpanel .buy{margin-top:8px;width:100%;box-sizing:border-box}
+.offerpanel .ovat{font-size:13px;color:#b3acc4;margin-top:12px}
+.linkbtn.backlink{display:block;margin:0 auto;color:#b3acc4;font-size:13px}
+.linkbtn{background:none;border:0;color:var(--spot);text-decoration:underline;font-family:"Rubik",sans-serif;font-size:14px;padding:10px;margin-top:2px;cursor:pointer;min-height:auto}
+@media (max-width:760px){
+  #offer{padding-top:max(74px, env(safe-area-inset-top));padding-left:12px;padding-right:12px}
+  .offerpanel{padding:16px 14px}
+  .offerpanel .offergrid{grid-template-columns:1fr;gap:10px}
+  .offerpanel .offer{padding:12px 14px;gap:4px}
+  .offerpanel .buy{margin-top:6px;font-size:20px;padding:10px 16px;min-height:48px}
+}

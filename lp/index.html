@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>מהמותן | משחק אלתור לצוותים, בלי מנחה ובלי הכנה</title>
-<meta name="description" content="משחק אלתור בעברית שהצוות מריץ לבד. המשחק נותן מקום, דמויות ומשפט פתיחה, קריין סופר לאחור, ומשחקים. נסו סיבוב בחינם.">
+<meta name="description" content="משחק אלתור בעברית שהצוות מריץ לבד. המשחק נותן מקום, דמויות ומשפט פתיחה, קריין סופר לאחור, ומשחקים. שני סיבובים בחינם.">
 <meta property="og:title" content="מהמותן: משחק אלתור לצוותים. בלי מנחה. בלי הכנה.">
-<meta property="og:description" content="שניים עולים, המשחק נותן מקום, דמויות ומשפט פתיחה, והשאר צוחקים. נסו סיבוב בחינם.">
+<meta property="og:description" content="שניים עולים, המשחק נותן מקום, דמויות ומשפט פתיחה, והשאר צוחקים. שני סיבובים בחינם.">
 <meta property="og:image" content="https://mehamoten.onrender.com/brand/og-lp.jpg">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:url" content="https://mehamoten.onrender.com/lp/">
@@ -60,6 +60,8 @@ a{color:inherit}
 /* pricing */
 .price{display:flex;flex-direction:column}
 .price .amt{font-family:'Secular One';font-size:2.2rem;color:var(--gold);margin:4px 0 2px}
+.price .pd{margin:6px 0 0;color:var(--ink)}
+.price .phl{margin:8px 0 0;color:var(--gold);font-weight:800}
 .price .amt small{font-size:1rem;color:var(--muted);font-family:'Heebo'}
 .price ul{list-style:none;color:var(--muted);margin:10px 0 18px;display:grid;gap:6px;font-size:1rem}
 .price li::before{content:"✓ ";color:#3cc47a;font-weight:800}
@@ -91,14 +93,14 @@ footer{padding:30px 0 100px;text-align:center;color:var(--muted);font-size:.9rem
 
 <div class="top"><div class="wrap">
   <a class="logo" href="../">מהמותן<span>.</span></a>
-  <a class="btn" href="../app/" target="_blank" rel="noopener">נסו סיבוב בחינם</a>
+  <a class="btn" href="../app/" target="_blank" rel="noopener">שני סיבובים בחינם</a>
 </div></div>
 
 <header class="hero"><div class="wrap">
   <h1>משחק אלתור לצוותים.<br><em>בלי מנחה. בלי הכנה.</em></h1>
   <p class="sub">שניים עולים, המשחק נותן להם מקום, דמויות ומשפט פתיחה, והשאר צוחקים. קריין מוביל את הכל, סופר לאחור ואומר מתי מתחילים.</p>
   <div class="ctas">
-    <a class="btn" href="../app/" target="_blank" rel="noopener">▶ נסו סיבוב בחינם</a>
+    <a class="btn" href="../app/" target="_blank" rel="noopener">▶ שני סיבובים בחינם</a>
     <a class="btn ghost" href="#prices">מחירים והזמנה</a>
   </div>
   <div class="chips"><span class="chip">📱 נפתח בדפדפן, בלי הורדה</span><span class="chip">🖥️ בטלפון או על מסך בחדר</span><span class="chip">🎙️ עברית, עם קריין מוקלט</span></div>
@@ -139,27 +141,29 @@ footer{padding:30px 0 100px;text-align:center;color:var(--muted);font-size:.9rem
   <div class="grid3">
     <div class="c price hot">
       <span class="tag">הכי פשוט</span>
-      <h3>לאירוע אחד</h3>
-      <div class="amt">590 ₪</div>
-      <ul><li>מצב צוות מלא ל-30 יום</li><li>צוות אחד</li><li>שיחת סיום וסיכום למנהל</li></ul>
-      <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%90%D7%A0%D7%97%D7%A0%D7%95%20%D7%A8%D7%95%D7%A6%D7%99%D7%9D%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%20%D7%9C%D7%90%D7%99%D7%A8%D7%95%D7%A2%20%D7%90%D7%97%D7%93%20(590%20%E2%82%AA).">להזמנה בוואטסאפ</a>
+      <h3>ערב צוות</h3>
+      <div class="amt">690 ₪</div>
+      <p class="pd">קונים לערב אחד ומשחקים מתי שנוח.</p>
+      <p class="phl">מי שקונה עכשיו: המשחק פתוח לכם עד 1.1.2027.</p>
+      <ul><li>צוות אחד</li><li>שיחת סיום וסיכום למנהל</li></ul>
+      <a class="btn wa" data-buy="event" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A7%D7%A0%D7%95%D7%AA%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%3A%20%D7%A2%D7%A8%D7%91%20%D7%A6%D7%95%D7%95%D7%AA%20%28690%20%E2%82%AA%29">לקנות</a>
     </div>
     <div class="c price">
-      <h3>רישיון שנתי</h3>
-      <div class="amt">3,900 ₪</div>
+      <h3>שנה פתוחה</h3>
+      <div class="amt">4,100 ₪</div>
+      <p class="pd">המשחק פתוח לכם שנה שלמה, כמה פעמים שרוצים, עם הלוגו שלכם על המסך.</p>
       <ul><li>שנה שלמה, כמה פעמים שרוצים</li><li>הלוגו שלכם על המסך</li><li>קלפים עם הבדיחות הפנימיות שלכם</li></ul>
-      <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%9E%D7%A2%D7%A0%D7%99%D7%99%D7%9F%20%D7%90%D7%95%D7%AA%D7%A0%D7%95%20%D7%A8%D7%99%D7%A9%D7%99%D7%95%D7%9F%20%D7%A9%D7%A0%D7%AA%D7%99%20%D7%9C%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F.">להזמנה בוואטסאפ</a>
+      <a class="btn wa" data-buy="year" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A7%D7%A0%D7%95%D7%AA%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%3A%20%D7%A9%D7%A0%D7%94%20%D7%A4%D7%AA%D7%95%D7%97%D7%94%20%284%2C100%20%E2%82%AA%29">לקנות</a>
     </div>
     <div class="c price">
-      <h3>סדנה מונחית</h3>
-      <div class="amt">3,500 ₪ <small>אונליין</small></div>
-      <div class="amt" style="font-size:1.6rem;margin-top:0">4,500 ₪ <small>פרונטלי</small></div>
-      <ul><li>אני מנחה, עד 25 משתתפים</li><li>90 דקות</li><li>כולל קוד לצוות ל-30 יום אחרי</li></ul>
-      <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%A8%D7%A6%D7%99%D7%A0%D7%95%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20%D7%A1%D7%93%D7%A0%D7%94%20%D7%9E%D7%95%D7%A0%D7%97%D7%99%D7%AA%20%D7%A9%D7%9C%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F.">לתיאום סדנה</a>
+      <h3>שנה + ערב עם לירן</h3>
+      <div class="amt">5,900 ₪</div>
+      <p class="pd">אני מגיע ומנחה לכם ערב של שעה, והמשחק נשאר פתוח לכם שנה שלמה.</p>
+      <ul><li>ערב מונחה של שעה</li><li>שנה פתוחה</li></ul>
+      <a class="btn wa" data-buy="yearPlus" target="_blank" rel="noopener" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%A7%D7%A0%D7%95%D7%AA%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%3A%20%D7%A9%D7%A0%D7%94%20%2B%20%D7%A2%D7%A8%D7%91%20%D7%A2%D7%9D%20%D7%9C%D7%99%D7%A8%D7%9F%20%285%2C900%20%E2%82%AA%29">לקנות</a>
     </div>
   </div>
-  <div class="season">🎉 <b>חבילת סוף שנה:</b> סדנה מונחית + קוד לצוות ל-30 יום, במחיר הסדנה בלבד. להזמנה עד 15.12, הסדנה עד 31.12.</div>
-  <p class="note">המחירים לפני מע"מ. חשבונית מס על כל תשלום. מפיקים: כתבו לנו לקבלת מחיר נטו.</p>
+  <p class="note">המחירים כוללים מע"מ. חשבונית מס על כל תשלום. מפיקים: כתבו לנו לקבלת מחיר נטו.</p>
 </div></section>
 
 <section class="sec" style="padding-top:10px"><div class="wrap faqw">
@@ -167,7 +171,7 @@ footer{padding:30px 0 100px;text-align:center;color:var(--muted);font-size:.9rem
   <details><summary>צריך להוריד משהו או להירשם?</summary><p>לא. המשחק נפתח בדפדפן, בטלפון או במחשב. לוחצים על הלינק ומשחקים.</p></details>
   <details><summary>אף אחד אצלנו לא שחקן. זה יעבוד?</summary><p>בשביל זה הוא נבנה. המשחק נותן מקום, דמויות ומשפט פתיחה לכל אחד, כך שלא צריך להמציא מאפס. וגם לא צריך להצחיק: מי שמקשיב לשני, מצליח.</p></details>
   <details><summary>כמה אנשים צריך?</summary><p>מספיק שניים על הבמה בכל סיבוב, וכל השאר קהל שמתחלף. הכי טוב כשכולם באותו חדר ורואים מסך אחד.</p></details>
-  <details><summary>מי מנחה?</summary><p>המשחק עצמו. יש קריין מוקלט שמסביר, סופר לאחור ואומר מתי מתחילים ומתי מסיימים. אם תרצו מנחה אנושי, יש סדנה מונחית.</p></details>
+  <details><summary>מי מנחה?</summary><p>המשחק עצמו. יש קריין מוקלט שמסביר, סופר לאחור ואומר מתי מתחילים ומתי מסיימים. אם תרצו מנחה אנושי, יש חבילת שנה + ערב עם לירן.</p></details>
   <details><summary>איך משלמים?</summary><p>כותבים לנו בוואטסאפ, מקבלים פרטי תשלום וחשבונית מס, ואחרי התשלום מקבלים לינק אישי שפותח את הכל בלחיצה.</p></details>
   <details><summary>מה עם פרטיות?</summary><p>המשחק לא שולח את השמות שאתם כותבים לשום שרת. הם נשמרים רק על המכשיר שלכם.</p></details>
 </div></section>
@@ -177,17 +181,18 @@ footer{padding:30px 0 100px;text-align:center;color:var(--muted);font-size:.9rem
     <h2>הדרך הכי מהירה להבין: לשחק סיבוב</h2>
     <p>שתי דקות, עם מי שיושב לידכם עכשיו.</p>
     <div class="ctas">
-      <a class="btn" href="../app/" target="_blank" rel="noopener">▶ נסו סיבוב בחינם</a>
+      <a class="btn" href="../app/" target="_blank" rel="noopener">▶ שני סיבובים בחינם</a>
       <a class="btn wa" href="https://wa.me/972506325398?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%A8%D7%9F%2C%20%D7%A8%D7%90%D7%99%D7%AA%D7%99%20%D7%90%D7%AA%20%D7%9E%D7%94%D7%9E%D7%95%D7%AA%D7%9F%20%D7%95%D7%99%D7%A9%20%D7%9C%D7%99%20%D7%A9%D7%90%D7%9C%D7%94." target="_blank" rel="noopener">שאלה בוואטסאפ</a>
     </div>
   </div>
 </div></section>
 
-<footer>מהמותן © 2026 · לירן שעיה · latsdoai@gmail.com · <a href="../app/privacy.html">פרטיות</a> · <a href="../terms.html">תנאים</a></footer>
+<footer>מהמותן © 2026 · לירן שעיה · <a href="#" data-mm-email>מייל</a> · <a href="../app/privacy.html">פרטיות</a> · <a href="../terms.html">תנאים</a></footer>
 
 <div class="sticky">
-  <a class="btn" href="../app/" target="_blank" rel="noopener">▶ נסו בחינם</a>
+  <a class="btn" href="../app/" target="_blank" rel="noopener">▶ שני סיבובים בחינם</a>
   <a class="btn wa" href="#prices">מחירים</a>
 </div>
+<script src="../site.js"></script>
 </body>
 </html>
