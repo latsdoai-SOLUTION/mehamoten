@@ -229,11 +229,7 @@ footer{padding:26px 0 100px;text-align:center;color:var(--muted);font-size:.9rem
     <p class="para narrow">משאירים פרטים, מסמנים מה מעניין אתכם, ואני חוזר אליכם בוואטסאפ תוך יום עבודה.</p>
   </div>
 
-  <form class="form" id="form" data-mm-form action="" method="POST">
-    <input type="hidden" name="_subject" value="מהמותן: פנייה חדשה מהאתר">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_next" value="https://mehamoten.onrender.com/free/?sent=1#thanks">
+  <form class="form" id="form" data-mm-form data-mm-page="free" data-mm-thanks="#thanks" data-mm-hide=".sticky" action="" method="POST">
     <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
     <label class="f" for="nm">שם</label><input id="nm" type="text" name="name" required autocomplete="name" placeholder="איך קוראים לך?">
     <label class="f" for="ph">טלפון (וואטסאפ)</label><input id="ph" type="tel" name="phone" required autocomplete="tel" inputmode="tel" pattern="[0-9+\-\s]{9,15}" placeholder="050-0000000">
@@ -265,14 +261,6 @@ footer{padding:26px 0 100px;text-align:center;color:var(--muted);font-size:.9rem
 
 <div class="sticky"><a class="btn" href="https://mehamoten.onrender.com/app/?preset=team" target="_blank" rel="noopener">▶ לנסות שני סיבובים</a></div>
 
-<script>
-if (location.search.indexOf('sent=1') > -1) {
-  var f = document.getElementById('form'), t = document.getElementById('thanks');
-  if (f) f.style.display = 'none';
-  if (t) t.style.display = 'block';
-  var s = document.querySelector('.sticky'); if (s) s.style.display = 'none';
-}
-</script>
-<script src="../site.js"></script>
+<script src="../site.js?v=2.6.4"></script>
 </body>
 </html>
