@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.5";
+const APP_VERSION = "2.6.6";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -147,7 +147,7 @@ function offerBack() {
 const DEFAULT_SETTINGS = { persona: "compere", tts: true, sfx: true, hints: true, motion: true, voiceURI: "", voice: "rec" };
 const S = {
   players: ["", "", ""], mode: "auto", scored: false, level: "easy", kids: false, team: false, company: "", industry: "",
-  packs: ["style", "lang", "body"], sceneLen: 90, big: false, lite: true, warm: true, ls: null, liteEv: null,
+  packs: ["style", "lang", "body"], stage: 2, sceneLen: 90, big: false, lite: true, warm: true, ls: null, liteEv: null,
   scores: {}, honors: {}, directorIdx: 0, round: 0, dirCounts: {}, curDir: "", curPerf: [], starter: "",
   guessIdx: 0, inGame: false, startedAt: 0,
   set: null, con: null, conCat: null, rings: 0, topics: 0,
@@ -215,6 +215,8 @@ function load() {
   if (!S.packs.length) S.packs = ["style", "lang", "body"];
   if (![60, 90, 120].includes(+S.sceneLen)) S.sceneLen = 90; else S.sceneLen = +S.sceneLen;
   if (!["auto", "manual"].includes(S.mode)) S.mode = "auto";
+  if (![2, 3, 4].includes(+S.stage)) S.stage = 2; else S.stage = +S.stage;
+  if (!Array.isArray(S.extra)) S.extra = [];
   if (!["easy", "reg"].includes(S.level)) S.level = "easy";
   if (S.industry && !MM_INDUSTRY[S.industry]) S.industry = "";
   if (!Array.isArray(S.log)) S.log = [];
@@ -278,6 +280,7 @@ function pool(cat) {
   let all = (MM_DATA[cat] || []).concat(ext);
   if (cat === "set" && S.team && S.industry && MM_INDUSTRY[S.industry]) all = all.concat(MM_INDUSTRY[S.industry].cards);
   if (S.kids) all = all.filter((c) => !MM_KIDS_BLOCK.has(c[0]));
+  if (cat === "set" && S.team) all = all.filter((c) => !MM_TEAM_BLOCK.has(c[0])); /* 2.6.6: לוויה לא עולה בערב לחברה */
   return all;
 }
 
@@ -478,6 +481,7 @@ function syncSetupUI() {
   setOn("timeSeg", String(S.sceneLen)); setOn("industrySeg", S.industry || "");
   $("#teamExtra").hidden = !S.team; $("#companyInput").value = S.company || ""; renderLicBoxes();
   setOn("warmSeg", S.warm ? "on" : "off");
+  setOn("stageSeg", String(stageN())); $$("#stageSeg button").forEach((b) => b.disabled = S.kids && b.dataset.v !== "2"); { const sn = $("#stageNote"); if (sn) sn.hidden = !S.kids; }
   setOn("liteSeg", S.lite ? "on" : "off"); if (isLite()) setOn("modeSeg", "auto");
   /* במצב קליל: המנחה אוטומטי, והאילוצים, הרמה ומשחקי המיני לא בשימוש */
   const lite = isLite(); const ln = $("#liteNote"); if (ln) ln.hidden = !lite;
@@ -498,6 +502,7 @@ function onSetupSeg(seg, btn) {
   else if (key === "team") S.team = v === "on";
   else if (key === "lite") S.lite = v === "on";
   else if (key === "warm") S.warm = v === "on";
+  else if (key === "stage") S.stage = [2, 3, 4].includes(+v) ? +v : 2;
   else if (key === "industry") { S.industry = v; clearDecks(); }
   else if (key === "sceneLen") S.sceneLen = +v;
   else if (key === "big") {
@@ -757,6 +762,7 @@ function liteDraw() {
   /* מי שמתחיל = דמות 1, השני = דמות 2 (בלי בחירה, בלי דיון) */
   const other = S.curPerf.find((p) => p !== S.starter) || S.curPerf[1] || "";
   S.ls.who = [S.starter, other]; S.liteEv = null;
+  setupExtras(st);
   renderLiteScene(); show("liteScene"); sfx.start();
   /* 2.6.5: לפני הספירה לא אומרים "קדימה!" (אנשים התחילו לשחק). אומרים "עלו לבמה!" */
   speak(`הבמה: ${S.ls.place}. עלו לבמה!`, voiceHas(S.ls.place) ? ["draw-a-1", S.ls.place, "compere-intro-2"] : ["compere-intro-2"]);
@@ -768,6 +774,8 @@ function liteCastNote() {
   if (k === "swap") return `🔔 באמצע תשמעו <b>"החלפה!"</b>: מתחלפים בדמויות וממשיכים מאותו מקום.`;
   if (k === "task") return `🎯 באמצע, אחד מכם יקבל <b>משימה קטנה</b> על המסך.`;
   if (k === "style") return `🎭 באמצע, אחד מכם יקבל <b>סגנון</b> ומשחק כך עד הסוף.`;
+  const x4 = (S.extra || []).find((x) => x.slot === 4);
+  if (x4) return `🚪 בהמשך, <b>${esc(x4.who)}</b> נכנס/ת כשהמסך יקרא לו/לה. חוץ מזה: רק אתם, המקום והמשפט הראשון.`;
   return `🟢 סיבוב בלי הפרעות: רק אתם, המקום והמשפט הראשון.`;
 }
 /* 2.6.3: מסך אחד במקום "קלף" + "לפני הסצנה". הקול של השליפה נשאר, הקול של "לפני הסצנה" יורד (חזר על המקום). */
@@ -777,7 +785,7 @@ function renderLiteScene() {
   $("#lsCard").innerHTML = `<div class="band"><span class="lbl">📍 הבמה</span></div><div class="body"><h3 class="t">${esc(L.place)}</h3><p class="d">${esc(L.prob)}</p></div>`;
   $("#lsWho").innerHTML = [0, 1].map((i) =>
     `<div class="lsrow${i ? "" : " first"}"><div class="lshead"><span class="tag">${i ? "עונה" : "פותח/ת"}</span><b class="wn">${esc(L.who[i])}</b><span class="wr">${esc(L.roles[i])}</span></div>` +
-    `<div class="wl">"${esc(L.lines[i])}"</div></div>`).join("");
+    `<div class="wl">"${esc(L.lines[i])}"</div></div>`).join("") + extraRowsHTML();
   $("#lsNote").innerHTML = liteCastNote();
 }
 function liteSwapRoles() {
@@ -790,7 +798,7 @@ function litePlayCards() {
   return `<div class="scard set"><div class="k">📍 הבמה</div><div class="v">${esc(L.place)}</div><div class="vd">${esc(L.prob)}</div></div>` +
     `<div class="scard lite"><div class="k">🎭 מי זה מי</div><div class="v who2s"><span><b>${esc(L.who[0])}</b> ${esc(L.roles[0])}</span><span><b>${esc(L.who[1])}</b> ${esc(L.roles[1])}</span></div>` +
     (ev && ev.fired && ev.kind === "swap" ? `<div class="vd">התחלפתם בדמויות. ממשיכים מאותו מקום.</div>` : `<div class="plines"><div><b>${esc(L.who[0])}</b> פותח/ת: ${esc(L.lines[0])}</div><div><b>${esc(L.who[1])}</b> עונה: ${esc(L.lines[1])}</div></div>`) + `</div>` +
-    (ev && ev.fired && (ev.kind === "task" || ev.kind === "style") ? `<div class="scard task"><div class="k">${ev.kind === "style" ? "🎭 סגנון" : "🎯 משימה"} ל${esc(ev.who)}</div><div class="v">${esc(ev.text)}</div><div class="vd">${esc(ev.other)} ממשיך/ה כרגיל</div></div>` : "");
+    extrasCardHTML() + (ev && ev.fired && (ev.kind === "task" || ev.kind === "style") ? `<div class="scard task"><div class="k">${ev.kind === "style" ? "🎭 סגנון" : "🎯 משימה"} ל${esc(ev.who)}</div><div class="v">${esc(ev.text)}</div><div class="vd">${esc(ev.other)} ממשיך/ה כרגיל</div></div>` : "");
 }
 /* האירוע היחיד של הסיבוב: החלפת דמויות (תמיד פעם אחת, באמצע) או משימה אישית (ב-120 שניות: שתיים, 40% ו-70%). */
 function scheduleLiteEvent() {
@@ -835,19 +843,63 @@ function fireLiteEvent() {
   liteHoldSoon(ev.kind === "swap" ? 7 : 5, ev.kind === "swap" ? "🔄 מתחלפים בדמויות, קחו רגע להתארגן" : "👀 קוראים את המסך, קחו רגע");
   save();
 }
+/* 2.6.6: כמה עולים לבמה (2/3/4). מצב ילדים: תמיד 2 */
+function stageN() { return S.kids ? 2 : ([2, 3, 4].includes(+S.stage) ? +S.stage : 2); }
 function rolesForRound() {
-  const ps = activeP(), n = ps.length;
-  if (S.mode === "auto") return { dir: "", perf: [ps[S.directorIdx % n], ps[(S.directorIdx + 1) % n]] };
+  const ps = activeP(), n = ps.length, want = stageN();
+  if (S.mode === "auto") { const perf = []; for (let k = 0; k < n && perf.length < want; k++) { const c = ps[(S.directorIdx + k) % n]; if (!perf.includes(c)) perf.push(c); } return { dir: "", perf }; }
   const dir = ps[S.directorIdx % n], perf = []; let k = 1;
-  while (perf.length < 2 && k <= n) { const c = ps[(S.directorIdx + k) % n]; if (c !== dir && !perf.includes(c)) perf.push(c); k++; }
+  while (perf.length < want && k <= n) { const c = ps[(S.directorIdx + k) % n]; if (c !== dir && !perf.includes(c)) perf.push(c); k++; }
   return { dir, perf };
+}
+/* 2.6.6: תפקיד 3 ו-4 לכל קלף (MM_EXTRAS). המפתח: מקום + דמויות (במלא/תעשייה), מקום (בקליל) */
+let EXTRA_MAP = null;
+function extraKey(c) { return Array.isArray(c) ? "s|" + c[0] + "|" + c[1] : (c && c.place ? "l|" + c.place : ""); }
+function extrasFor(card) {
+  if (!EXTRA_MAP) {
+    EXTRA_MAP = new Map(); const add = (c, e) => { if (c && e) EXTRA_MAP.set(extraKey(c), e); };
+    if (typeof MM_EXTRAS === "object") {
+      MM_LITE_SET.forEach((c, i) => add(c, (MM_EXTRAS.lite || [])[i]));
+      MM_DATA.set.forEach((c, i) => add(c, (MM_EXTRAS.set || [])[i]));
+      for (const k in MM_INDUSTRY) MM_INDUSTRY[k].cards.forEach((c, i) => add(c, (MM_EXTRAS[k] || [])[i]));
+    }
+  }
+  return card ? EXTRA_MAP.get(extraKey(card)) || null : null;
+}
+/* מצמיד לשחקנים 3 ו-4 את התפקידים של הקלף. קלף בלי תפקידים (קלף שלכם): עולים רק 2 */
+function setupExtras(card) {
+  S.extra = []; const more = S.curPerf.slice(2); if (!more.length) return;
+  const ex = extrasFor(card);
+  if (!ex) { S.curPerf = S.curPerf.slice(0, 2); toastMsg("בקלף הזה אין תפקידים נוספים, אז עולים רק 2"); return; }
+  more.forEach((p, i) => { const r = ex[i]; if (r) S.extra.push({ who: p, slot: i + 3, r: r[0], g: r[1], l: r[2], on: i === 0 }); });
+}
+function extraRowsHTML() {
+  return (S.extra || []).map((x) =>
+    `<div class="lsrow extra${x.on ? "" : " later"}"><div class="lshead"><span class="tag">${x.slot === 3 ? "דמות 3 · מההתחלה" : "דמות 4 · נכנס/ת בהמשך"}</span><b class="wn">${esc(x.who)}</b><span class="wr">${esc(x.r)}</span></div>` +
+    `<div class="wg">🎯 ${esc(x.g)}</div><div class="wl">"${esc(x.l)}"</div></div>`).join("");
+}
+function extrasCardHTML() {
+  if (!S.extra || !S.extra.length) return "";
+  return `<div class="scard extra"><div class="k">➕ גם על הבמה</div>` + S.extra.map((x) =>
+    `<div class="xrow${x.on ? "" : " later"}"><b>${esc(x.who)}</b> ${esc(x.r)}<span class="xg">${x.on ? "🎯 " + esc(x.g) + ' · "' + esc(x.l) + '"' : "⏳ נכנס/ת בהמשך, כשהמסך יקרא לו/לה"}</span></div>`).join("") +
+    `<div class="vd">תפקיד נוסף: אומרים את המשפט, ואז מגיבים. מדברים שוב כשפונים אליכם או כשהמטרה שלכם בסכנה.</div></div>`;
+}
+function refreshPlayCards() { const pc = $("#playCards"); if (!pc) return; pc.innerHTML = (isLite() && S.ls) ? litePlayCards() : fullPlayCards(); }
+/* תפקיד 4 נכנס ב-30% מהסצנה (במצב קליל, לפני אירוע האמצע). הקריאה על המסך היא האות; הצליל רק אם הצלילים פעילים */
+function extraTick() {
+  if (guessRound || earRound || miniRound || !S.extra) return;
+  const x = S.extra.find((e) => !e.on); if (!x || elapsed < Math.round(S.sceneLen * 0.3)) return;
+  x.on = true;
+  $("#flashTxt").textContent = `${x.who}, נכנסים!`; $("#ringcount").textContent = `🚪 ${x.who} נכנס/ת: ${x.r}. "${x.l}"`;
+  flashSwap(false); sfx.topic(); speak(`${x.who}, נכנסים!`);
+  refreshPlayCards(); save();
 }
 function nextRound() {
   gameActive = true; S.inGame = true; keepAwake(true);
   if (trialOver()) { save(); showOffer(); return; }
   if (!licActive()) trialSpend(); /* נספר כבר בהתחלה */
   S.round++; const { dir, perf } = rolesForRound();
-  S.curDir = dir; S.curPerf = perf; S.starter = rand(perf);
+  S.curDir = dir; S.curPerf = perf; S.starter = rand(perf.slice(0, 2)); S.extra = [];
   $("#introRnum").textContent = "סיבוב " + S.round + (S.company ? " · " + S.company : ""); renderLogo();
   $("#introPerf").textContent = perf.join("  •  ");
   if (S.mode === "manual") { $("#introDirLine").hidden = false; $("#introDir").textContent = dir; $("#introWho").textContent = dir + ", את/ה הבמאי/ת"; }
@@ -878,11 +930,11 @@ function renderDrawGuide(cat) {
     `<div class="gl next"><span class="gi">👉</span><span>עוד לא משחקים. לחצו <b>"המשך"</b> כדי לראות מי עולה לבמה ומי מתחיל. לא אוהבים את הקלפים? <b>"שלוף שוב"</b>.</span></div>`;
 }
 function drawCards() {
-  earRound = false; miniRound = false;
+  earRound = false; miniRound = false; S.extra = []; /* 2.6.6: לא להשאיר דמויות נוספות מהשליפה הקודמת (GPT) */
   if (isLite()) {
     guessRound = false; guessWin = false;
-    { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; if (!S.curPerf.includes(S.starter)) S.starter = rand(S.curPerf); }
-    if (liteBreaker(S.round)) { if (activeP().length >= 3) setupGuessRound(); else setupMiniRound("emo"); return; }
+    { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; S.extra = []; if (!S.curPerf.slice(0, 2).includes(S.starter)) S.starter = rand(S.curPerf.slice(0, 2)); }
+    if (liteBreaker(S.round)) { if (activeP().length < 3) setupMiniRound("emo"); else if ((S.round / 4) % 2 === 0) setupMiniRound("story"); else setupGuessRound(); return; } /* 2.6.6: שובר לסירוגין: ניחוש, סיפור משפט-משפט */
     liteDraw(); return;
   }
   const packs = S.kids ? S.packs.filter((p) => p !== "guess") : S.packs;
@@ -891,8 +943,8 @@ function drawCards() {
   if (cat === "ear") { setupEarRound(); return; }
   if (MINI[cat]) { setupMiniRound(cat); return; }
   guessRound = false; guessWin = false;
-  { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; if (!S.curPerf.includes(S.starter)) S.starter = rand(S.curPerf); }
-  S.set = drawDeck("set", pool("set")); S.conCat = cat; S.con = drawDeck(cat, pool(cat));
+  { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; S.extra = []; if (!S.curPerf.slice(0, 2).includes(S.starter)) S.starter = rand(S.curPerf.slice(0, 2)); }
+  S.set = drawDeck("set", pool("set")); setupExtras(S.set); S.conCat = cat; S.con = drawDeck(cat, pool(cat));
   $("#drawRnum").textContent = "סיבוב " + S.round + " · הבמה והאילוץ שלכם";
   $("#drawCards").innerHTML = buildCard("set", S.set) + buildCard(cat, S.con);
   renderDrawGuide(cat);
@@ -901,7 +953,8 @@ function drawCards() {
 }
 function goCast() {
   if (isLite() && S.ls) { show("liteScene"); return; } /* 2.6.3: במצב קליל אין מסך "לפני הסצנה" */
-  $("#castWho").hidden = true; $("#castNote").hidden = true; $("#castCon").hidden = false;
+  $("#castNote").hidden = true; $("#castCon").hidden = false;
+  { const cw = $("#castWho"); const xr = extraRowsHTML(); cw.innerHTML = xr; cw.hidden = !xr; }
   $("#castPlace").textContent = S.set[0]; $("#castRel").textContent = S.set[1]; $("#castStarter").textContent = S.starter;
   $("#castCon").textContent = "האילוץ: " + S.con[0] + " — " + S.con[1];
   const seed = $("#castSeed");
@@ -1031,6 +1084,20 @@ const MINI = {
     guide: "מתרגם/ת: השחילו את העובדה לתרגום. שחקני הסרט: פשוט תזרמו 🎬",
     idle: { k: "🎬 כתוביות", v: "הסרט מתחיל…", d: "עובדה ראשונה בעוד רגע" },
     card() { return { k: "🎬 האמת החדשה, למתרגם/ת:", v: drawDeck("dub", MM_DUB_FACTS), d: "" }; } },
+  story: { label: "סיפור משפט-משפט", ic: "📖", need: 5,
+    roles: (p) => `📖 עומדים בשורה, לפי הסדר: ` + p.map((x, i) => `<b>${i + 1}. ${esc(x)}</b>`).join(" · "),
+    how: ["עומדים בשורה לפי הסדר שעל המסך, ומתחילים מהסיפור שעל הקלף.", "כל אחד/ת אומר/ת משפט אחד, וממשיך/ה בדיוק מאיפה שהקודם/ת עצר/ה.", "בכל צפצוף המסך מכניס שינוי לסיפור, ומי שתורו/ה מכניס/ה אותו מיד."],
+    topic() { const t = S.kids ? drawDeck("storykt", MM_STORY_KIDS_TOPICS) : drawDeck("storyt", MM_LITE_SET); return { k: "📖 הסיפור שלכם מתחיל כאן", v: t.place, d: `${t.prob} הראשון/ה בשורה פותח/ת: "פעם אחת, ב..."` }; },
+    cues: () => [0.22, 0.45, 0.7].map((f) => Math.round(S.sceneLen * f)),
+    guide: "תקשיבו למשפט שלפניכם. נתקעתם? התחילו ב\"ובגלל זה...\" 📖",
+    idle: { k: "📖 משפט אחד כל אחד/ת", v: "ממשיכים מאיפה שהקודם עצר", d: "שינוי ראשון יגיע עם צפצוף" },
+    card(i) {
+      const tw = () => ({ k: "🔀 תפנית!", v: drawDeck(S.kids ? "storytwk" : "storytw", S.kids ? MM_STORY_KIDS_TWIST : MM_STORY_TWIST), d: "מי שתורו/ה מכניס/ה את זה עכשיו" });
+      const nw = () => ({ k: "🚪 משהו חדש!", v: drawDeck(S.kids ? "storynwk" : "storynw", S.kids ? MM_STORY_KIDS_NEW : MM_STORY_NEW), d: "מי שתורו/ה מכניס/ה את זה עכשיו" });
+      if (i === 0) return tw(); if (i === 1) return nw();
+      if (i === 2) return { k: "🏁 סוגרים את הסיפור!", v: drawDeck("storyend", MM_STORY_END), d: "כל משפט מעכשיו מקרב לסוף" };
+      return { k: "🏁 סוגרים את הסיפור!", v: drawDeck("storyend", MM_STORY_END), d: "כל משפט מעכשיו מקרב לסוף" }; /* אחרי הסיום לא חוזרים לתפניות */
+    } },
   expert: { label: "מומחה שלא קיים", ic: "🎓", need: 3, secret: true,
     roles: (p) => `🙉 <b>${esc(p[0])}</b>: המומחה/ית, עם הגב למסך<br>🎤 <b>${p.slice(1).map(esc).join("</b> ו-<b>")}</b>: מראיינים, מול המסך`,
     how: ["המומחה/ית לא יודע/ת במה הוא/היא מומחה/ית. כולם חוץ ממנו/ה רואים.", "המראיינים שואלים שאלות ברצינות גמורה, בלי להגיד את התחום.", "פעמיים המסך נותן רמז, והמראיינים מקריאים אותו בקול. בסוף: מי היית?"],
@@ -1200,7 +1267,7 @@ function setKeyHint() {
 }
 function startScene() {
   pushGameState();
-  elapsed = 0; sceneStart = Date.now(); S.rings = 0; S.topics = 0; S.freezes = 0; S.tasks = 0; S.liteEv = null; sceneRunning = true; paused = false; setPausedUI(false);
+  (S.extra || []).forEach((x) => { x.on = x.slot === 3; }); elapsed = 0; sceneStart = Date.now(); S.rings = 0; S.topics = 0; S.freezes = 0; S.tasks = 0; S.liteEv = null; sceneRunning = true; paused = false; setPausedUI(false);
   if (miniRound) {
     const G = MINI[S.mini.g], t = S.mini.topic;
     S.miniIdx = (S.miniIdx || 0) + 1; S.mini.shown = 0; S.mini.cues = G.cues(); miniCueIdx = 0; miniExtra = 0;
@@ -1231,9 +1298,7 @@ function startScene() {
     $("#playGuide").textContent = "אתם לא צריכים להצחיק אף אחד. פשוט דברו זה עם זה כאילו אתם באמת שם.";
     $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = false; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
   } else {
-    $("#playCards").innerHTML =
-      `<div class="scard set"><div class="k">📍 במה</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>` +
-      `<div class="scard ${S.conCat}"><div class="k">${MM_CAT[S.conCat].ic} ${MM_CAT[S.conCat].label}</div><div class="v">${esc(S.con[0])}</div><div class="vd">${esc(S.con[1])}</div></div>`;
+    $("#playCards").innerHTML = fullPlayCards();
     $("#playPerf").textContent = S.curPerf.join("  •  ");
     $("#playGuide").textContent = S.mode === "manual" ? "במאי/ת: כשזה נהיה צפוי — לחצו 🔔 החלפה!" : "המנחה מוביל — הקשיבו ל\"החלפה!\" ול\"נושא חדש\"";
     $("#manualCtrl").hidden = S.mode !== "manual"; $("#autoCtrl").hidden = S.mode !== "auto"; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
@@ -1251,6 +1316,11 @@ function startScene() {
   if (isLite() && !guessRound && !earRound && !miniRound) scheduleLiteEvent();
   else if (S.mode === "auto" && !guessRound && !earRound && !miniRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
 }
+function fullPlayCards() {
+  if (!S.set || !S.con || !MM_CAT[S.conCat]) return "";
+  return `<div class="scard set"><div class="k">📍 במה</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>` +
+    `<div class="scard ${S.conCat}"><div class="k">${MM_CAT[S.conCat].ic} ${MM_CAT[S.conCat].label}</div><div class="v">${esc(S.con[0])}</div><div class="vd">${esc(S.con[1])}</div></div>` + extrasCardHTML();
+}
 function updateClock() {
   const left = Math.max(0, S.sceneLen - elapsed); const clk = $("#clock"); clk.textContent = left;
   const frac = left / S.sceneLen; const fill = $("#timefill"); fill.style.width = (frac * 100) + "%";
@@ -1262,7 +1332,7 @@ function tick() {
   if (!sceneRunning || paused) return;
   elapsed = Math.round((Date.now() - sceneStart) / 1000); updateClock();
   const left = S.sceneLen - elapsed; if (left <= 5 && left > 0) sfx.tick();
-  miniTick();
+  miniTick(); extraTick();
   if (earRound && elapsed >= earNextAt && S.ear.missions.length < earCount() && left > 8) earNext(true);
   if (elapsed >= S.sceneLen) endScene();
 }

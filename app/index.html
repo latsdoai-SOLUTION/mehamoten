@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.6.5">
+<link rel="stylesheet" href="css/app.css?v=2.6.6">
 <script>
 /* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
    מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
@@ -176,6 +176,15 @@
         <div class="litenote" id="liteNote" hidden>במצב קליל המנחה הדיגיטלי מנהל לבד. הרמה, חבילות האילוצים ומצב הבמאי לא בשימוש.</div>
       </div>
       <div class="field">
+        <div class="label">כמה עולים לבמה</div>
+        <div class="seg" id="stageSeg" data-key="stage">
+          <button data-v="2">👥 2<small>כמו תמיד: שתי דמויות</small></button>
+          <button data-v="3">👥 3<small>+ דמות שלישית, מההתחלה</small></button>
+          <button data-v="4">👥 4<small>+ עוד דמות שנכנסת בהמשך הסצנה</small></button>
+        </div>
+        <div class="litenote" id="stageNote" hidden>במצב ילדים עולים 2.</div>
+      </div>
+      <div class="field">
         <div class="label">חימום בפתיחה</div>
         <div class="seg" id="warmSeg" data-key="warm">
           <button data-v="on">🔥 כן<small>3 משימות קצרות לכל החדר לפני הסיבוב הראשון (כ־3 דקות)</small></button>
@@ -247,6 +256,7 @@
           <button data-pack="heads">🧠 שלושה ראשים</button>
           <button data-pack="dub">🎬 כתוביות</button>
           <button data-pack="expert">🎓 מומחה</button>
+          <button data-pack="story">📖 סיפור משפט-משפט</button>
         </div>
         <button class="ghost" style="margin-top:10px;width:100%" data-act="openEditor">✏️ עורך הקלפים — הוסיפו קלפים משלכם</button>
       </div>
@@ -732,13 +742,13 @@
     <div class="field"><div class="label">סטטיסטיקה (נשמרת במכשיר בלבד)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 בדוק קול</button><button class="ghost" data-act="resetAll">🧹 איפוס נתונים</button><button class="big sm" data-act="closeSettings">סגור</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.6.5</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.6.6</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.6.5"></script>
-<script src="js/app.js?v=2.6.5"></script>
-<script src="js/voice_map.js?v=2.6.5"></script>
-<script src="js/voice.js?v=2.6.5"></script>
+<script src="js/data.js?v=2.6.6"></script>
+<script src="js/app.js?v=2.6.6"></script>
+<script src="js/voice_map.js?v=2.6.6"></script>
+<script src="js/voice.js?v=2.6.6"></script>
 </body>
 </html>

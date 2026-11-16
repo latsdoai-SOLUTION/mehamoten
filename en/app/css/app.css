@@ -665,3 +665,14 @@ body.noanim .big.nudgego{animation:none}
   html[dir="ltr"] .airlamp{left:66px;right:128px}
   html[dir="rtl"] .airlamp{right:66px;left:128px}
 }
+/* 2.6.6: דמות 3 ו-4 */
+.lsrow.extra{border-style:dashed;background:rgba(159,227,255,.07)}
+.lsrow.extra .tag{background:rgba(159,227,255,.22);color:#dff6ff}
+.lsrow.extra.later{opacity:.85}
+.lsrow .wg{font-size:clamp(13px,1.9vmin,19px);color:#cfe9f5;margin-top:4px}
+.scard.extra{border-right-color:#9fe3ff}
+.scard.extra .xrow{font-size:clamp(14px,2.1vmin,21px);line-height:1.45;margin-top:6px;text-align:right}
+.scard.extra .xrow b{font-family:"Secular One",sans-serif;font-weight:400;color:#9fe3ff;margin-left:6px}
+.scard.extra .xrow .xg{display:block;font-size:.85em;color:#e9e3d4;opacity:.9}
+.scard.extra .xrow.later{opacity:.7}
+.castwho .lsrow{margin-top:8px}

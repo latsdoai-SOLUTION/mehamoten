@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.6.5-en">
+<link rel="stylesheet" href="css/app.css?v=2.6.6-en">
 <script>
 /* Self-heal: if the stylesheet did not apply (old service worker or broken cached response),
    clear THIS app's caches and service worker only (never the Hebrew app's), and reload once. */
@@ -175,6 +175,15 @@
         <div class="litenote" id="liteNote" hidden>In Lite mode the digital host runs everything. Level, twist packs and director mode are not used.</div>
       </div>
       <div class="field">
+        <div class="label">How many on stage</div>
+        <div class="seg" id="stageSeg" data-key="stage">
+          <button data-v="2">👥 2<small>The classic: two characters</small></button>
+          <button data-v="3">👥 3<small>+ a third character, from the start</small></button>
+          <button data-v="4">👥 4<small>+ a fourth character who comes in later</small></button>
+        </div>
+        <div class="litenote" id="stageNote" hidden>In Kids mode, only 2 go on stage.</div>
+      </div>
+      <div class="field">
         <div class="label">Warm-up at the start</div>
         <div class="seg" id="warmSeg" data-key="warm">
           <button data-v="on">🔥 Yes<small>3 short tasks for the whole room before the first round (about 3 minutes)</small></button>
@@ -246,6 +255,7 @@
           <button data-pack="heads">🧠 Three heads</button>
           <button data-pack="dub">🎬 Subtitles</button>
           <button data-pack="expert">🎓 Fake expert</button>
+          <button data-pack="story">📖 Sentence story</button>
         </div>
         <button class="ghost" style="margin-top:10px;width:100%" data-act="openEditor">✏️ Card editor: add your own cards</button>
       </div>
@@ -730,11 +740,11 @@
     <div class="field"><div class="label">Stats (saved on this device only)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 Test voice</button><button class="ghost" data-act="resetAll">🧹 Reset data</button><button class="big sm" data-act="closeSettings">Close</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">Mehamoten version <span id="verLabel">2.6.5-en</span> · <a href="privacy.html" style="color:#9fe3ff">Privacy</a> · <a href="../../app/" lang="he" style="color:#9fe3ff">עברית</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">Mehamoten version <span id="verLabel">2.6.6-en</span> · <a href="privacy.html" style="color:#9fe3ff">Privacy</a> · <a href="../../app/" lang="he" style="color:#9fe3ff">עברית</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.6.5-en"></script>
-<script src="js/app.js?v=2.6.5-en"></script>
+<script src="js/data.js?v=2.6.6-en"></script>
+<script src="js/app.js?v=2.6.6-en"></script>
 </body>
 </html>

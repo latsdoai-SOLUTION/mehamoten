@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.5-en";
+const APP_VERSION = "2.6.6-en";
 const MM_LANG = "en"; /* English build: /en/app/ */
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
@@ -148,7 +148,7 @@ function offerBack() {
 const DEFAULT_SETTINGS = { persona: "compere", tts: true, sfx: true, hints: true, motion: true, voiceURI: "", voice: "tts" };
 const S = {
   players: ["", "", ""], mode: "auto", scored: false, level: "easy", kids: false, team: false, company: "", industry: "",
-  packs: ["style", "lang", "body"], sceneLen: 90, big: false, lite: true, warm: true, ls: null, liteEv: null,
+  packs: ["style", "lang", "body"], stage: 2, sceneLen: 90, big: false, lite: true, warm: true, ls: null, liteEv: null,
   scores: {}, honors: {}, directorIdx: 0, round: 0, dirCounts: {}, curDir: "", curPerf: [], starter: "",
   guessIdx: 0, inGame: false, startedAt: 0,
   set: null, con: null, conCat: null, rings: 0, topics: 0,
@@ -216,6 +216,8 @@ function load() {
   if (!S.packs.length) S.packs = ["style", "lang", "body"];
   if (![60, 90, 120].includes(+S.sceneLen)) S.sceneLen = 90; else S.sceneLen = +S.sceneLen;
   if (!["auto", "manual"].includes(S.mode)) S.mode = "auto";
+  if (![2, 3, 4].includes(+S.stage)) S.stage = 2; else S.stage = +S.stage;
+  if (!Array.isArray(S.extra)) S.extra = [];
   if (!["easy", "reg"].includes(S.level)) S.level = "easy";
   if (S.industry && !MM_INDUSTRY[S.industry]) S.industry = "";
   if (!Array.isArray(S.log)) S.log = [];
@@ -279,6 +281,7 @@ function pool(cat) {
   let all = (MM_DATA[cat] || []).concat(ext);
   if (cat === "set" && S.team && S.industry && MM_INDUSTRY[S.industry]) all = all.concat(MM_INDUSTRY[S.industry].cards);
   if (S.kids) all = all.filter((c) => !MM_KIDS_BLOCK.has(c[0]));
+  if (cat === "set" && S.team) all = all.filter((c) => !MM_TEAM_BLOCK.has(c[0]));
   return all;
 }
 
@@ -479,6 +482,7 @@ function syncSetupUI() {
   setOn("timeSeg", String(S.sceneLen)); setOn("industrySeg", S.industry || "");
   $("#teamExtra").hidden = !S.team; $("#companyInput").value = S.company || ""; renderLicBoxes();
   setOn("warmSeg", S.warm ? "on" : "off");
+  setOn("stageSeg", String(stageN())); $$("#stageSeg button").forEach((b) => b.disabled = S.kids && b.dataset.v !== "2"); { const sn = $("#stageNote"); if (sn) sn.hidden = !S.kids; }
   setOn("liteSeg", S.lite ? "on" : "off"); if (isLite()) setOn("modeSeg", "auto");
   /* במצב קליל: המנחה אוטומטי, והאילוצים, הרמה ומשחקי המיני לא בשימוש */
   const lite = isLite(); const ln = $("#liteNote"); if (ln) ln.hidden = !lite;
@@ -499,6 +503,7 @@ function onSetupSeg(seg, btn) {
   else if (key === "team") S.team = v === "on";
   else if (key === "lite") S.lite = v === "on";
   else if (key === "warm") S.warm = v === "on";
+  else if (key === "stage") S.stage = [2, 3, 4].includes(+v) ? +v : 2;
   else if (key === "industry") { S.industry = v; clearDecks(); }
   else if (key === "sceneLen") S.sceneLen = +v;
   else if (key === "big") {
@@ -758,6 +763,7 @@ function liteDraw() {
   /* מי שמתחיל = דמות 1, השני = דמות 2 (בלי בחירה, בלי דיון) */
   const other = S.curPerf.find((p) => p !== S.starter) || S.curPerf[1] || "";
   S.ls.who = [S.starter, other]; S.liteEv = null;
+  setupExtras(st);
   renderLiteScene(); show("liteScene"); sfx.start();
   /* במה שעוד לא הוקלטה: המנחה אומר רק "קדימה!" (משפט חצי מוקלט לא מושמע) */
   speak(`The stage: ${S.ls.place}. Go!`, voiceHas(S.ls.place) ? ["draw-a-1", S.ls.place, "draw-b-1"] : ["draw-b-1"]);
@@ -769,6 +775,8 @@ function liteCastNote() {
   if (k === "swap") return `🔔 In the middle you will hear <b>"Swap!"</b>: switch characters and continue from the same point.`;
   if (k === "task") return `🎯 In the middle, one of you gets a <b>small task</b> on the screen.`;
   if (k === "style") return `🎭 In the middle, one of you gets a <b>style</b> and plays it until the end.`;
+  const x4 = (S.extra || []).find((x) => x.slot === 4);
+  if (x4) return `🚪 Later on, <b>${esc(x4.who)}</b> comes in when the screen calls them. Other than that: just you, the place and the first line.`;
   return `🟢 A round with no interruptions: just you, the place and the first line.`;
 }
 /* 2.6.3: מסך אחד במקום "קלף" + "לפני הסצנה". הקול של השליפה נשאר, הקול של "לפני הסצנה" יורד (חזר על המקום). */
@@ -778,7 +786,7 @@ function renderLiteScene() {
   $("#lsCard").innerHTML = `<div class="band"><span class="lbl">📍 The stage</span></div><div class="body"><h3 class="t">${esc(L.place)}</h3><p class="d">${esc(L.prob)}</p></div>`;
   $("#lsWho").innerHTML = [0, 1].map((i) =>
     `<div class="lsrow${i ? "" : " first"}"><div class="lshead"><span class="tag">${i ? "Answers" : "Starts"}</span><b class="wn">${esc(L.who[i])}</b><span class="wr">${esc(L.roles[i])}</span></div>` +
-    `<div class="wl">"${esc(L.lines[i])}"</div></div>`).join("");
+    `<div class="wl">"${esc(L.lines[i])}"</div></div>`).join("") + extraRowsHTML();
   $("#lsNote").innerHTML = liteCastNote();
 }
 function liteSwapRoles() {
@@ -791,7 +799,7 @@ function litePlayCards() {
   return `<div class="scard set"><div class="k">📍 The stage</div><div class="v">${esc(L.place)}</div><div class="vd">${esc(L.prob)}</div></div>` +
     `<div class="scard lite"><div class="k">🎭 Who is who</div><div class="v who2s"><span><b>${esc(L.who[0])}</b> ${esc(L.roles[0])}</span><span><b>${esc(L.who[1])}</b> ${esc(L.roles[1])}</span></div>` +
     (ev && ev.fired && ev.kind === "swap" ? `<div class="vd">You switched characters. Continue from the same point.</div>` : `<div class="plines"><div><b>${esc(L.who[0])}</b> starts: ${esc(L.lines[0])}</div><div><b>${esc(L.who[1])}</b> answers: ${esc(L.lines[1])}</div></div>`) + `</div>` +
-    (ev && ev.fired && (ev.kind === "task" || ev.kind === "style") ? `<div class="scard task"><div class="k">${ev.kind === "style" ? "🎭 Style" : "🎯 Task"} for ${esc(ev.who)}</div><div class="v">${esc(ev.text)}</div><div class="vd">${esc(ev.other)} continues as normal</div></div>` : "");
+    extrasCardHTML() + (ev && ev.fired && (ev.kind === "task" || ev.kind === "style") ? `<div class="scard task"><div class="k">${ev.kind === "style" ? "🎭 Style" : "🎯 Task"} for ${esc(ev.who)}</div><div class="v">${esc(ev.text)}</div><div class="vd">${esc(ev.other)} continues as normal</div></div>` : "");
 }
 /* האירוע היחיד של הסיבוב: החלפת דמויות (תמיד פעם אחת, באמצע) או משימה אישית (ב-120 שניות: שתיים, 40% ו-70%). */
 function scheduleLiteEvent() {
@@ -836,19 +844,63 @@ function fireLiteEvent() {
   liteHoldSoon(ev.kind === "swap" ? 7 : 5, ev.kind === "swap" ? "🔄 Switching characters, take a moment" : "👀 Read the screen, take a moment");
   save();
 }
+/* 2.6.6: how many go on stage (2/3/4). Kids mode: always 2 */
+function stageN() { return S.kids ? 2 : ([2, 3, 4].includes(+S.stage) ? +S.stage : 2); }
 function rolesForRound() {
-  const ps = activeP(), n = ps.length;
-  if (S.mode === "auto") return { dir: "", perf: [ps[S.directorIdx % n], ps[(S.directorIdx + 1) % n]] };
+  const ps = activeP(), n = ps.length, want = stageN();
+  if (S.mode === "auto") { const perf = []; for (let k = 0; k < n && perf.length < want; k++) { const c = ps[(S.directorIdx + k) % n]; if (!perf.includes(c)) perf.push(c); } return { dir: "", perf }; }
   const dir = ps[S.directorIdx % n], perf = []; let k = 1;
-  while (perf.length < 2 && k <= n) { const c = ps[(S.directorIdx + k) % n]; if (c !== dir && !perf.includes(c)) perf.push(c); k++; }
+  while (perf.length < want && k <= n) { const c = ps[(S.directorIdx + k) % n]; if (c !== dir && !perf.includes(c)) perf.push(c); k++; }
   return { dir, perf };
+}
+/* 2.6.6: role 3 and role 4 for every card (MM_EXTRAS). Key: place + characters (full/industry), place (lite) */
+let EXTRA_MAP = null;
+function extraKey(c) { return Array.isArray(c) ? "s|" + c[0] + "|" + c[1] : (c && c.place ? "l|" + c.place : ""); }
+function extrasFor(card) {
+  if (!EXTRA_MAP) {
+    EXTRA_MAP = new Map(); const add = (c, e) => { if (c && e) EXTRA_MAP.set(extraKey(c), e); };
+    if (typeof MM_EXTRAS === "object") {
+      MM_LITE_SET.forEach((c, i) => add(c, (MM_EXTRAS.lite || [])[i]));
+      MM_DATA.set.forEach((c, i) => add(c, (MM_EXTRAS.set || [])[i]));
+      for (const k in MM_INDUSTRY) MM_INDUSTRY[k].cards.forEach((c, i) => add(c, (MM_EXTRAS[k] || [])[i]));
+    }
+  }
+  return card ? EXTRA_MAP.get(extraKey(card)) || null : null;
+}
+/* Gives players 3 and 4 the card's extra roles. A card with no extra roles (your own card): only 2 go on stage */
+function setupExtras(card) {
+  S.extra = []; const more = S.curPerf.slice(2); if (!more.length) return;
+  const ex = extrasFor(card);
+  if (!ex) { S.curPerf = S.curPerf.slice(0, 2); toastMsg("This card has no extra roles, so only 2 go on stage"); return; }
+  more.forEach((p, i) => { const r = ex[i]; if (r) S.extra.push({ who: p, slot: i + 3, r: r[0], g: r[1], l: r[2], on: i === 0 }); });
+}
+function extraRowsHTML() {
+  return (S.extra || []).map((x) =>
+    `<div class="lsrow extra${x.on ? "" : " later"}"><div class="lshead"><span class="tag">${x.slot === 3 ? "Role 3 · from the start" : "Role 4 · comes in later"}</span><b class="wn">${esc(x.who)}</b><span class="wr">${esc(x.r)}</span></div>` +
+    `<div class="wg">🎯 ${esc(x.g)}</div><div class="wl">"${esc(x.l)}"</div></div>`).join("");
+}
+function extrasCardHTML() {
+  if (!S.extra || !S.extra.length) return "";
+  return `<div class="scard extra"><div class="k">➕ Also on stage</div>` + S.extra.map((x) =>
+    `<div class="xrow${x.on ? "" : " later"}"><b>${esc(x.who)}</b> ${esc(x.r)}<span class="xg">${x.on ? "🎯 " + esc(x.g) + ' · "' + esc(x.l) + '"' : "⏳ Comes in later, when the screen calls them"}</span></div>`).join("") +
+    `<div class="vd">Extra role: say your line, then listen. Speak again when someone talks to you, or when your goal needs it.</div></div>`;
+}
+function refreshPlayCards() { const pc = $("#playCards"); if (!pc) return; pc.innerHTML = (isLite() && S.ls) ? litePlayCards() : fullPlayCards(); }
+/* Role 4 comes in at 30% of the scene (in Lite mode, before the mid-scene event). The screen call is the signal; the sound only plays if sounds are on */
+function extraTick() {
+  if (guessRound || earRound || miniRound || !S.extra) return;
+  const x = S.extra.find((e) => !e.on); if (!x || elapsed < Math.round(S.sceneLen * 0.3)) return;
+  x.on = true;
+  $("#flashTxt").textContent = `${x.who}, come in now!`; $("#ringcount").textContent = `🚪 ${x.who} comes in: ${x.r}. "${x.l}"`;
+  flashSwap(false); sfx.topic(); speak(`${x.who}, come in now!`);
+  refreshPlayCards(); save();
 }
 function nextRound() {
   gameActive = true; S.inGame = true; keepAwake(true);
   if (trialOver()) { save(); showOffer(); return; }
   if (!licActive()) trialSpend(); /* נספר כבר בהתחלה */
   S.round++; const { dir, perf } = rolesForRound();
-  S.curDir = dir; S.curPerf = perf; S.starter = rand(perf);
+  S.curDir = dir; S.curPerf = perf; S.starter = rand(perf.slice(0, 2)); S.extra = [];
   $("#introRnum").textContent = "Round " + S.round + (S.company ? " · " + S.company : ""); renderLogo();
   $("#introPerf").textContent = perf.join("  •  ");
   if (S.mode === "manual") { $("#introDirLine").hidden = false; $("#introDir").textContent = dir; $("#introWho").textContent = dir + ", you are the director"; }
@@ -879,11 +931,11 @@ function renderDrawGuide(cat) {
     `<div class="gl next"><span class="gi">👉</span><span>Not playing yet. Press <b>"Continue"</b> to see who goes on stage and who starts. Don't like the cards? <b>"Draw again"</b>.</span></div>`;
 }
 function drawCards() {
-  earRound = false; miniRound = false;
+  earRound = false; miniRound = false; S.extra = [];
   if (isLite()) {
     guessRound = false; guessWin = false;
-    { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; if (!S.curPerf.includes(S.starter)) S.starter = rand(S.curPerf); }
-    if (liteBreaker(S.round)) { if (activeP().length >= 3) setupGuessRound(); else setupMiniRound("emo"); return; }
+    { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; S.extra = []; if (!S.curPerf.slice(0, 2).includes(S.starter)) S.starter = rand(S.curPerf.slice(0, 2)); }
+    if (liteBreaker(S.round)) { if (activeP().length < 3) setupMiniRound("emo"); else if ((S.round / 4) % 2 === 0) setupMiniRound("story"); else setupGuessRound(); return; } /* 2.6.6: breaker alternates: guess, story */
     liteDraw(); return;
   }
   const packs = S.kids ? S.packs.filter((p) => p !== "guess") : S.packs;
@@ -892,8 +944,8 @@ function drawCards() {
   if (cat === "ear") { setupEarRound(); return; }
   if (MINI[cat]) { setupMiniRound(cat); return; }
   guessRound = false; guessWin = false;
-  { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; if (!S.curPerf.includes(S.starter)) S.starter = rand(S.curPerf); }
-  S.set = drawDeck("set", pool("set")); S.conCat = cat; S.con = drawDeck(cat, pool(cat));
+  { const r = rolesForRound(); S.curDir = r.dir; S.curPerf = r.perf; S.extra = []; if (!S.curPerf.slice(0, 2).includes(S.starter)) S.starter = rand(S.curPerf.slice(0, 2)); }
+  S.set = drawDeck("set", pool("set")); setupExtras(S.set); S.conCat = cat; S.con = drawDeck(cat, pool(cat));
   $("#drawRnum").textContent = "Round " + S.round + " · Your stage and twist";
   $("#drawCards").innerHTML = buildCard("set", S.set) + buildCard(cat, S.con);
   renderDrawGuide(cat);
@@ -902,7 +954,8 @@ function drawCards() {
 }
 function goCast() {
   if (isLite() && S.ls) { show("liteScene"); return; } /* 2.6.3: במצב קליל אין מסך "לפני הסצנה" */
-  $("#castWho").hidden = true; $("#castNote").hidden = true; $("#castCon").hidden = false;
+  $("#castNote").hidden = true; $("#castCon").hidden = false;
+  { const cw = $("#castWho"); const xr = extraRowsHTML(); cw.innerHTML = xr; cw.hidden = !xr; }
   $("#castPlace").textContent = S.set[0]; $("#castRel").textContent = S.set[1]; $("#castStarter").textContent = S.starter;
   $("#castCon").textContent = "The twist: " + S.con[0] + " · " + S.con[1];
   const seed = $("#castSeed");
@@ -1032,6 +1085,19 @@ const MINI = {
     guide: "Translator: slip the fact into the translation. Actors: just go with it 🎬",
     idle: { k: "🎬 Subtitles", v: "The movie starts…", d: "First fact in a moment" },
     card() { return { k: "🎬 The new truth, for the translator:", v: drawDeck("dub", MM_DUB_FACTS), d: "" }; } },
+  story: { label: "Sentence by sentence story", ic: "📖", need: 5,
+    roles: (p) => `📖 Stand in a line, in this order: ` + p.map((x, i) => `<b>${i + 1}. ${esc(x)}</b>`).join(" · "),
+    how: ["Stand in a line in the order on the screen, and start from the story on the card.", "Each person says one sentence, and continues exactly where the last person stopped.", "At every beep the screen adds a change to the story, and whoever's turn it is puts it in right away."],
+    topic() { const t = S.kids ? drawDeck("storykt", MM_STORY_KIDS_TOPICS) : drawDeck("storyt", MM_LITE_SET); return { k: "📖 Your story starts here", v: t.place, d: `${t.prob} The first person in line starts: "Once upon a time..."` }; },
+    cues: () => [0.22, 0.45, 0.7].map((f) => Math.round(S.sceneLen * f)),
+    guide: "Listen to the sentence before you. Stuck? Start with \"And because of that...\" 📖",
+    idle: { k: "📖 One sentence each", v: "Continue from where the last person stopped", d: "The first change comes with a beep" },
+    card(i) {
+      const tw = () => ({ k: "🔀 Twist!", v: drawDeck(S.kids ? "storytwk" : "storytw", S.kids ? MM_STORY_KIDS_TWIST : MM_STORY_TWIST), d: "Whoever's turn it is, put it in now" });
+      const nw = () => ({ k: "🚪 Something new!", v: drawDeck(S.kids ? "storynwk" : "storynw", S.kids ? MM_STORY_KIDS_NEW : MM_STORY_NEW), d: "Whoever's turn it is, put it in now" });
+      if (i === 0) return tw(); if (i === 1) return nw();
+      return { k: "🏁 Wrap up the story!", v: drawDeck("storyend", MM_STORY_END), d: "Every sentence now moves toward the end" };
+    } },
   expert: { label: "Fake expert", ic: "🎓", need: 3, secret: true,
     roles: (p) => `🙉 <b>${esc(p[0])}</b>: the expert, back to the screen<br>🎤 <b>${p.slice(1).map(esc).join("</b> and <b>")}</b>: interviewers, facing the screen`,
     how: ["The expert doesn't know what they are an expert in. Everyone else can see it.", "The interviewers ask very serious questions, without saying the field.", "Twice the screen gives a hint, and the interviewers read it out loud. At the end: who were you?"],
@@ -1201,7 +1267,7 @@ function setKeyHint() {
 }
 function startScene() {
   pushGameState();
-  elapsed = 0; sceneStart = Date.now(); S.rings = 0; S.topics = 0; S.freezes = 0; S.tasks = 0; S.liteEv = null; sceneRunning = true; paused = false; setPausedUI(false);
+  (S.extra || []).forEach((x) => { x.on = x.slot === 3; }); elapsed = 0; sceneStart = Date.now(); S.rings = 0; S.topics = 0; S.freezes = 0; S.tasks = 0; S.liteEv = null; sceneRunning = true; paused = false; setPausedUI(false);
   if (miniRound) {
     const G = MINI[S.mini.g], t = S.mini.topic;
     S.miniIdx = (S.miniIdx || 0) + 1; S.mini.shown = 0; S.mini.cues = G.cues(); miniCueIdx = 0; miniExtra = 0;
@@ -1232,9 +1298,7 @@ function startScene() {
     $("#playGuide").textContent = "You don't need to be funny. Just talk to each other like you are really there.";
     $("#manualCtrl").hidden = true; $("#autoCtrl").hidden = false; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
   } else {
-    $("#playCards").innerHTML =
-      `<div class="scard set"><div class="k">📍 Stage</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>` +
-      `<div class="scard ${S.conCat}"><div class="k">${MM_CAT[S.conCat].ic} ${MM_CAT[S.conCat].label}</div><div class="v">${esc(S.con[0])}</div><div class="vd">${esc(S.con[1])}</div></div>`;
+    $("#playCards").innerHTML = fullPlayCards();
     $("#playPerf").textContent = S.curPerf.join("  •  ");
     $("#playGuide").textContent = S.mode === "manual" ? "Director: when it gets predictable, press 🔔 Swap!" : "The host leads. Listen for \"Swap!\" and \"New twist\"";
     $("#manualCtrl").hidden = S.mode !== "manual"; $("#autoCtrl").hidden = S.mode !== "auto"; $("#guessCtrl").hidden = true; $("#earCtrl").hidden = true; $("#miniCtrl").hidden = true;
@@ -1252,6 +1316,11 @@ function startScene() {
   if (isLite() && !guessRound && !earRound && !miniRound) scheduleLiteEvent();
   else if (S.mode === "auto" && !guessRound && !earRound && !miniRound) { scheduleAutoSwap(); scheduleAutoTopic(); }
 }
+function fullPlayCards() {
+  if (!S.set || !S.con || !MM_CAT[S.conCat]) return "";
+  return `<div class="scard set"><div class="k">📍 Stage</div><div class="v">${esc(S.set[0])}</div><div class="vd">${esc(S.set[1])}</div></div>` +
+    `<div class="scard ${S.conCat}"><div class="k">${MM_CAT[S.conCat].ic} ${MM_CAT[S.conCat].label}</div><div class="v">${esc(S.con[0])}</div><div class="vd">${esc(S.con[1])}</div></div>` + extrasCardHTML();
+}
 function updateClock() {
   const left = Math.max(0, S.sceneLen - elapsed); const clk = $("#clock"); clk.textContent = left;
   const frac = left / S.sceneLen; const fill = $("#timefill"); fill.style.width = (frac * 100) + "%";
@@ -1263,7 +1332,7 @@ function tick() {
   if (!sceneRunning || paused) return;
   elapsed = Math.round((Date.now() - sceneStart) / 1000); updateClock();
   const left = S.sceneLen - elapsed; if (left <= 5 && left > 0) sfx.tick();
-  miniTick();
+  miniTick(); extraTick();
   if (earRound && elapsed >= earNextAt && S.ear.missions.length < earCount() && left > 8) earNext(true);
   if (elapsed >= S.sceneLen) endScene();
 }
