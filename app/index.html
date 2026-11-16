@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.6.3">
+<link rel="stylesheet" href="css/app.css?v=2.6.5">
 <script>
 /* ריפוי עצמי: אם גיליון העיצוב לא הוחל (Service Worker ישן או תשובה שמורה פגומה),
    מנקים מטמונים + Service Workers וטוענים מחדש פעם אחת. */
@@ -42,6 +42,7 @@
 </head>
 <body>
 <div class="stagebg"></div>
+<div id="airLamp" class="airlamp" role="status" aria-live="polite" hidden><i aria-hidden="true"></i><span id="airLampTxt"></span></div>
 <div class="grain"></div>
 
 <!-- ============ אונבורדינג ============ -->
@@ -352,9 +353,10 @@
     <div class="roleline" id="castCon">האילוץ: —</div>
     <div class="castnote" id="castNote" role="note" hidden></div>
     <div class="readybar" role="note">⏸️ הסצנה <b>עוד לא התחילה.</b> קראו את הפרטים, עלו לבמה, ו<b>כשכולם מוכנים לחצו על הכפתור.</b> הסצנה מתחילה אחרי הספירה.</div>
+    <div class="prepnudge" hidden>👇 כולם על הבמה? לחצו כאן כדי להתחיל</div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="backToDraw">חזרה</button>
-      <button class="big pulsego" data-act="beginCountdown">▶️ להתחלת הסצנה: 3, 2, 1, אקשן!</button>
+      <button class="big pulsego" data-act="beginCountdown">▶️ מוכנים! 3, 2, 1, אקשן</button>
     </div>
   </section>
 
@@ -365,8 +367,10 @@
     <div class="lscard" id="lsCard"></div>
     <div class="lswho" id="lsWho"></div>
     <div class="lsnote" id="lsNote" role="note"></div>
+    <div class="prepline">עלו לבמה וקראו את המשפט שלכם. משחקים רק אחרי הספירה.</div>
+    <div class="prepnudge" hidden>👇 כולם על הבמה? לחצו כאן כדי להתחיל</div>
     <div class="row lsbtns">
-      <button class="big pulsego" data-act="beginCountdown">▶️ להתחלת הסצנה: 3, 2, 1, אקשן!</button>
+      <button class="big pulsego" data-act="beginCountdown">▶️ מוכנים! 3, 2, 1, אקשן</button>
       <button class="ghost" data-act="reDraw">🔀 שלוף שוב</button>
       <button class="ghost" data-act="liteSceneBack">חזרה</button>
     </div>
@@ -388,6 +392,7 @@
       <div class="holdhint">עוזבים את האצבע והסוד מסתתר שוב</div>
     </div>
     <div class="gstep g3"><span class="gnum">3</span><div>כולם ראו? <b id="guessGuesser2">—</b> חוזר/ת, ולוחצים על הכפתור האדום</div></div>
+    <div class="prepnudge" hidden>👇 כולם על הבמה? לחצו כאן כדי להתחיל</div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="reDraw">🔀 קלף אחר</button>
       <button class="big" data-act="beginCountdown">המנחש חוזר — אקשן!</button>
@@ -421,6 +426,7 @@
       <p>בסוף, מי שעם הגב מסתובב/ת ומנחש/ת מה היו המשימות.</p>
     </div>
     <div class="earset" id="earSetCard"></div>
+    <div class="prepnudge" hidden>👇 כולם על הבמה? לחצו כאן כדי להתחיל</div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="earRedrawSet">🔀 סצנה אחרת</button>
       <button class="big" data-act="beginCountdown">הגב למסך? אקשן!</button>
@@ -447,6 +453,7 @@
     <div class="roleline" id="miniRoles"></div>
     <div class="earhow" id="miniHow"></div>
     <div class="earset" id="miniTopic"></div>
+    <div class="prepnudge" hidden>👇 כולם על הבמה? לחצו כאן כדי להתחיל</div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="miniRedraw">🔀 אחר</button>
       <button class="big" data-act="beginCountdown">אקשן!</button>
@@ -725,13 +732,13 @@
     <div class="field"><div class="label">סטטיסטיקה (נשמרת במכשיר בלבד)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 בדוק קול</button><button class="ghost" data-act="resetAll">🧹 איפוס נתונים</button><button class="big sm" data-act="closeSettings">סגור</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.6.3</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">מהמותן גרסה <span id="verLabel">2.6.5</span> · <a href="privacy.html" style="color:#9fe3ff">פרטיות</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.6.3"></script>
-<script src="js/app.js?v=2.6.3"></script>
-<script src="js/voice_map.js?v=2.6.3"></script>
-<script src="js/voice.js?v=2.6.3"></script>
+<script src="js/data.js?v=2.6.5"></script>
+<script src="js/app.js?v=2.6.5"></script>
+<script src="js/voice_map.js?v=2.6.5"></script>
+<script src="js/voice.js?v=2.6.5"></script>
 </body>
 </html>

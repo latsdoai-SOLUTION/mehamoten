@@ -9,13 +9,12 @@
 const MM_DATA = {
   /* ---------- Stage (place + characters) ---------- */
   set: [
-    ["Hospital waiting room","Two siblings competing for attention","Start in the middle of the fight about who cares more. No explaining, straight into it."],
+    ["Hospital waiting room","Two siblings competing for attention","Start arguing about who cares more. No explaining, go straight into it."],
     ["Driving test","A strict examiner and a very nervous driver","Start the engine right away. Let the examiner react to your first mistake."],
-    ["Wedding","The bride's ex and the best man","Start with an awkward toast. Then a secret comes out."],
+    ["Wedding","The wedding planner and a guest who has lost the rings","The ceremony starts in two minutes. Check every pocket."],
     ["Stuck elevator","The CEO and the employee who quit yesterday","Press the button. Nothing happens. Everything falls apart from there."],
-    ["Safari","A tour guide and a tourist who thinks he is a magician","Point at a far away 'animal' and let the tourist go wild."],
-    ["Lawyer's office","A divorcing couple who are still in love (and won't admit it)","Start by signing a paper. Let the feelings break out in the middle."],
-    ["Ice cream shop","A customer who can't decide and a worker losing patience","First taste, then doubt. The worker slowly breaks."],
+    ["Safari","A tour guide and a tourist who thinks he is a magician","Point at a far away 'animal'. The tourist gets very excited."],
+    ["Ice cream shop","A customer who can't decide and a worker losing patience","First taste, then doubt. The worker gets more and more impatient."],
     ["Pharaoh's tomb","Two scared treasure hunters","Whispering in the dark. Someone heard a noise."],
     ["Job interview","The interviewer is the candidate's old boss","One handshake, then a shocked look. You know each other."],
     ["Spaceship","Two astronauts. One is out of oxygen","Countdown, then a red warning light."],
@@ -24,14 +23,14 @@ const MM_DATA = {
     ["Desert island","Two survivors with very different survival plans","One builds a hut, the other builds a hotel."],
     ["Pet shop","A seller and a customer who wants to return a duck","Put the duck on the counter: 'I want to return this.'"],
     ["Hotel reception","A clerk and a guest sure they booked a suite","'I have a suite booked.' The clerk finds nothing."],
-    ["Fancy restaurant","A waiter and a diner who just found out he has no wallet","The meal is over. The hand goes into an empty pocket."],
+    ["Fancy restaurant","A waiter and a customer who cannot find their wallet","The meal is over. The hand goes into an empty pocket."],
     ["Classroom","A substitute teacher and a student who runs the class","The substitute walks in. The student is already 'in charge'."],
     ["Museum","Two visitors arguing about a painting that is actually a fire alarm","Stand in front of it. Admire it. Explain what it 'means'."],
     ["Supermarket, closing time","A super calm cashier and a customer in a panic","Start with the beep of the scanner. The line behind you is getting angry."],
     ["Camping trip","A guide counting people and a driver who got lost","Start counting. Someone is missing."],
     ["Hair salon","A confident hairdresser and a client who sees the result","Look in the 'mirror'. Let your face do the talking."],
     ["Empty party hall","A singer and a sound tech. No guests came","Mic check: one, two... and nobody is here."],
-    ["Food truck","A happy food truck owner and a very strict health inspector","Hand over a free sample. The inspector takes out a notebook."],
+    ["Food truck","A happy food truck owner and a health inspector who checks everything","Hand over a free sample. The inspector takes out a notebook."],
     ["Escape room","Two friends stuck. One reads the clues backwards","The timer is ticking. The clue makes no sense."]
   ],
 
@@ -39,11 +38,11 @@ const MM_DATA = {
   style: [
     ["Soap opera","Big drama, long looks, family secrets","Slow everything down. A dramatic look into the distance after every secret."],
     ["Action movie","Cool one-liners in the middle of a disaster","Say one cool line right in the middle of the explosion."],
-    ["Nature documentary","One player whispers about the other like a rare animal","Whisper about your partner as if you are filming a rare animal."],
+    ["Nature documentary","One player describes the other like an animal in a nature film","Whisper about your partner like an animal in a nature film."],
     ["Musical","When a feeling comes up, sing it with moves","When you feel something, sing it. Don't say it."],
     ["Horror movie","Scary music with your mouth, bad decisions on purpose","Make a bad decision on purpose, and make scary music with your mouth."],
-    ["Old detective film","Slow, gloomy talk. Say your thoughts out loud","Talk slowly and sadly. Say your inner thoughts out loud."],
-    ["TV shopping channel","Crazy excitement about the most normal object","Get super excited about the most boring object in the world."],
+    ["Old detective film","Slow, gloomy talk. Say your thoughts out loud","Speak slowly. Say what you are thinking out loud."],
+    ["TV shopping channel","Crazy excitement about the most normal object","Show that a normal object is the most exciting thing ever."],
     ["Cartoon hero","Shout the names of your 'special moves', huge feelings","Shout the name of every move. Every small feeling is huge."],
     ["Royal palace","Very fancy, very formal, very old fashioned","Be super formal: 'Would Your Highness kindly pass the salt?'"],
     ["Reality show","Turn to the 'camera' to gossip about your partner","Turn to the 'camera' and gossip about your partner."],
@@ -56,29 +55,29 @@ const MM_DATA = {
     ["A to Z","Each sentence starts with the next letter of the alphabet","Just remember the next letter. Don't plan the whole sentence."],
     ["One word","Build sentences together, one word each","One word each. Listen and build together."],
     ["Only questions","No normal sentences allowed","Answer a question with a question. Don't give in."],
-    ["Three words","Pick 3 words. Only those are allowed","The same 3 words. Change the tone and meaning each time."],
-    ["Translator","Player A speaks emotional gibberish, player B translates","The gibberish is full of feeling. The translator is 100% confident."],
+    ["Three words","Pick 3 words. Only those are allowed","Use only the same 3 words. Change your voice each time."],
+    ["Translator","Player A speaks emotional gibberish, player B translates","Use funny sounds and big emotions. The translator speaks with confidence."],
     ["Sound effects","Add a sound effect to every sentence","Every sentence gets a sound: a door, a bird, a car, anything."],
     ["Super polite","Speak like a very polite butler, no matter what","Even when angry, stay super polite: 'I am terribly sorry, sir.'"],
     ["No yes, no no","You can never say 'yes' or 'no'","Find other ways: 'of course', 'never', 'maybe'."],
     ["Echo","Repeat your last word 3 times, softer each time","Repeat the last word three times, fading away."],
-    ["Politician","Never answer directly. Change the subject, use slogans","Don't answer. Jump to an empty slogan."],
+    ["Spokesperson","Never answer directly. Change the subject and say a short slogan","Don't answer. Change the subject and say a short slogan."],
     ["Take it back","Say a sentence, then 'correct' it to the opposite","Say a sentence, then 'No, the opposite!' and flip it."],
-    ["Third person","Talk about yourself only in the third person","Talk about yourself by name, like a sports commentator."]
+    ["Third person","Talk about yourself only in the third person","Use your own name instead of 'I', like a sports commentator."]
   ],
 
   /* ---------- Constraint: body ---------- */
   body: [
     ["Puppets","The audience calls out moves. You do them and explain why","Do every move the audience calls out, and explain in words why you did it."],
-    ["Word helpers","Stuck? Tap someone in the audience and they shout the next word","Stuck? Tap an audience member. They give you the next word."],
+    ["Word helpers","Stuck? Point at someone in the audience and they call out the next word","Stuck? Point at someone in the audience. They give you the next word."],
     ["Secret notes","5 notes from the audience. Use each one as a line","Read each note as a normal line. Don't explain it."],
     ["The book","A random book. On your turn, read a sentence from it","Read a line from the book like it is a natural part of the talk."],
     ["Status switch","One is a king, one is a nobody. Halfway, you switch","Start extreme, king and nobody, then switch suddenly."],
-    ["No eye contact","Never look at each other, but stay very close","Stay close but never look. It's funny on its own."],
+    ["No eye contact","Never look at each other. Stand side by side","Stand side by side and never look at each other."],
     ["Slow motion","Move super slowly, talk at normal speed","Super slow body, normal talking. The contrast is the joke."],
-    ["One object","Both of you always hold one object together. If you let go, the world changes","Hold it together. If one of you lets go, the story changes."],
+    ["One object","Both of you pretend to hold the same imaginary object. If you let go, the world changes","Hold it together. If one of you lets go, the story changes."],
     ["Mirror","Player B copies every move of player A while they argue","Copy every move exactly, while arguing with words."],
-    ["Big and small","One is tall and bossy, one is small and shy. Show it only with your body","One stands tall and takes space, the other shrinks. Don't say it."]
+    ["Big and small","One acts very confident, the other very shy. Show it only with your body","One looks confident, the other looks shy. Don't say it."]
   ]
 };
 
@@ -132,7 +131,7 @@ const MM_INDUSTRY = {
     ["Chat support","A support agent and a customer who TYPES IN CAPS","The customer 'shouts' every line. The agent stays calm."],
     ["Big sale day","A seller and a customer who wants the last item","You both stare at the same empty shelf."],
     ["Contract renewal","An account manager and a client threatening to leave","'We are looking at a competitor.' A frozen smile."],
-    ["Sales team party","The star of the month and the one who came last","A toast, with a compliment that is really a small insult."]
+    ["Sales team party","The star of the month and the newest person on the team","A toast, with a compliment that is really a small insult."]
   ]}
 };
 
@@ -144,13 +143,13 @@ const MM_CAT = {
 
 /* ---------- Guess cards: one guesser, everyone else gives hints ---------- */
 const MM_GUESS = [
-  {t:"Who am I",d:"The guesser doesn't know who they are. Give hints with questions and behavior, just never say the name!",k:"The secret identity",
+  {t:"Who am I",d:"The guesser does not know their secret identity. Give hints with questions and actions. Never say the name!",k:"The secret identity",
    s:["Superman","Cleopatra","Harry Potter","Albert Einstein","The Little Mermaid","Napoleon","Santa Claus","Sherlock Holmes","Mona Lisa","A pirate captain"]},
   {t:"Party guests",d:"A guest arrives at the guesser's party with a strange habit. Guess the habit from the behavior!",k:"The strange habit",
-   s:["Thinks he is a robot","In love with a chair","Thinks everyone is his ex","Afraid of long words","Sure he is an undercover detective","Must touch the ceiling every minute","Sure the floor is lava","Talks to his shoes"]},
+   s:["Thinks he is a robot","Best friends with a chair","Thinks everyone is his old teacher","Afraid of long words","Sure he is an undercover detective","Must touch the ceiling every minute","Sure the floor is lava","Talks to his shoes"]},
   {t:"Late for work",d:"The guesser is late for work. Hint at the reason by talking and acting, but never say the reason itself!",k:"The reason for being late",
    s:["You were taken by aliens","The dog ate your keys","You got stuck in a hot tub at the mall","You chased an ostrich","You got married by mistake","You fell asleep in the supermarket","You saved a cat from a tree and got stuck","You ran a secret race"]},
-  {t:"The hidden object",d:"Play a normal scene around a secret object. You can talk, just never say its name. The guesser must find out what it is!",k:"The object",
+  {t:"The hidden object",d:"Play a normal scene around a secret object. You can talk, just never say its name. The guesser must guess the object!",k:"The object",
    s:["Toothbrush","Iron","Glue stick","Broken phone","Inside-out umbrella","TV remote","Kettle","Throw pillow"]},
   {t:"Confession",d:"The guesser did something 'bad'. Hint at what it was, without saying it directly!",k:"The bad thing",
    s:["Ate everyone's food from the fridge","Sold the company car","Swapped the coffee for decaf","Lied about knowing Excel","Stole a plant from the lobby","Said 'sounds good' to the boss without reading the email"]},
@@ -167,7 +166,7 @@ const MM_EAR = [
   ["Really really","Add 'really really' before every description"],
   ["Buddy","End every sentence with the word 'buddy'"],
   ["The fridge","Keep coming back to the fridge, like it is very important to the story"],
-  ["My grandma","Quote your grandma at every chance"],
+  ["My grandma","Say 'My grandmother always says...' again and again"],
   ["Penguin","Find a reason to say 'penguin' three times"],
   ["Exactly!","Say 'Exactly!' after everything your partner says"],
   ["On Tuesday","Mention 'on Tuesday' like something huge happened then"],
@@ -179,26 +178,26 @@ const MM_EAR = [
   ["Doctor","Call your partner 'Doctor' in every sentence"],
   ["Siblings","Act like you are brother and sister, without saying it"],
   ["We met before","Insist you met once at a wedding, and add details"],
-  ["The fan","Act like your partner is very famous and you are a shy fan"],
+  ["The fan","Act like your partner is a famous person and you are a big fan"],
   ["Other name","Introduce yourself with a different name, and correct people when they get it wrong"],
   ["The boss","Treat your partner like your boss"],
   ["The twin","Hint that you have a twin who sometimes takes your place"],
-  ["The school trip","Remind your partner of something embarrassing 'they did' on a school trip"],
+  ["The school trip","Remind your partner of a funny moment from a school trip"],
   ["Secret agent","Act like a secret agent who thinks your partner is the target"],
   ["What's your name?","Pretend you forgot their name, and guess wrong names"],
   ["Alien","Gently hint that you are not from planet Earth"],
   /* things that don't exist */
-  ["Flontration","Use the word 'flontration' like everyone knows it"],
-  ["Simon's Law","Quote 'Simon's Law' like a famous science rule"],
-  ["A Harvard study","Say 'there is a Harvard study about this' about something silly"],
+  ["Flontration","Use the made-up word 'flontration' like it is a normal word"],
+  ["Simon's Rule","Explain a made-up science rule called 'Simon's Rule'"],
+  ["A famous study","Say 'a famous university study proves this' about something silly"],
   ["The coconut exercise","Suggest doing 'the coconut exercise' together and explain it with confidence"],
   ["Sock Day","Mention 'Sock Day' like it is tomorrow"],
   ["Cloud manager","Say your job is 'cloud manager' (real clouds, in the sky)"],
   ["By the rules","Mention made-up rules with letters, like 'by rule B.L.T.'"],
   ["The app","Strongly recommend an app that doesn't exist, with a weird name"],
-  ["Spaghettoffle","Get excited about the food 'spaghettoffle' and describe the taste"],
-  ["Old saying","Quote an old saying that you are making up right now"],
-  ["Mop ball","Talk about yesterday's 'mop ball' world final"],
+  ["Spaghettoffle","Describe a new food called 'spaghettoffle' like you love it"],
+  ["Old saying","Make up a short wise saying and repeat it"],
+  ["Mop ball","Talk about a strange sport called 'mop ball', like everyone watches it"],
   ["New word","Invent a new word and use it again and again"],
   /* how you talk */
   ["Only questions","Talk only in questions"],
@@ -207,11 +206,11 @@ const MM_EAR = [
   ["Argue","Argue about every small detail, very politely"],
   ["Compliments","Compliment your partner on something new every few sentences"],
   ["Song","Sing one line of a song you are making up, in the middle of the talk"],
-  ["The secret","Act like you are keeping a huge secret, and don't tell it"],
+  ["The secret","Pretend you have a big secret, and don't tell it"],
   ["Sorry","Apologize for things that have nothing to do with you"],
-  ["My idea","Repeat your partner's last sentence like it was your idea"],
-  ["So moved","Get moved to tears by a tiny, unimportant detail"],
-  ["The neighbors","Try to get gossip from your partner about their neighbors"],
+  ["My idea","Say your partner's last idea again, and pretend it was yours"],
+  ["So moved","Act like a very small thing makes you cry with emotion"],
+  ["The neighbors","Ask your partner about something strange happening in their street"],
   ["Never-ending story","Start a story and never finish it, three times"],
   /* body, no touching */
   ["Stretch","Stretch every time your partner asks a question"],
@@ -223,21 +222,20 @@ const MM_EAR = [
   ["The glasses","Act like you lost your glasses and can't see well"],
   ["Sneeze","Sneeze dramatically at least twice"],
   ["One clap","Clap once every time you agree"],
-  ["One leg","Stand on one leg as long as you can, without explaining"],
+  ["One leg","Stand on one leg (or pretend to) as long as you can, without explaining"],
   ["Fly","Wave away an imaginary fly that only bothers you"],
   ["Hands on hips","Keep your hands on your hips, like a site manager"],
   /* plot and surprises */
   ["Lottery","Hint that you won the lottery, without saying it"],
   ["Iceland","Try to convince your partner to move to Iceland with you"],
   ["The sale","Try to sell your partner something from your pocket"],
-  ["All your fault","Gently blame your partner for something that happened in 2019"],
+  ["All your fault","Pretend your partner caused a funny problem yesterday"],
   ["NASA","Say you got a message from NASA this morning"],
-  ["The wedding","Invite your partner to your wedding. You are marrying someone very surprising"],
   ["The recipe","Try to get a secret recipe out of your partner"],
   ["Surprise party","Hint that a surprise party is being planned for your partner"],
-  ["1985","Act like you just arrived from 1985"],
+  ["Time traveler","Act like you just arrived from the past"],
   ["The dog that is a fish","Talk about your dog, who is actually a fish"],
-  ["Reality show","Hint that this whole talk is being filmed for a reality show"],
+  ["TV show","Act like you are on a TV show right now"],
   ["Have to go","Say you really have to go, and don't go"]
 ];
 
@@ -245,7 +243,7 @@ const MM_EAR = [
    Screen mini games: emotions, line from the screen, three heads, dubbing, expert
    ============================================================ */
 /* Remote control emotions: a separate emotion per player */
-const MM_EMO = ["Too much excitement","Suspicion","Total boredom","Panic you try to hide","Huge pride","Jealousy","Deeply offended","In love","Extremely tired","Curious like a kid","Guilty","Way too confident","Calm like a lake","Deadline stress","Missing the old days","Huge relief","Totally confused","Impatient","Very grateful","Embarrassed","Victory","Bored","Super optimistic","Super pessimistic","Stage fright","Angry but holding it in"];
+const MM_EMO = ["Too much excitement","Suspicion","Total boredom","Panic you try to hide","Huge pride","Jealousy","Deeply offended","Extremely tired","Curious like a kid","Guilty","Way too confident","Calm like a lake","Deadline stress","Missing the old days","Huge relief","Totally confused","Impatient","Very grateful","Embarrassed","Proud of a tiny win","Bored","Super optimistic","Super pessimistic","Stage fright","Angry but holding it in"];
 /* a shared moment for both */
 const MM_EMO_BOTH = ["Both of you: trying to hide panic","Both of you: sure you are right","Both of you: like you just solved a huge problem","Both of you: trying not to laugh","Both of you: suspicious of each other","Both of you: moved to tears","Both of you: whispering, someone is asleep","Both of you: in total shock"];
 
@@ -254,7 +252,7 @@ const MM_LINES = ["I actually thought this was your idea.","Wait, nobody checked
 
 /* Three heads: a question for the expert + rules that come in mid-answer */
 const MM_HEADS_Q = ["How do you make every meeting end on time?","What is the scientific way to survive Monday morning?","How do you know which email you really must answer?","How do you build the perfect team?","What do you do when you have more tasks than time?","How do you convince a team that a weird idea is great?","What will the office look like in 2040?","How do you decide when nobody agrees?","How do you teach a cat to use a computer?","What is the secret to the perfect vacation?","How do you get out of a traffic jam without leaving the car?","How do you make the best coffee in the world?","Why do socks always disappear in the wash?","How do you ask for a raise?","How do you organize the office fridge?","What do you do when the elevator gets stuck with the CEO?"];
-const MM_HEADS_RULES = ["From now on: the answer ends in 12 words","You must use the word 'watermelon'","End with a sentence that sounds totally professional","From now on: whisper","From now on: like a news reporter","The expert completely changes their mind","Give an example from the expert's personal life","The expert gets very emotional about the topic","Add a serious warning","Sum up in three numbered steps","The expert remembers they are actually on vacation","Answer one question from the audience"];
+const MM_HEADS_RULES = ["From now on: the answer ends in 12 words","Use the word 'watermelon' in your answer","End with a sentence that sounds totally professional","From now on: whisper","From now on: like a news reporter","The expert suddenly gives a different answer","Give an example from the expert's personal life","The expert shows a very strong emotion","Add a serious warning","Sum up in three numbered steps","The expert suddenly remembers they are on vacation","Answer one question from the audience"];
 
 /* Dubbing: facts the translator must make happen */
 const MM_DUB_FACTS = ["Both of them think they are the new manager","One of them hasn't realized the meeting was cancelled","The budget they are talking about is really 50 dollars","One of them thinks today is Friday","They are talking about two different projects without noticing","Both are trying not to be the first to say 'no'","One of them came to the wrong meeting","The decision they are arguing about was already made yesterday","One of them is a famous singer on vacation","Tomorrow they open a restaurant together","One of them is allergic to everything the other says","They are planning a surprise party for the manager","They just found out they are related","One of them is trying to sell the other a fridge","The office is moving to the moon next week","They have been waiting three hours for the elevator"];
@@ -280,23 +278,23 @@ const MM_EXPERT = [
 ];
 
 /* Kids version: items from the new games that are not shown to kids (by title or text) */
-const MM_KIDS_SKIP_NEW = new Set(["Lottery","The neighbors","In love","I'm not answering that without a lawyer.","I'm ready to quit over this.","I have a plan, but it's illegal in Switzerland.","How do you ask for a raise?"]);
+const MM_KIDS_SKIP_NEW = new Set(["Lottery","The neighbors","I'm not answering that without a lawyer.","I'm ready to quit over this.","I have a plan, but it's illegal in Switzerland.","How do you ask for a raise?"]);
 
 /* ---------- Kids version: what is filtered ---------- */
-const MM_KIDS_BLOCK = new Set(["Wedding","Lawyer's office","Coffee shop","Museum","Desert island","Super polite","Exit interview"]);
+const MM_KIDS_BLOCK = new Set(["Coffee shop","Museum","Desert island","Super polite","Exit interview"]);
 const MM_KIDS_TOPIC_BLOCK = ["in love","lies","lying"];
 
 const MM_TIPS = [
   "Yes, and... Accept every offer from your partner and build on it. Never block.",
   "Specific always wins: 'a nervous 11 year old poodle' is better than 'a dog'.",
   "Found something funny? Make it bigger, step by step, again and again.",
-  "A strong reaction beats a big idea. Let your partner lead and just react.",
-  "Make a clear choice and go all the way. Confidence is funnier than doubt.",
-  "Remember something from the start. Bringing it back at the end is a big win."
+  "React clearly to what your partner says. You don't need big ideas.",
+  "Make a clear choice and show it with confidence.",
+  "Remember something from the start, and bring it back near the end."
 ];
 
 const MM_TOPICS = [
-  "Suddenly a police officer walks in and asks what is going on","Now the scene becomes a musical","A sudden heavy rain starts",
+  "Suddenly a delivery person walks in and asks what is going on","Now the scene becomes a musical","A sudden heavy rain starts",
   "One of you reveals a big secret, right now","The phone rings. Who is it?!","Suddenly you are late for something urgent",
   "A surprising third character walks in. Imagine them","Something falls with a huge crash!","It turns out you are long-lost cousins",
   "Suddenly you are in space","Your pet is missing","Someone says the truth they were not supposed to say",
@@ -373,19 +371,19 @@ const MM_CON_EXPLAIN = {
   "Super polite": ["Whatever happens, you are the most polite people in the world, like a butler.", "\"I am terribly sorry, sir, but your car is on fire.\""],
   "No yes, no no": ["You can never say the words 'yes' or 'no'. Whoever says one, made a mistake.", "Instead of \"Yes\" say \"Of course!\" Instead of \"No\" say \"Never!\""],
   "Echo": ["After each sentence, repeat its last word three times, each time softer, like an echo.", "\"Where is the money? Money... money... money...\""],
-  "Politician": ["Never answer a question directly. Change the subject and talk in slogans.", "\"Did I eat the cake? Great question. The people want change!\""],
+  "Spokesperson": ["Never answer a question directly. Change the subject and talk in slogans.", "\"Did I eat the cake? Great question. The people want change!\""],
   "Take it back": ["Say a sentence, and right away 'correct' it to the opposite.", "\"I love cats. No, the opposite. I hate cats.\""],
   "Third person": ["Each player talks about themselves by name, like a commentator talking about someone else.", "\"Dana is not happy. Dana wants to talk to the manager.\""],
   "Puppets": ["The players are like puppets. People in the audience call out moves (\"jump!\", \"sit down!\"), the players do them and explain in the scene why they did it.", "(someone shouts \"dance!\") \"Yes, I always dance when I'm nervous!\""],
-  "Word helpers": ["When you are stuck, tap someone in the audience on the shoulder. They shout a word. Continue your sentence with that word.", "\"And then I...\" (tap) \"Chicken!\" \"...and then I turned into a chicken.\""],
+  "Word helpers": ["When you are stuck, point at someone in the audience. They call out a word. Continue your sentence with that word.", "\"And then I...\" (point) \"Chicken!\" \"...and then I turned into a chicken.\""],
   "Secret notes": ["Before the scene the audience writes 5 notes with sentences. Pull out a note and use the sentence in the scene like it is natural.", "(pull a note) \"The bucket is full of vegetables.\" \"Exactly! That's why I quit.\""],
   "The book": ["Hold a real book. On your turn read a random sentence from it, and use it like it's what you wanted to say.", "\"So what do you think?\" (reads from the book) \"The rain fell on the old city.\""],
   "Status switch": ["One of you acts like a king (confident, giving orders, taking space), the other like a nobody (sorry, small, asking permission). Halfway through, switch: the nobody becomes the king.", "\"Stand here and don't move!\" \"Yes, sorry, right away...\" Halfway: \"You! Carry my bag!\""],
-  "No eye contact": ["Never look each other in the eyes, but stand very close.", "(shoulder to shoulder, looking at the ceiling) \"So... did you finish the report?\""],
+  "No eye contact": ["Never look each other in the eyes. Stand side by side.", "(side by side, looking at the ceiling) \"So... did you finish the report?\""],
   "Slow motion": ["Move very very slowly, like slow motion, but talk at normal speed.", "(lifting a cup for ten seconds) \"Hurry up, we are late!\""],
-  "One object": ["Both players always hold one object together (a pen, a bottle, a scarf). If one of you lets go, the story suddenly changes.", "(one hand lets go) \"Wait, we are on the moon!\""],
+  "One object": ["Both players pretend to hold the same imaginary object (a box, a big map, a cake). If one of you lets go, the story suddenly changes.", "(one hand lets go) \"Wait, we are on the moon!\""],
   "Mirror": ["One player copies every move of the other exactly, like a mirror, while they argue.", "(both lift a hand together) \"I'm right!\" \"No, I'm right!\""],
-  "Big and small": ["Without saying it, one stands tall, takes a lot of space and acts like the boss. The other is small and shy.", "(one leans over the other, the other shrinks) \"So... how was your weekend?\""]
+  "Big and small": ["Without saying it, one acts very confident, the other acts very shy. Show it only with your body.", "(one stands straight and calm, the other looks at the floor) \"So... how was your weekend?\""]
 };
 
 /* ---------- Guided closing talk ----------
@@ -401,12 +399,12 @@ const MM_DEBRIEF2 = {
     { when: "con", q: "In one scene you had to play '{con}'. What happened because of that rule?" }
   ],
   themes: [
-    { key: "listen", ic: "👂", label: "Listen and build together", qs: ["Think of a moment when someone offered something in a scene. How did the other person react, and what happened next?", "Where at work should we look at an idea a bit longer before we say no?"], note: "You don't have to agree with every idea. Listen and ask before you decide." },
-    { key: "change", ic: "🔀", label: "Changing direction", qs: ["When the scene changed direction, what helped you continue and what made it hard?", "When something changes at work at the last minute, what could help us understand how to continue?"], note: "" },
+    { key: "listen", ic: "👂", label: "Listen and build together", qs: ["Think of a moment when someone offered something in a scene. How did the other person react, and what happened next?", "At work, when should we listen to an idea a bit longer before we say no?"], note: "You don't have to agree with every idea. Listen and ask before you decide." },
+    { key: "change", ic: "🔀", label: "Changing direction", qs: ["When the scene changed direction, what helped you continue and what made it hard?", "When something changes at work at the last minute, what helps us continue?"], note: "" },
     { key: "try", ic: "🎯", label: "Trying when you're not sure", qs: ["Was there a moment you didn't know what to say or do? If so, what happened next?", "What can we do at work to make it easier to say 'I don't know' or 'I was wrong'?"], note: "" },
-    { key: "help", ic: "🤝", label: "Helping without taking over", qs: ["Was there a moment when someone helped the scene keep going? What exactly did they do?", "Where at work could that kind of help fit, and how do we check it really helps?"], note: "" },
-    { key: "know", ic: "👋", label: "Getting to know each other", qs: ["How was it to meet your team in a game instead of in tasks?", "Is there something from today you would like to have in a normal work day too?"], note: "" },
-    { key: "lead", ic: "🧭", label: "Leading and making room", qs: ["How was it decided where the scene goes? Was there a moment it worked well or less well?", "When at work do we need someone to lead, and when should we make room for more people?"], note: "" }
+    { key: "help", ic: "🤝", label: "Helping without taking over", qs: ["Was there a moment when someone helped the scene keep going? What exactly did they do?", "Where at work could we help each other like this? How would we know it helped?"], note: "" },
+    { key: "know", ic: "👋", label: "Getting to know each other", qs: ["How was it to meet your team in a game instead of in tasks?", "Is there something from today you want in a normal work day too?"], note: "" },
+    { key: "lead", ic: "🧭", label: "Leading and making room", qs: ["Who decided where the scene goes? When did that work well, and when less well?", "At work, when do we need one person to lead, and when should more people lead?"], note: "" }
   ],
   close: [
     "What, if anything, would you like to take from the game?",
@@ -511,10 +509,10 @@ const MM_WARMUP = [
     items: ["Surprised", "Offended", "Excited", "Hungry", "Scared", "Proud", "Bored"],
     stages: ["Level 1", "Level 5", "Level 10!"] },
   { id: 5, n: "Market of weird products", ic: "🛒", tier: "group", open: true, seat: true, secs: 30,
-    how: "You are at a market! Everyone shouts at once and sells the weirdest product they can think of.",
+    how: "You are at a market! Everyone sells a strange product at the same time, out loud.",
     ex: "Socks for snakes! Umbrellas for fish! Only two dollars!" },
   { id: 6, n: "What's going on here?", ic: "🖼️", tier: "pair", pair: true, open: true, seat: true, secs: 40, swap: true,
-    how: "Explain with total confidence what is happening in the picture, but get it all wrong. At the beep, switch.",
+    how: "Describe what is happening in the picture, but make up a funny wrong story. At the beep, switch.",
     items: ["🦷 A dentist checking a child", "💍 A bride and groom at the wedding", "🏋️ Someone lifting weights", "🛒 A long line at the supermarket", "✈️ People getting on a plane", "🧺 A family picnic in the park", "👶 A teacher reading a story to kids", "💼 A team meeting around a table"],
     kidsItems: ["🦷 A dentist checking a child", "💍 A bride and groom at the wedding", "🏋️ Someone lifting weights", "🛒 A long line at the supermarket", "✈️ People getting on a plane", "🧺 A family picnic in the park", "👶 A teacher reading a story to kids", "🏫 Kids playing at recess"],
     ex: "A dentist? No, this is a hair salon for sharks. He is checking if the teeth need a trim." },
@@ -551,7 +549,7 @@ const MM_WARMUP = [
     stages: ["Like a sports commentator", "Like a soap opera", "Like breaking news", "Like a victory speech"] },
   { id: 16, n: "Nice to meet you", ic: "🤝", tier: "pair", pair: true, open: false, seat: true, secs: 40, swap: true,
     how: "Introduce yourselves to each other as if you met at the place on the screen. At the beep, switch.",
-    items: ["The world snail breeders conference", "The world napping championship", "An alien school reunion", "A club for people who love waiting in line"] },
+    items: ["A meeting for people who love snails", "A competition for the best nap", "An alien school reunion", "A club for people who love waiting in line"] },
   { id: 17, n: "Whisper to shout", ic: "📢", tier: "group", open: false, seat: true, secs: 6,
     how: "Everyone says the word together again and again. Start with a whisper and end with a shout.",
     items: ["Banana", "Yes!", "Goooal", "Break time!", "Happy Friday"],
@@ -568,8 +566,8 @@ const MM_WARMUP = [
     items: ["A coffee machine", "A washing machine", "A chocolate factory", "A machine that makes Fridays"],
     note: "Here each person stands out for a moment. Only for a group that is already warmed up." },
   { id: 21, n: "Stadium crowd", ic: "🏟️", tier: "group", open: true, seat: true, secs: 30,
-    how: "You are the crowd at the biggest game of the season. Every 5 seconds something new happens, and everyone reacts together.",
-    items: ["Goal!", "Missed by one meter", "The referee calls a foul", "Extra time!", "Our team wins the league!", "The goalkeeper saves a penalty", "Stadium wave!", "A tie in the last minute"],
+    how: "You are the crowd at a big sports game. Every 5 seconds something new happens, and everyone reacts together.",
+    items: ["Goal!", "Missed by one meter", "The referee stops the game", "Extra time!", "Our team wins the league!", "The goalkeeper saves a penalty", "Stadium wave!", "A tie in the last minute"],
     stagesFromItems: true },
   { id: 22, n: "Good news, bad news", ic: "🎉", tier: "group", open: true, seat: true, secs: 40, ordered: true,
     how: "The screen announces news. Everyone reacts together: celebrate when it's good, be disappointed when it's bad.",
@@ -583,8 +581,8 @@ const MM_WARMUP = [
   { id: 24, n: "The orchestra", ic: "🎻", tier: "group", open: true, seat: true, secs: 24,
     how: "Everyone picks a sound of an instrument (drum, trumpet, violin, something you invent). The screen is the conductor: do exactly what it says.",
     stages: ["Start, softly...", "Louder...", "Only the right side of the room!", "Only the left side!", "Everyone, loudest!", "Stop! ✋"] },
-  { id: 25, n: "Birthday line-up", ic: "📅", tier: "group", open: false, seat: false, secs: 0,
-    how: "Everyone lines up by birthday, from January to December. No talking, only hand signs.",
+  { id: 25, n: "A to Z line-up", ic: "📅", tier: "group", open: false, seat: false, secs: 0,
+    how: "Everyone lines up by the first letter of their first name, from A to Z. No talking, only hand signs.",
     note: "Takes about 2 minutes. Connects the room a lot. At the end, check out loud if you got it right." },
   { id: 26, n: "Everyone agrees", ic: "📣", tier: "group", open: true, seat: true, secs: 10,
     how: "A crazy statement is on the screen. Everyone reacts together as written under it.",
@@ -597,4 +595,4 @@ const MM_WARMUP_OPEN = [1, 8, 21];
 /* Recommended for coming back mid-game */
 const MM_WARMUP_MID = [22, 23, 24, 4, 15];
 const MM_WARMUP_TIER = { quiet: "No words", pair: "In pairs", group: "Whole group" };
-const MM_WARMUP_PAIR = "Pair up with the person next to you. Alone? Join a pair. Whoever has the next birthday starts.";
+const MM_WARMUP_PAIR = "Pair up with the person next to you. Alone? Join a pair. Whoever's first name comes first in the alphabet starts.";

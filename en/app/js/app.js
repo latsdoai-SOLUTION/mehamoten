@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.3-en";
+const APP_VERSION = "2.6.5-en";
 const MM_LANG = "en"; /* English build: /en/app/ */
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
@@ -28,7 +28,7 @@ const BUY_LINKS = {
   year: "https://pay360.isracard.co.il/CustomerPayment/GenericURL?SaleId=B7BE0722-5BA9-1614-21CE-CC3FE8FBACF2",     /* שנה פתוחה, 4,100 ₪ */
   yearPlus: "https://pay360.isracard.co.il/CustomerPayment/GenericURL?SaleId=B37C2305-3B65-4C4C-4A41-65563EE81FF4"  /* שנה + ערב עם לירן, 5,900 ₪ */
 };
-const BUY_NAMES = { event: "Team evening (690 ILS)", year: "Open year (4,100 ILS)", yearPlus: "Year + live evening with Liran (5,900 ILS)" };
+const BUY_NAMES = { event: "Team evening (690 ILS)", year: "One-year access (4,100 ILS)", yearPlus: "Year + live evening with Liran (5,900 ILS)" };
 
 /* ---------- עזרים ---------- */
 const $ = (s) => document.querySelector(s);
@@ -93,7 +93,7 @@ function renderLicBoxes() {
   const html = licActive()
     ? `✅ Team code active: ${licLabel()}` + (licDaysLeft() <= 14 ? `<br>⏳ ${licDaysLeft()} days left. <a href="${waLink("renew")}" target="_blank" rel="noopener" style="color:var(--spot)">Renew on WhatsApp</a>` : "")
     : LIC ? `⛔ The code for <b>${esc(LIC.org)}</b> has expired. <a href="${waLink("renew")}" target="_blank" rel="noopener" style="color:var(--spot)">Renew on WhatsApp</a>` + BTN
-    : `${trialOver() ? "🔒 Both free trial rounds are used. To keep playing you need a code (from 690 ILS)." : `🔓 Free trial: two rounds in any mode (${trialLeft()} left). Then you need a code (from 690 ILS).`}` + BTN;
+    : `${trialOver() ? "🔒 Both free trial rounds are used. To keep playing you need a code (from 690 ILS)." : `🔓 Free trial: two rounds in any mode (${trialLeft()} left). After that, enter a license code. Plans start at 690 ILS.`}` + BTN;
   $$("#licBox, #licBox2").forEach((el) => { el.innerHTML = el.id === "licBox2" ? html.replace(BTN, "") : html; el.classList.toggle("ok", licActive()); el.classList.toggle("warn", !!LIC && !licActive()); });
   const rb = $("#licRemoveBtn"); if (rb) rb.hidden = !LIC;
   renderLogo();
@@ -284,10 +284,36 @@ function pool(cat) {
 
 /* ---------- מסכים ---------- */
 let currentScreen = "home";
+/* ---------- 2.6.5: נורה "עוד לא התחלנו" לפני הספירה, "משחקים עכשיו" בזמן הסצנה, ותזכורת אחרי 30 שניות ---------- */
+const PREP_SCREENS = ["liteScene", "cast", "guessIntro", "earIntro", "miniIntro"];
+const LAMP_TXT = { wait: 'NOT STARTED YET', live: 'LIVE NOW', paused: 'PAUSED' };
+const PREP_NUDGE_MS = 30000;
+let prepNudgeT = null;
+function airLamp(state) {
+  const l = $("#airLamp"); if (!l) return;
+  if (!state) { l.hidden = true; return; }
+  l.className = "airlamp " + (state === "live" ? "live" : "wait");
+  $("#airLampTxt").textContent = LAMP_TXT[state] || "";
+  l.hidden = false;
+}
+function prepWatch(id) {
+  if (prepNudgeT) { clearTimeout(prepNudgeT); prepNudgeT = null; }
+  $$(".prepnudge").forEach((n) => n.hidden = true);
+  $$(".nudgego").forEach((b) => b.classList.remove("nudgego"));
+  if (id && PREP_SCREENS.includes(id)) {
+    airLamp("wait");
+    prepNudgeT = setTimeout(() => {
+      prepNudgeT = null; if (currentScreen !== id || countdownRunning) return;
+      const scr = $("#" + id), n = scr && scr.querySelector(".prepnudge"), b = scr && scr.querySelector('.big[data-act="beginCountdown"]');
+      if (n) n.hidden = false; if (b) { b.classList.remove("nudgego"); void b.offsetWidth; b.classList.add("nudgego"); }
+    }, PREP_NUDGE_MS);
+  } else airLamp(id === "play" ? (typeof paused !== "undefined" && paused ? "paused" : "live") : null);
+}
 function show(id) {
   $$(".screen").forEach((s) => s.classList.remove("active"));
   const el = $("#" + id); if (!el) return;
   el.classList.add("active"); el.scrollTop = 0; currentScreen = id;
+  prepWatch(id);
   if (id === "home") syncGroupUI();
   document.body.classList.toggle("ingame", !["home", "setup", "summary"].includes(id));
   const focusEl = el.querySelector("h1,h2,.who,.eyebrow,.guide"); if (focusEl) { focusEl.setAttribute("tabindex", "-1"); focusEl.focus({ preventScroll: true }); }
@@ -1137,7 +1163,7 @@ function applyGuessScore() {
 /* ---------- ספירה לאחור → סצנה ---------- */
 let countdownRunning = false, countIv = null;
 function beginCountdown() {
-  if (countdownRunning || sceneRunning) return; countdownRunning = true;
+  if (countdownRunning || sceneRunning) return; countdownRunning = true; prepWatch(null);
   ac(); let n = 3; const ov = $("#count"), el = $("#countN");
   ov.classList.add("go"); el.textContent = n; el.classList.add("pop"); sfx.count(); speak("Three");
   countIv = setInterval(() => {
@@ -1281,6 +1307,7 @@ function flashSwap(isFreeze) {
   setTimeout(() => { bg.classList.remove("go"); fl.classList.remove("go"); app.classList.remove("is-shaking"); }, 620);
 }
 function setPausedUI(on) {
+  airLamp(currentScreen === "play" ? (on ? "paused" : "live") : null);
   $("#pausedBanner").classList.toggle("on", on); $("#ringtimer").classList.toggle("paused", on); $("#clock").classList.toggle("paused", on);
   $$('[data-role="pause"]').forEach((b) => b.textContent = on ? "▶️ Resume" : "⏸️ Pause");
 }
@@ -1805,3 +1832,4 @@ document.addEventListener("keydown", (e) => {
   renderLicBoxes();
   registerSW();
 })();
+

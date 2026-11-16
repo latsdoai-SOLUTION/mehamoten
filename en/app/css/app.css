@@ -640,3 +640,28 @@ html[dir="ltr"] body{direction:ltr}
   #play .playtop{margin-top:58px}
 }
 [tabindex="-1"]:focus{outline:none}
+
+/* ---------- 2.6.5: נורה "עוד לא התחלנו" / "משחקים עכשיו" + תזכורת ---------- */
+.airlamp{position:fixed;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:9px;padding:8px 16px;border-radius:999px;font:800 clamp(14px,2.2vmin,22px) "Rubik",sans-serif;letter-spacing:.04em;white-space:nowrap;pointer-events:none}
+.airlamp[hidden]{display:none}
+.airlamp i{width:12px;height:12px;border-radius:50%;flex:none}
+.airlamp.wait{background:rgba(246,190,60,.16);border:2px solid #f6be3c;color:#f8d98a}
+.airlamp.wait i{background:#f6be3c;animation:mmLampBlink 1.4s ease-in-out infinite}
+.airlamp.live{background:#e23149;border:2px solid #ff6b80;color:#fff;box-shadow:0 0 22px rgba(226,49,73,.7)}
+.airlamp.live i{background:#fff}
+@keyframes mmLampBlink{50%{opacity:.25}}
+body.noanim .airlamp.wait i{animation:none}
+@media (prefers-reduced-motion:reduce){.airlamp.wait i{animation:none}}
+.prepline{width:min(820px,100%);margin:2px auto 0;font-weight:800;color:#f8d98a;font-size:clamp(14px,2.2vmin,22px);line-height:1.4}
+.prepnudge{margin:10px auto 0;padding:9px 16px;border-radius:14px;background:#f6be3c;color:#1b1206;font-weight:800;font-size:clamp(15px,2.4vmin,24px);width:max-content;max-width:94%;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.prepnudge[hidden]{display:none}
+.big.nudgego{animation:mmNudgeGo .7s ease-in-out 2}
+@keyframes mmNudgeGo{50%{transform:scale(1.08);box-shadow:0 0 0 10px rgba(246,190,60,.35)}}
+body.noanim .big.nudgego{animation:none}
+@media (prefers-reduced-motion:reduce){.big.nudgego{animation:none}}
+/* phones: the gap between the corner buttons is not centered (two buttons on one side), so the lamp sits in the gap */
+@media (max-width:600px){
+  .airlamp{transform:none;justify-content:center;padding:7px 10px;gap:7px;font-size:13px;letter-spacing:0}
+  html[dir="ltr"] .airlamp{left:66px;right:128px}
+  html[dir="rtl"] .airlamp{right:66px;left:128px}
+}

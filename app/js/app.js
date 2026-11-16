@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.3";
+const APP_VERSION = "2.6.5";
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";
@@ -283,10 +283,36 @@ function pool(cat) {
 
 /* ---------- מסכים ---------- */
 let currentScreen = "home";
+/* ---------- 2.6.5: נורה "עוד לא התחלנו" לפני הספירה, "משחקים עכשיו" בזמן הסצנה, ותזכורת אחרי 30 שניות ---------- */
+const PREP_SCREENS = ["liteScene", "cast", "guessIntro", "earIntro", "miniIntro"];
+const LAMP_TXT = { wait: 'עוד לא התחלנו', live: 'משחקים עכשיו', paused: 'מושהה' };
+const PREP_NUDGE_MS = 30000;
+let prepNudgeT = null;
+function airLamp(state) {
+  const l = $("#airLamp"); if (!l) return;
+  if (!state) { l.hidden = true; return; }
+  l.className = "airlamp " + (state === "live" ? "live" : "wait");
+  $("#airLampTxt").textContent = LAMP_TXT[state] || "";
+  l.hidden = false;
+}
+function prepWatch(id) {
+  if (prepNudgeT) { clearTimeout(prepNudgeT); prepNudgeT = null; }
+  $$(".prepnudge").forEach((n) => n.hidden = true);
+  $$(".nudgego").forEach((b) => b.classList.remove("nudgego"));
+  if (id && PREP_SCREENS.includes(id)) {
+    airLamp("wait");
+    prepNudgeT = setTimeout(() => {
+      prepNudgeT = null; if (currentScreen !== id || countdownRunning) return;
+      const scr = $("#" + id), n = scr && scr.querySelector(".prepnudge"), b = scr && scr.querySelector('.big[data-act="beginCountdown"]');
+      if (n) n.hidden = false; if (b) { b.classList.remove("nudgego"); void b.offsetWidth; b.classList.add("nudgego"); }
+    }, PREP_NUDGE_MS);
+  } else airLamp(id === "play" ? (typeof paused !== "undefined" && paused ? "paused" : "live") : null);
+}
 function show(id) {
   $$(".screen").forEach((s) => s.classList.remove("active"));
   const el = $("#" + id); if (!el) return;
   el.classList.add("active"); el.scrollTop = 0; currentScreen = id;
+  prepWatch(id);
   if (id === "home") syncGroupUI();
   document.body.classList.toggle("ingame", !["home", "setup", "summary"].includes(id));
   const focusEl = el.querySelector("h1,h2,.who,.eyebrow,.guide"); if (focusEl) { focusEl.setAttribute("tabindex", "-1"); focusEl.focus({ preventScroll: true }); }
@@ -732,8 +758,8 @@ function liteDraw() {
   const other = S.curPerf.find((p) => p !== S.starter) || S.curPerf[1] || "";
   S.ls.who = [S.starter, other]; S.liteEv = null;
   renderLiteScene(); show("liteScene"); sfx.start();
-  /* במה שעוד לא הוקלטה: המנחה אומר רק "קדימה!" (משפט חצי מוקלט לא מושמע) */
-  speak(`הבמה: ${S.ls.place}. קדימה!`, voiceHas(S.ls.place) ? ["draw-a-1", S.ls.place, "draw-b-1"] : ["draw-b-1"]);
+  /* 2.6.5: לפני הספירה לא אומרים "קדימה!" (אנשים התחילו לשחק). אומרים "עלו לבמה!" */
+  speak(`הבמה: ${S.ls.place}. עלו לבמה!`, voiceHas(S.ls.place) ? ["draw-a-1", S.ls.place, "compere-intro-2"] : ["compere-intro-2"]);
   save();
 }
 /* 2.6.3: שורה קצרה אחת על מה שיקרה באמצע הסיבוב (מסך הסצנה האחד) */
@@ -1136,7 +1162,7 @@ function applyGuessScore() {
 /* ---------- ספירה לאחור → סצנה ---------- */
 let countdownRunning = false, countIv = null;
 function beginCountdown() {
-  if (countdownRunning || sceneRunning) return; countdownRunning = true;
+  if (countdownRunning || sceneRunning) return; countdownRunning = true; prepWatch(null);
   ac(); let n = 3; const ov = $("#count"), el = $("#countN");
   ov.classList.add("go"); el.textContent = n; el.classList.add("pop"); sfx.count(); speak("שלוש");
   countIv = setInterval(() => {
@@ -1280,6 +1306,7 @@ function flashSwap(isFreeze) {
   setTimeout(() => { bg.classList.remove("go"); fl.classList.remove("go"); app.classList.remove("is-shaking"); }, 620);
 }
 function setPausedUI(on) {
+  airLamp(currentScreen === "play" ? (on ? "paused" : "live") : null);
   $("#pausedBanner").classList.toggle("on", on); $("#ringtimer").classList.toggle("paused", on); $("#clock").classList.toggle("paused", on);
   $$('[data-role="pause"]').forEach((b) => b.textContent = on ? "▶️ המשך" : "⏸️ השהה");
 }
@@ -1804,3 +1831,4 @@ document.addEventListener("keydown", (e) => {
   renderLicBoxes();
   registerSW();
 })();
+

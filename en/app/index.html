@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2.6.3-en">
+<link rel="stylesheet" href="css/app.css?v=2.6.5-en">
 <script>
 /* Self-heal: if the stylesheet did not apply (old service worker or broken cached response),
    clear THIS app's caches and service worker only (never the Hebrew app's), and reload once. */
@@ -44,6 +44,7 @@
 </head>
 <body>
 <div class="stagebg"></div>
+<div id="airLamp" class="airlamp" role="status" aria-live="polite" hidden><i aria-hidden="true"></i><span id="airLampTxt"></span></div>
 <div class="grain"></div>
 
 <!-- ============ Onboarding ============ -->
@@ -89,13 +90,13 @@
     <p class="sub">No improv experience needed. The app tells you what to do. You just read out loud and press buttons.</p>
 
     <h3>Who is the facilitator?</h3>
-    <p>The person holding the phone or standing next to the screen, pressing the buttons. They don't have to play. Each round <b>two players</b> go up to the "stage" (any free space in the room), and everyone else is <b>the audience</b>.</p>
+    <p>The facilitator holds the phone or stands by the screen and presses the buttons. They don't have to play. Each round <b>two players</b> go up to the "stage" (any free space in the room), and everyone else is <b>the audience</b>.</p>
 
     <h3>Mixed groups and English level</h3>
-    <p>This version is built for teams where not everyone is a native English speaker. The scenes are everyday situations, the instructions are short, and many tasks use the body and the face more than words. <b>Simple English is perfect.</b> Gestures, sounds and made-up words are all welcome. Say this out loud at the start: "Nobody here is judged on their English."</p>
+    <p>This version is made for teams with different levels of English. The scenes are everyday situations, the instructions are short, and many tasks use the body and the face more than words. <b>Simple English is perfect.</b> Gestures, sounds and made-up words are all welcome. Say this out loud at the start: "You don't need perfect English. The goal is to have fun together."</p>
 
     <h3>Lite or Full?</h3>
-    <p>There are two styles (in game setup, "Round style"). <b>🟢 Lite</b> is the default, and the best choice for a first game. Each round has one everyday stage, the screen says <b>who is who</b> and gives <b>a first line to each player</b>. The first round has no interruptions. From the second round there is one thing in the middle: <b>"Swap!"</b> (switch characters and continue) or <b>a small task</b> for one of the two. Every fourth round is something different that breaks the pattern. <b>🔵 Full</b> is the advanced version, with twists, extra events and lots of swaps.</p>
+    <p>There are two styles (in game setup, "Round style"). <b>🟢 Lite</b> is the default, and the best choice for a first game. Each round has one everyday stage, the screen shows <b>each player's role</b> and gives <b>a first line to each player</b>. The first round has no interruptions. From the second round there is one thing in the middle: <b>"Swap!"</b> (switch characters and continue) or <b>a small task</b> for one of the two. Every fourth round is something different that breaks the pattern. <b>🔵 Full</b> is the advanced version, with twists, extra events and lots of swaps.</p>
 
     <h3>🔥 Warm-up</h3>
     <p>Before the first round the whole room does <b>3 short tasks at the same time</b>: one without words, one in pairs with the person next to you, and one for the whole group out loud. Nobody stands alone in front of an audience, and everything works sitting down. Read the screen and press <b>"Start"</b>. A task doesn't fit the room? <b>"Different task"</b>. You can always skip. During the game, on the screen between rounds, there is a <b>🔥 Warm-up</b> button with more tasks, for example when the energy drops.</p>
@@ -104,17 +105,17 @@
     <ol class="gsteps">
       <li><b>🎤 Who goes up.</b> The screen shows two names. They go to the stage.</li>
       <li><b>🃏 The scene.</b> The screen shows the place, the small problem, who is who, and the first line for each player. Read it out loud. Don't like it? <b>"Draw again"</b>.</li>
-      <li><b>⏱️ The scene runs.</b> Countdown: 3, 2, 1, Action! The players talk and the clock runs. If you hear <b>"Swap!"</b>, they switch characters and continue. If a task appears, the named player does it.</li>
-      <li><b>💡 Help.</b> <b>Hint</b> and <b>Stuck?</b> help when people freeze up.</li>
+      <li><b>⏱️ The scene runs.</b> Countdown: 3, 2, 1, Action! The players improvise while the timer runs. If you hear <b>"Swap!"</b>, they switch characters and continue. If a task appears, the named player does it.</li>
+      <li><b>💡 Help.</b> Use <b>Hint</b> or <b>Stuck?</b> when players need help getting started.</li>
       <li><b>👏 End of scene.</b> Big applause! Then <b>"Next round"</b>.</li>
-      <li><b>🏁 End of the game.</b> In Team mode there is also a <b>10 minute closing talk</b>, step by step: a moment from the game, whether it connects to work, and what we take with us. The app tells you what to say at each step. At the end there is a short summary for the manager, with no scores and no names.</li>
+      <li><b>🏁 End of the game.</b> In Team mode there is also a <b>10-minute closing talk</b>, step by step: a moment from the game, whether it connects to work, and what we take with us. The app tells you what to say at each step. At the end there is a short summary for the manager, with no scores and no names.</li>
     </ol>
 
     <h3>Tips for the facilitator</h3>
     <ul class="gtips">
       <li><b>There are no mistakes in improv.</b> Everything said on stage becomes "true", and you continue from it.</li>
       <li><b>The key rule: "Yes, and..."</b> Accept what your partner said, and add to it. Don't say "no".</li>
-      <li><b>Mix the pairs.</b> Put an Israeli and an international colleague together. That's where the best moments happen.</li>
+      <li><b>Mix the pairs.</b> Put together colleagues who don't usually work together. That's where the best moments happen.</li>
       <li><b>The first round</b> is the scariest. It helps if the facilitator and someone brave go first.</li>
       <li><b>Applause after every scene,</b> even if it didn't work. That gives confidence to the next players.</li>
     </ul>
@@ -168,7 +169,7 @@
       <div class="field">
         <div class="label">Round style</div>
         <div class="seg" id="liteSeg" data-key="lite">
-          <button data-v="on">🟢 Lite<small>Best for a first game: one stage, who is who, a first line, no twists</small></button>
+          <button data-v="on">🟢 Lite<small>Best for a first game: one place, each player's role and first line, no twists</small></button>
           <button data-v="off">🔵 Full<small>Twists, surprise events, the Earpiece, lots of swaps</small></button>
         </div>
         <div class="litenote" id="liteNote" hidden>In Lite mode the digital host runs everything. Level, twist packs and director mode are not used.</div>
@@ -183,8 +184,8 @@
       <div class="field">
         <div class="label">Host mode</div>
         <div class="seg" id="modeSeg" data-key="mode">
-          <button data-v="auto">🤖 Automatic<small>The app hosts on its own</small></button>
-          <button data-v="manual">🎬 Manual<small>One of you is the director with buttons</small></button>
+          <button data-v="auto">🤖 Automatic<small>The app runs the game for you</small></button>
+          <button data-v="manual">🎬 Manual<small>One of you guides the game with the on-screen buttons</small></button>
         </div>
       </div>
       <div class="field">
@@ -351,9 +352,10 @@
     <div class="roleline" id="castCon">The twist: —</div>
     <div class="castnote" id="castNote" role="note" hidden></div>
     <div class="readybar" role="note">⏸️ The scene <b>has not started yet.</b> Read the details, go up on stage, and <b>when everyone is ready, press the button.</b> The scene starts after the countdown.</div>
+    <div class="prepnudge" hidden>👇 Everyone on stage? Press here to start</div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="backToDraw">Back</button>
-      <button class="big pulsego" data-act="beginCountdown">▶️ Start the scene: 3, 2, 1, Action!</button>
+      <button class="big pulsego" data-act="beginCountdown">▶️ We're ready: 3, 2, 1, Action!</button>
     </div>
   </section>
 
@@ -363,8 +365,10 @@
     <div class="lscard" id="lsCard"></div>
     <div class="lswho" id="lsWho"></div>
     <div class="lsnote" id="lsNote" role="note"></div>
+    <div class="prepline">Go to your places. Read your lines. Wait for the countdown.</div>
+    <div class="prepnudge" hidden>👇 Everyone on stage? Press here to start</div>
     <div class="row lsbtns">
-      <button class="big pulsego" data-act="beginCountdown">▶️ Start the scene: 3, 2, 1, Action!</button>
+      <button class="big pulsego" data-act="beginCountdown">▶️ We're ready: 3, 2, 1, Action!</button>
       <button class="ghost" data-act="reDraw">🔀 Draw again</button>
       <button class="ghost" data-act="liteSceneBack">Back</button>
     </div>
@@ -386,6 +390,7 @@
       <div class="holdhint">Let go and the secret hides again</div>
     </div>
     <div class="gstep g3"><span class="gnum">3</span><div>Everyone saw it? <b id="guessGuesser2">—</b> comes back, then press the red button</div></div>
+    <div class="prepnudge" hidden>👇 Everyone on stage? Press here to start</div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="reDraw">🔀 Another card</button>
       <button class="big" data-act="beginCountdown">The guesser is back. Action!</button>
@@ -419,6 +424,7 @@
       <p>At the end, the player with their back turned turns around and guesses what the tasks were.</p>
     </div>
     <div class="earset" id="earSetCard"></div>
+    <div class="prepnudge" hidden>👇 Everyone on stage? Press here to start</div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="earRedrawSet">🔀 Another scene</button>
       <button class="big" data-act="beginCountdown">Back to the screen? Action!</button>
@@ -445,6 +451,7 @@
     <div class="roleline" id="miniRoles"></div>
     <div class="earhow" id="miniHow"></div>
     <div class="earset" id="miniTopic"></div>
+    <div class="prepnudge" hidden>👇 Everyone on stage? Press here to start</div>
     <div class="row" style="margin-top:14px">
       <button class="ghost" data-act="miniRedraw">🔀 Another</button>
       <button class="big" data-act="beginCountdown">Action!</button>
@@ -606,7 +613,7 @@
           <a class="big sm buy" data-buy="event" href="#" target="_blank" rel="noopener">Buy</a>
         </div>
         <div class="offer">
-          <div class="ot">Open year</div><div class="op">4,100 ILS</div>
+          <div class="ot">One-year access</div><div class="op">4,100 ILS</div>
           <div class="od">The game is open for a full year, as often as you like, with your logo on the screen.</div>
           <a class="big sm buy" data-buy="year" href="#" target="_blank" rel="noopener">Buy</a>
         </div>
@@ -723,11 +730,11 @@
     <div class="field"><div class="label">Stats (saved on this device only)</div>
       <div class="localstats" id="localStats"></div></div>
     <div class="row"><button class="ghost" data-act="testVoice">🎤 Test voice</button><button class="ghost" data-act="resetAll">🧹 Reset data</button><button class="big sm" data-act="closeSettings">Close</button></div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">Mehamoten version <span id="verLabel">2.6.3-en</span> · <a href="privacy.html" style="color:#9fe3ff">Privacy</a> · <a href="../../app/" lang="he" style="color:#9fe3ff">עברית</a></p>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">Mehamoten version <span id="verLabel">2.6.5-en</span> · <a href="privacy.html" style="color:#9fe3ff">Privacy</a> · <a href="../../app/" lang="he" style="color:#9fe3ff">עברית</a></p>
   </div>
 </div>
 
-<script src="js/data.js?v=2.6.3-en"></script>
-<script src="js/app.js?v=2.6.3-en"></script>
+<script src="js/data.js?v=2.6.5-en"></script>
+<script src="js/app.js?v=2.6.5-en"></script>
 </body>
 </html>
