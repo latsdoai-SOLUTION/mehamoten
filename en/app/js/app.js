@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.6-en";
+const APP_VERSION = "2.6.7-en";
 const MM_LANG = "en"; /* English build: /en/app/ */
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
@@ -765,8 +765,8 @@ function liteDraw() {
   S.ls.who = [S.starter, other]; S.liteEv = null;
   setupExtras(st);
   renderLiteScene(); show("liteScene"); sfx.start();
-  /* במה שעוד לא הוקלטה: המנחה אומר רק "קדימה!" (משפט חצי מוקלט לא מושמע) */
-  speak(`The stage: ${S.ls.place}. Go!`, voiceHas(S.ls.place) ? ["draw-a-1", S.ls.place, "draw-b-1"] : ["draw-b-1"]);
+  /* 2.6.6-en (like Hebrew 2.6.5): before the countdown don't say "Go!" (people started playing). Say "Get on stage!" */
+  speak(`The stage: ${S.ls.place}. Get on stage!`, voiceHas(S.ls.place) ? ["draw-a-1", S.ls.place, "draw-b-1"] : ["draw-b-1"]);
   save();
 }
 /* 2.6.3: שורה קצרה אחת על מה שיקרה באמצע הסיבוב (מסך הסצנה האחד) */
