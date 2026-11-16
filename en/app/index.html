@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14101d">
+<meta name="description" content="Mehamoten: the digital host for an improv game. It guides you step by step, keeps the time and calls 'Swap!'. Even if you have never done improv, you will have fun.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mehamoten">
+<meta property="og:title" content="Mehamoten: the digital improv host">
+<meta property="og:description" content="Open a screen, type the names, and the digital host leads everyone. Two free rounds, in English, no sign-up.">
+<meta property="og:image" content="https://mehamoten.com/brand/hero.png">
+<meta property="og:url" content="https://mehamoten.com/en/app/">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://mehamoten.com/en/app/">
+<link rel="alternate" hreflang="he" href="https://mehamoten.com/app/">
+<link rel="alternate" hreflang="en" href="https://mehamoten.com/en/app/">
+<title>Mehamoten: the digital improv host</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css?v=2.6.3-en">
+<script>
+/* Self-heal: if the stylesheet did not apply (old service worker or broken cached response),
+   clear THIS app's caches and service worker only (never the Hebrew app's), and reload once. */
+(function(){
+  function styled(){ try{ return getComputedStyle(document.body).overflow==="hidden"; }catch(e){ return true; } }
+  function heal(){
+    if(styled()) return;
+    try{ if(sessionStorage.getItem("mm_en_healed")) return; sessionStorage.setItem("mm_en_healed","1"); }catch(e){}
+    var jobs=[];
+    if(window.caches) jobs.push(caches.keys().then(function(k){return Promise.all(k.filter(function(n){return n.indexOf("mehamoten-en-")===0;}).map(function(n){return caches.delete(n);}));}));
+    if(navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.filter(function(r){return /\/en\/app\/$/.test(r.scope);}).map(function(r){return r.unregister();}));}));
+    Promise.all(jobs).catch(function(){}).then(function(){ location.reload(); });
+  }
+  window.addEventListener("load", function(){ setTimeout(heal, 400); });
+})();
+</script>
+</head>
+<body>
+<div class="stagebg"></div>
+<div class="grain"></div>
+
+<!-- ============ Onboarding ============ -->
+<div id="onboard" role="dialog" aria-modal="true" aria-label="How to play">
+  <div class="ob on" data-i="0">
+    <div class="obic">🎭</div>
+    <h3>Welcome to Mehamoten</h3>
+    <p>An improv game for a group. <b>You don't need to be funny</b> and you don't need perfect English. Just react. The digital host guides you every step.</p>
+  </div>
+  <div class="ob" data-i="1">
+    <div class="obic">🃏</div>
+    <h3>Get a scene</h3>
+    <p>Each round the host gives two players <b>a place, who is who, and a first line</b> each. Say your line, then just talk like you are really there.</p>
+  </div>
+  <div class="ob" data-i="2">
+    <div class="obic">🔔</div>
+    <h3>"Swap!"</h3>
+    <p>In the middle of a scene the host may call <b>"Swap!"</b>. You switch characters and keep going from the same point. Or one player gets a small task on the screen.</p>
+  </div>
+  <div class="ob" data-i="3">
+    <div class="obic">💡</div>
+    <h3>Stuck? There's help</h3>
+    <p>A <b>hint</b> button, and a <b>Stuck?</b> button that gives you a line to say. Nobody is left alone on stage.</p>
+  </div>
+  <div class="ob" data-i="4">
+    <div class="obic">🏢</div>
+    <h3>For teams: Team mode</h3>
+    <p>Your company name on the screen, cards for your industry, a <b>guided closing talk</b> at the end, and a <b>session summary</b> you can send to the manager.</p>
+  </div>
+  <div class="dots" id="obDots"></div>
+  <div class="row">
+    <button class="ghost" data-act="obSkip">Skip</button>
+    <button class="big" id="obNext" data-act="obNext">Next</button>
+  </div>
+</div>
+
+
+<!-- ============ Facilitator guide ============ -->
+<div id="guide" role="dialog" aria-modal="true" aria-label="Facilitator guide">
+  <div class="gpanel">
+    <button class="close" data-act="closeGuide" aria-label="Close">✕</button>
+    <h2>📖 Facilitator guide</h2>
+    <p class="sub">No improv experience needed. The app tells you what to do. You just read out loud and press buttons.</p>
+
+    <h3>Who is the facilitator?</h3>
+    <p>The person holding the phone or standing next to the screen, pressing the buttons. They don't have to play. Each round <b>two players</b> go up to the "stage" (any free space in the room), and everyone else is <b>the audience</b>.</p>
+
+    <h3>Mixed groups and English level</h3>
+    <p>This version is built for teams where not everyone is a native English speaker. The scenes are everyday situations, the instructions are short, and many tasks use the body and the face more than words. <b>Simple English is perfect.</b> Gestures, sounds and made-up words are all welcome. Say this out loud at the start: "Nobody here is judged on their English."</p>
+
+    <h3>Lite or Full?</h3>
+    <p>There are two styles (in game setup, "Round style"). <b>🟢 Lite</b> is the default, and the best choice for a first game. Each round has one everyday stage, the screen says <b>who is who</b> and gives <b>a first line to each player</b>. The first round has no interruptions. From the second round there is one thing in the middle: <b>"Swap!"</b> (switch characters and continue) or <b>a small task</b> for one of the two. Every fourth round is something different that breaks the pattern. <b>🔵 Full</b> is the advanced version, with twists, extra events and lots of swaps.</p>
+
+    <h3>🔥 Warm-up</h3>
+    <p>Before the first round the whole room does <b>3 short tasks at the same time</b>: one without words, one in pairs with the person next to you, and one for the whole group out loud. Nobody stands alone in front of an audience, and everything works sitting down. Read the screen and press <b>"Start"</b>. A task doesn't fit the room? <b>"Different task"</b>. You can always skip. During the game, on the screen between rounds, there is a <b>🔥 Warm-up</b> button with more tasks, for example when the energy drops.</p>
+
+    <h3>One round, step by step</h3>
+    <ol class="gsteps">
+      <li><b>🎤 Who goes up.</b> The screen shows two names. They go to the stage.</li>
+      <li><b>🃏 The scene.</b> The screen shows the place, the small problem, who is who, and the first line for each player. Read it out loud. Don't like it? <b>"Draw again"</b>.</li>
+      <li><b>⏱️ The scene runs.</b> Countdown: 3, 2, 1, Action! The players talk and the clock runs. If you hear <b>"Swap!"</b>, they switch characters and continue. If a task appears, the named player does it.</li>
+      <li><b>💡 Help.</b> <b>Hint</b> and <b>Stuck?</b> help when people freeze up.</li>
+      <li><b>👏 End of scene.</b> Big applause! Then <b>"Next round"</b>.</li>
+      <li><b>🏁 End of the game.</b> In Team mode there is also a <b>10 minute closing talk</b>, step by step: a moment from the game, whether it connects to work, and what we take with us. The app tells you what to say at each step. At the end there is a short summary for the manager, with no scores and no names.</li>
+    </ol>
+
+    <h3>Tips for the facilitator</h3>
+    <ul class="gtips">
+      <li><b>There are no mistakes in improv.</b> Everything said on stage becomes "true", and you continue from it.</li>
+      <li><b>The key rule: "Yes, and..."</b> Accept what your partner said, and add to it. Don't say "no".</li>
+      <li><b>Mix the pairs.</b> Put an Israeli and an international colleague together. That's where the best moments happen.</li>
+      <li><b>The first round</b> is the scariest. It helps if the facilitator and someone brave go first.</li>
+      <li><b>Applause after every scene,</b> even if it didn't work. That gives confidence to the next players.</li>
+    </ul>
+    <div class="row" style="margin-top:14px"><button class="big sm" data-act="closeGuide">Got it, let's play</button></div>
+  </div>
+</div>
+
+<div class="app">
+  <button class="gear" data-act="openSettings" aria-label="Settings">⚙️</button>
+  <button class="guidebtn" data-act="openGuide" aria-label="Facilitator guide">📖</button>
+  <button class="homebtn" data-act="confirmHome" aria-label="Back to the home screen">🏠</button>
+
+  <!-- ============ Home ============ -->
+  <section class="screen active" id="home" aria-label="Home screen">
+    <div class="burst" aria-hidden="true"><span>Swap!</span></div>
+    <div class="eyebrow">The digital host · improv game</div>
+    <h1 class="display title">Mehamoten<span class="dot">.</span></h1>
+    <p class="tag">It guides you step by step, keeps the time, and calls "Swap!". Even if you've never done improv, it's easy and fun. Simple English is perfect.</p>
+    <div class="row">
+      <button class="big" data-act="goSetup">Let's play</button>
+      <button class="ghost" id="resumeBtn" hidden data-act="resumeGame">▶️ Continue game</button>
+      <button class="ghost" id="newGroupHome" hidden data-act="newGroup">🧹 New group</button>
+    </div>
+    <div class="row" style="margin-top:18px">
+      <span class="pill">🤖 Automatic host</span><span class="pill">🌍 Mixed-language teams</span><span class="pill">🔥 Group warm-up</span>
+      <span class="pill">🖥️ Big screen</span><span class="pill">✏️ Your own cards</span>
+      <span class="pill">🧒 Kids version</span><span class="pill">👥 2–8 names per game, any audience size</span>
+      <a class="pill" href="../" style="color:var(--spot);border-color:rgba(246,231,180,.4)">🏢 Mehamoten for teams →</a>
+    </div>
+    <div class="row installbar" id="installBar">
+      <button class="ghost goldb" data-act="install">📲 Install as an app</button>
+    </div>
+    <div class="row" style="margin-top:20px">
+      <button class="ghost goldb" data-act="openGuide">📖 Facilitator guide (2 min read)</button>
+      <button class="ghost" data-act="howto">How to play?</button>
+      <a class="ghost" href="../../app/" lang="he" style="text-decoration:none">🇮🇱 עברית</a>
+    </div>
+  </section>
+
+  <!-- ============ Game setup ============ -->
+  <section class="screen" id="setup" aria-label="Game setup">
+    <div class="panel">
+      <h2>Who's playing?</h2>
+      <p class="sub">Type the names, choose how you want to play, and start.</p>
+      <div class="field">
+        <div class="label">Players</div>
+        <div class="players" id="players"></div>
+        <button class="ghost addp" data-act="addPlayer">+ Add player</button>
+        <button class="ghost addp" data-act="newGroup">🧹 New group</button>
+      </div>
+      <div class="field">
+        <div class="label">Round style</div>
+        <div class="seg" id="liteSeg" data-key="lite">
+          <button data-v="on">🟢 Lite<small>Best for a first game: one stage, who is who, a first line, no twists</small></button>
+          <button data-v="off">🔵 Full<small>Twists, surprise events, the Earpiece, lots of swaps</small></button>
+        </div>
+        <div class="litenote" id="liteNote" hidden>In Lite mode the digital host runs everything. Level, twist packs and director mode are not used.</div>
+      </div>
+      <div class="field">
+        <div class="label">Warm-up at the start</div>
+        <div class="seg" id="warmSeg" data-key="warm">
+          <button data-v="on">🔥 Yes<small>3 short tasks for the whole room before the first round (about 3 minutes)</small></button>
+          <button data-v="off">⏭️ No<small>Straight to the first round</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Host mode</div>
+        <div class="seg" id="modeSeg" data-key="mode">
+          <button data-v="auto">🤖 Automatic<small>The app hosts on its own</small></button>
+          <button data-v="manual">🎬 Manual<small>One of you is the director with buttons</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Game style</div>
+        <div class="seg" id="scoredSeg" data-key="scored">
+          <button data-v="party">🎉 Party<small>No scores, just for fun</small></button>
+          <button data-v="scored">🏆 With scores<small>Tokens and a winner</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Level</div>
+        <div class="seg" id="levelSeg" data-key="level">
+          <button data-v="easy">🌱 Beginners<small>More guidance, less pressure, opening lines</small></button>
+          <button data-v="reg">🔥 Regular<small>Full speed</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Audience</div>
+        <div class="seg" id="kidsSeg" data-key="kids">
+          <button data-v="off">🎉 Regular<small>14+</small></button>
+          <button data-v="on">🧒 Kids<small>Kid-friendly content, no scores, relaxed timing</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Team mode (HR / team building)</div>
+        <div class="seg" id="teamSeg" data-key="team">
+          <button data-v="off">👥 Regular</button>
+          <button data-v="on">🏢 Team mode<small>Company name, industry cards, closing talk and session summary</small></button>
+        </div>
+        <div id="teamExtra" hidden>
+          <input id="companyInput" class="tinput" type="text" maxlength="40" placeholder="Company name (optional)" style="margin-top:10px" aria-label="Company name" autocomplete="organization">
+          <div class="label" style="margin-top:14px">Card pack by industry</div>
+          <div class="seg sm" id="industrySeg" data-key="industry">
+            <button data-v="">🎲 General</button>
+          </div>
+          <div class="licbox" id="licBox"></div>
+          <div id="logoWrap" hidden>
+            <div class="label" style="margin-top:14px">Company logo (shown at the start and in the summary)</div>
+            <div class="row" style="justify-content:flex-start">
+              <img id="logoPreview" alt="Company logo" hidden style="max-height:56px;max-width:160px;border-radius:8px;background:#fff;padding:4px">
+              <button class="ghost" data-act="pickLogo">🖼️ Choose logo</button>
+              <button class="ghost" id="logoRemoveBtn" hidden data-act="removeLogo">Remove</button>
+              <input id="logoFile" type="file" accept="image/*" hidden>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Twist packs</div>
+        <div class="seg sm" id="packSeg">
+          <button data-pack="style">🎭 Style</button>
+          <button data-pack="lang">💬 Words</button>
+          <button data-pack="body">🤸 Body</button>
+          <button data-pack="guess">🕵️ Guess</button>
+          <button data-pack="ear">🎧 Earpiece</button>
+          <button data-pack="emo">🎚️ Emotions</button>
+          <button data-pack="line">📜 Line from the screen</button>
+          <button data-pack="heads">🧠 Three heads</button>
+          <button data-pack="dub">🎬 Subtitles</button>
+          <button data-pack="expert">🎓 Fake expert</button>
+        </div>
+        <button class="ghost" style="margin-top:10px;width:100%" data-act="openEditor">✏️ Card editor: add your own cards</button>
+      </div>
+      <div class="field">
+        <div class="label">Display</div>
+        <div class="seg sm" id="bigSeg" data-key="big">
+          <button data-v="off">📱 Normal</button>
+          <button data-v="on">🖥️ Big screen / show<small>Huge text, made for a TV or projector</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Scene length</div>
+        <div class="seg sm" id="timeSeg" data-key="sceneLen">
+          <button data-v="60">60 seconds</button>
+          <button data-v="90">90 seconds</button>
+          <button data-v="120">120 seconds</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="ghost" data-act="goHome">Back</button>
+        <button class="big" data-act="startGame">Start!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Group warm-up ============ -->
+  <section class="screen" id="warmup" aria-label="Warm-up">
+    <div class="panel wu">
+      <div class="eyebrow" id="wuStep">Warm-up</div>
+      <p class="wulead" id="wuLead" hidden>Before anyone goes on stage: a few short tasks, everyone together. Nobody is watching anybody.</p>
+      <h2 class="wuname" id="wuName"></h2>
+      <div class="wutags" id="wuTags"></div>
+      <p class="wuhow" id="wuHow"></p>
+      <div class="wuitem" id="wuItem" aria-live="polite"></div>
+      <div class="wustage" id="wuStage" aria-live="polite"></div>
+      <div class="wutime" id="wuTime" role="timer" aria-live="off"></div>
+      <p class="wuex" id="wuEx" hidden></p>
+      <p class="wupair" id="wuPair" hidden></p>
+      <p class="wunote" id="wuNote" hidden></p>
+      <div class="row wubtns" id="wuBtns"></div>
+      <div class="row" style="margin-top:6px"><button class="ghost wuskip" id="wuSkipBtn" data-act="wuSkip">Skip the warm-up</button></div>
+    </div>
+  </section>
+
+  <!-- ============ Warm-up picker mid-game ============ -->
+  <section class="screen" id="wuPick" aria-label="Choose a warm-up">
+    <div class="panel wu">
+      <div class="eyebrow">Mid-game warm-up</div>
+      <h2>🔥 A task for the whole room</h2>
+      <p class="sub">When the energy drops, or just between rounds. Everyone at the same time.</p>
+      <div class="row"><button class="big" data-act="wuSurprise">🎲 Surprise me</button></div>
+      <div class="label" style="margin-top:16px">Recommended</div>
+      <div class="wulist" id="wuMid"></div>
+      <details class="wuall"><summary>All tasks</summary><div id="wuAll"></div></details>
+      <div class="row" style="margin-top:14px"><button class="ghost" data-act="wuBack">Back</button></div>
+    </div>
+  </section>
+
+  <!-- ============ Lite intro ============ -->
+  <section class="screen" id="liteIntro" aria-label="Intro">
+    <div class="panel liteintro">
+      <div class="eyebrow">Before we start</div>
+      <h2>This is how it works</h2>
+      <div id="liteIntroBody"></div>
+      <div class="row" style="margin-top:22px"><button class="big pulsego" data-act="liteGo">OK, to the first round</button></div>
+    </div>
+  </section>
+
+  <!-- ============ Round intro ============ -->
+  <section class="screen" id="intro" aria-label="Round intro">
+    <img data-role="orglogo" alt="" hidden style="max-height:64px;max-width:200px;margin-bottom:10px;border-radius:8px;background:#fff;padding:4px">
+    <div class="eyebrow" id="introRnum">Round 1</div>
+    <div class="who" id="introWho">Getting ready…</div>
+    <div class="roleline">On stage: <b id="introPerf">—</b></div>
+    <div class="roleline" id="introDirLine">Director: <b id="introDir">—</b></div>
+    <div class="row" style="margin-top:26px"><button class="big" data-act="drawCards">Draw cards</button></div>
+  </section>
+
+  <!-- ============ Draw ============ -->
+  <section class="screen" id="draw" aria-label="The cards you drew">
+    <div class="eyebrow" id="drawRnum" style="margin-bottom:2.2vmin">Your stage and twist</div>
+    <div class="cards2" id="drawCards"></div>
+    <div class="drawguide" id="drawGuide" role="note"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="ghost" data-act="reDraw">🔀 Draw again</button>
+      <button class="ghost hintb" id="drawHintBtn" data-act="openerHint">💡 Opening hint</button>
+      <button class="big" data-act="goCast">Continue →</button>
+    </div>
+  </section>
+
+  <!-- ============ Framing ============ -->
+  <section class="screen" id="cast" aria-label="Scene setup">
+    <div class="eyebrow">Before the scene · not starting yet</div>
+    <div class="framecard">
+      <div class="place" id="castPlace">—</div>
+      <div class="rel" id="castRel">—</div>
+      <div class="starts">Starts: <b id="castStarter">—</b></div>
+      <div class="seedline" id="castSeed" hidden>
+        <span class="lbl">A ready first line (optional):</span>
+        <span id="castSeedTxt">—</span>
+      </div>
+    </div>
+    <div class="castwho" id="castWho" hidden></div>
+    <div class="roleline" id="castCon">The twist: —</div>
+    <div class="castnote" id="castNote" role="note" hidden></div>
+    <div class="readybar" role="note">⏸️ The scene <b>has not started yet.</b> Read the details, go up on stage, and <b>when everyone is ready, press the button.</b> The scene starts after the countdown.</div>
+    <div class="row" style="margin-top:14px">
+      <button class="ghost" data-act="backToDraw">Back</button>
+      <button class="big pulsego" data-act="beginCountdown">▶️ Start the scene: 3, 2, 1, Action!</button>
+    </div>
+  </section>
+
+  <!-- ============ Lite: one scene screen ============ -->
+  <section class="screen" id="liteScene" aria-label="Your scene">
+    <div class="eyebrow" id="lsRnum">Your stage</div>
+    <div class="lscard" id="lsCard"></div>
+    <div class="lswho" id="lsWho"></div>
+    <div class="lsnote" id="lsNote" role="note"></div>
+    <div class="row lsbtns">
+      <button class="big pulsego" data-act="beginCountdown">▶️ Start the scene: 3, 2, 1, Action!</button>
+      <button class="ghost" data-act="reDraw">🔀 Draw again</button>
+      <button class="ghost" data-act="liteSceneBack">Back</button>
+    </div>
+  </section>
+  <section class="screen" id="guessIntro" aria-label="Guessing round">
+    <div class="eyebrow" id="guessRnum">Guessing round</div>
+    <div class="who" id="guessTitle">—</div>
+    <div class="gstep g1"><span class="gnum">1</span><div><b id="guessGuesser">—</b>: look away or step out for a moment 🙈<br><small>No peeking at the screen</small></div></div>
+    <div class="gstep g2"><span class="gnum">2</span><div><b>Everyone else:</b> press and hold the card to see the secret</div></div>
+    <div class="garrow" aria-hidden="true">⬇️</div>
+    <div class="secretwrap">
+      <div class="secretcard blurred" id="secretCard" role="button" tabindex="0" aria-label="Press and hold to reveal the secret">
+        <div class="sk" id="secretKind">🕵️ The secret</div>
+        <div class="sv" id="secretVal">—</div>
+        <div class="sd" id="secretDesc">—</div>
+        <div class="eye" aria-hidden="true">🙈</div>
+        <div class="presshere" aria-hidden="true">👆 Press and hold here</div>
+      </div>
+      <div class="holdhint">Let go and the secret hides again</div>
+    </div>
+    <div class="gstep g3"><span class="gnum">3</span><div>Everyone saw it? <b id="guessGuesser2">—</b> comes back, then press the red button</div></div>
+    <div class="row" style="margin-top:14px">
+      <button class="ghost" data-act="reDraw">🔀 Another card</button>
+      <button class="big" data-act="beginCountdown">The guesser is back. Action!</button>
+    </div>
+  </section>
+
+  <!-- ============ Guess: result ============ -->
+  <section class="screen" id="guessScore" aria-label="Guess result">
+    <div class="applause" id="guessEmoji">🎯</div>
+    <div class="who" id="guessResult">—</div>
+    <div class="muted" id="guessResultSub"></div>
+    <div class="panel" id="hinterPanel" style="margin-top:20px" hidden>
+      <h2 style="font-size:clamp(20px,3vmin,30px)">Who gave the sharpest hint?</h2>
+      <p class="sub">A great hint without giving it away = one token (you can skip).</p>
+      <div class="honor" id="hinterGrid"></div>
+    </div>
+    <div class="row" style="margin-top:24px">
+      <button class="big" data-act="applyGuessScore">Continue</button>
+    </div>
+  </section>
+
+  <!-- ============ Earpiece: intro ============ -->
+  <section class="screen" id="earIntro" aria-label="Earpiece round">
+    <div class="eyebrow" id="earRnum">Earpiece round</div>
+    <div class="who">🎧 The Earpiece</div>
+    <div class="roleline">🙉 <b id="earListenerName">—</b>: turn your back to the screen</div>
+    <div class="roleline">🎧 <b id="earAgentName">—</b>: the agent, facing the screen with the audience</div>
+    <div class="earhow">
+      <p>Every <b id="earEvery">30</b> seconds a secret task appears on the screen, with a beep.</p>
+      <p>The agent slips it into the conversation without getting caught.</p>
+      <p>At the end, the player with their back turned turns around and guesses what the tasks were.</p>
+    </div>
+    <div class="earset" id="earSetCard"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="ghost" data-act="earRedrawSet">🔀 Another scene</button>
+      <button class="big" data-act="beginCountdown">Back to the screen? Action!</button>
+    </div>
+  </section>
+
+  <!-- ============ Earpiece: reveal ============ -->
+  <section class="screen" id="earReveal" aria-label="Reveal the tasks">
+    <div class="applause">🎧</div>
+    <div class="who" id="earRevealTitle">Turn around!</div>
+    <div class="muted" id="earRevealSub"></div>
+    <div class="earlist" id="earList"></div>
+    <div class="muted" id="earTapHint" hidden style="margin-top:8px">Mark each task that was guessed right 🎯</div>
+    <div class="row" style="margin-top:16px">
+      <button class="ghost" id="earRevealBtn" data-act="earReveal">👀 Reveal the tasks</button>
+      <button class="big" id="earContinueBtn" data-act="applyEarScore" hidden>Continue</button>
+    </div>
+  </section>
+
+  <!-- ============ Screen mini games: intro ============ -->
+  <section class="screen" id="miniIntro" aria-label="Mini game">
+    <div class="eyebrow" id="miniRnum">Round</div>
+    <div class="who" id="miniTitle">—</div>
+    <div class="roleline" id="miniRoles"></div>
+    <div class="earhow" id="miniHow"></div>
+    <div class="earset" id="miniTopic"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="ghost" data-act="miniRedraw">🔀 Another</button>
+      <button class="big" data-act="beginCountdown">Action!</button>
+    </div>
+  </section>
+
+  <!-- ============ Expert: reveal ============ -->
+  <section class="screen" id="miniReveal" aria-label="Reveal the expert">
+    <div class="applause">🎓</div>
+    <div class="who" id="miniRevealTitle">Who were you?</div>
+    <div class="earset"><div class="scard set minitopic blurred" id="miniRevealCard"><div class="k">🎓 You were…</div><div class="v" id="miniRevealVal">—</div></div></div>
+    <div class="row" style="margin-top:16px"><button class="big" id="miniRevealBtn" data-act="miniRevealExpert">👀 Reveal</button></div>
+    <div class="guessverdict" id="miniVerdict" hidden style="margin:16px auto 0">
+      <button class="yes" data-act="miniExpertWin">🎯 Got it!</button>
+      <button class="no" data-act="miniExpertLose">😅 Not really</button>
+    </div>
+  </section>
+
+  <!-- ============ Scene ============ -->
+  <section class="screen" id="play" aria-label="The scene is running">
+    <div class="timebar"><div class="fill" id="timefill"></div></div>
+    <div class="playtop"><div class="smallcards" id="playCards"></div></div>
+    <div class="guide" id="playGuide" tabindex="-1"></div>
+    <div class="ringtimer" id="ringtimer" style="--p:1"><div class="clock" id="clock" role="timer" aria-live="off">90</div></div>
+    <div class="pausedbanner" id="pausedBanner">⏸️ Paused</div>
+    <div class="perform">On stage: <b id="playPerf">—</b></div>
+    <div class="ringcount" id="ringcount"></div>
+    <div class="playctrl">
+      <div id="manualCtrl" hidden>
+        <div class="row"><button class="swapbtn" data-act="manualSwap">🔔 Swap!</button></div>
+        <div class="row" style="margin-top:12px">
+          <button class="ghost topicb" data-act="throwTopic">🎲 New twist</button>
+          <button class="ghost stuckb" data-act="stuck">😅 Stuck?</button>
+          <button class="ghost hintb" data-act="sceneHint">💡 Hint</button>
+          <button class="ghost" data-act="freeze">❄️ Freeze!</button>
+          <button class="ghost" data-act="togglePause" data-role="pause">⏸️ Pause</button>
+          <button class="ghost" data-act="endScene">⏹️ End</button>
+        </div>
+      </div>
+      <div id="autoCtrl" hidden>
+        <div class="autohint">🤖 The host runs the scene… listen for "Swap!"</div>
+        <div class="row" style="margin-top:10px">
+          <button class="ghost topicb" data-act="throwTopic">🎲 New twist</button>
+          <button class="ghost stuckb" data-act="stuck">😅 Stuck?</button>
+          <button class="ghost hintb" data-act="sceneHint">💡 Hint</button>
+          <button class="ghost" data-act="togglePause" data-role="pause">⏸️ Pause</button>
+          <button class="ghost" data-act="endScene">⏹️ End early</button>
+        </div>
+      </div>
+      <div id="guessCtrl" hidden>
+        <div class="guessverdict" style="margin:0 auto">
+          <button class="yes" data-act="guessSuccess">🎯 Guessed it!</button>
+          <button class="no" data-act="endScene">⏱️ Give up / time's up</button>
+        </div>
+        <div class="row" style="margin-top:10px"><button class="ghost" data-act="togglePause" data-role="pause">⏸️ Pause</button></div>
+      </div>
+      <div id="earCtrl" hidden>
+        <div class="row">
+          <button class="ghost" data-act="earNext">⏭️ Next task</button>
+          <button class="ghost" data-act="togglePause" data-role="pause">⏸️ Pause</button>
+          <button class="ghost" data-act="endScene">⏹️ End</button>
+        </div>
+      </div>
+      <div id="miniCtrl" hidden>
+        <div class="row">
+          <button class="ghost" id="miniNextBtn" data-act="miniNext">⏭️ Next now</button>
+          <button class="ghost" data-act="togglePause" data-role="pause">⏸️ Pause</button>
+          <button class="ghost" data-act="endScene">⏹️ End</button>
+        </div>
+      </div>
+      <div class="keyhint" id="keyHint">Keyboard: Space = swap · T = twist · H = hint · P = pause · E = end</div>
+      <div class="badge" id="playBadge">Powered by Mehamoten · mehamoten.com</div>
+    </div>
+  </section>
+
+  <!-- ============ Scoring ============ -->
+  <section class="screen" id="score" aria-label="Scoring">
+    <div class="panel">
+      <h2>Scoring</h2>
+      <p class="sub" id="scoreSub">Reward reacting to the twist, not "who is the funniest".</p>
+      <div id="scoreBody"></div>
+      <div class="row" style="margin-top:8px"><button class="big" data-act="applyScore">Continue</button></div>
+    </div>
+  </section>
+
+  <!-- ============ End of round ============ -->
+  <section class="screen" id="roundend" aria-label="End of round">
+    <div class="applause">👏</div>
+    <div class="rebig">Well done!</div>
+    <div class="muted" id="roundendSub"></div>
+    <div class="row" style="margin-top:26px">
+      <button class="ghost" data-act="endGameNow">End game</button>
+      <button class="ghost" data-act="wuMenu">🔥 Warm-up</button>
+      <button class="big" data-act="nextRound">Next round</button>
+    </div>
+  </section>
+
+  <!-- ============ Scoreboard ============ -->
+  <section class="screen" id="scoreboard" aria-label="Scoreboard">
+    <h2 class="display" style="font-size:clamp(30px,6vmin,52px);margin:0 0 6px">Scoreboard</h2>
+    <p class="muted" id="boardSub" style="margin:0 0 20px"></p>
+    <div class="board" id="board"></div>
+    <div class="row" style="margin-top:24px">
+      <button class="ghost" data-act="endGameNow">End game</button>
+      <button class="ghost" data-act="wuMenu">🔥 Warm-up</button>
+      <button class="big" id="declareWinBtn" hidden data-act="declareWinner">🏆 Announce the winner</button>
+      <button class="big" data-act="nextRound">Next round</button>
+    </div>
+  </section>
+
+  <!-- ============ Winner ============ -->
+  <section class="screen" id="winner" aria-label="The winner">
+    <div class="crown">👑</div><div class="eyebrow">The winner</div>
+    <div class="wname" id="winName">—</div><div class="muted" id="winSub"></div>
+      <div class="mgrcta" data-role="mgrcta">
+        <b>Team manager?</b> This is what it can look like for your team: industry cards, a guided closing talk and a summary for the manager. A team evening from 690 ILS.
+        <div class="row" style="margin-top:10px"><a class="ghost goldb" data-role="mgrwa" href="#" target="_blank" rel="noopener">💬 Details on WhatsApp</a><button class="ghost" data-act="enterCode">🔑 I have a code</button></div>
+      </div>
+    <div class="row" style="margin-top:28px">
+      <button class="ghost" data-act="showBoardOnly">Full board</button>
+      <button class="ghost goldb" data-act="showSummary">📋 Session summary</button>
+      <button class="big" data-act="newGame">New game</button>
+    </div>
+  </section>
+
+  <!-- ============ Debrief (team mode) ============ -->
+  <section class="screen" id="debrief" aria-label="Closing talk">
+    <div class="panel dbpanel" style="text-align:left">
+      <div id="dbBody"></div>
+      <div class="row" id="dbNav" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- ============ Party end ============ -->
+  <section class="screen" id="partyend" aria-label="End of the game">
+    <div class="crown">🎉</div>
+    <div class="wname">Thanks for playing!</div>
+    <div class="muted" id="partyendSub"></div>
+      <div class="mgrcta" data-role="mgrcta">
+        <b>Team manager?</b> This is what it can look like for your team: industry cards, a guided closing talk and a summary for the manager. A team evening from 690 ILS.
+        <div class="row" style="margin-top:10px"><a class="ghost goldb" data-role="mgrwa" href="#" target="_blank" rel="noopener">💬 Details on WhatsApp</a><button class="ghost" data-act="enterCode">🔑 I have a code</button></div>
+      </div>
+    <div class="row" style="margin-top:28px">
+      <button class="ghost goldb" data-act="showSummary">📋 Session summary</button>
+      <button class="big" data-act="newGame">New game</button>
+    </div>
+  </section>
+
+  <!-- ============ Offer (after two free rounds, any mode) ============ -->
+  <section class="screen" id="offer" aria-label="Keep playing">
+    <div class="panel offerpanel">
+      <div class="eyebrow">Your two free rounds are done</div>
+      <h2>Enjoyed it? You can keep playing right now.</h2>
+      <div class="offergrid">
+        <div class="offer">
+          <div class="ot">Team evening</div><div class="op">690 ILS</div>
+          <div class="od">Buy one evening and play whenever it suits you.</div>
+          <div class="ohl">Buy now: the game stays open for you until 1 January 2027.</div>
+          <a class="big sm buy" data-buy="event" href="#" target="_blank" rel="noopener">Buy</a>
+        </div>
+        <div class="offer">
+          <div class="ot">Open year</div><div class="op">4,100 ILS</div>
+          <div class="od">The game is open for a full year, as often as you like, with your logo on the screen.</div>
+          <a class="big sm buy" data-buy="year" href="#" target="_blank" rel="noopener">Buy</a>
+        </div>
+        <div class="offer">
+          <div class="ot">Year + evening with Liran</div><div class="op">5,900 ILS</div>
+          <div class="od">Liran comes and hosts a one-hour evening for you, and the game stays open for a full year.</div>
+          <a class="big sm buy" data-buy="yearPlus" href="#" target="_blank" rel="noopener">Buy</a>
+        </div>
+      </div>
+      <div class="ovat">Prices in Israeli shekels (ILS), VAT included. One purchase opens both the English and the Hebrew game.</div>
+      <button class="linkbtn" data-act="enterCode">Already bought? I have a code</button>
+      <button class="linkbtn backlink" data-act="offerBack">Back</button>
+    </div>
+  </section>
+
+  <!-- ============ Session summary ============ -->
+  <section class="screen" id="summary" aria-label="Session summary">
+    <div class="panel" style="text-align:left">
+      <h2 style="text-align:center">📋 Session summary</h2>
+      <p class="sub" style="text-align:center" id="summarySub"></p>
+      <div class="stats" id="summaryStats"></div>
+      <div id="summaryBody"></div>
+      <div class="mgrcta" data-role="mgrcta">
+        <b>Team manager?</b> This is what it can look like for your team: industry cards, a guided closing talk and a summary for the manager. A team evening from 690 ILS.
+        <div class="row" style="margin-top:10px"><a class="ghost goldb" data-role="mgrwa" href="#" target="_blank" rel="noopener">💬 Details on WhatsApp</a><button class="ghost" data-act="enterCode">🔑 I have a code</button></div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button class="ghost" data-act="copySummary">📄 Copy text</button>
+        <button class="ghost" id="mementoBtn" hidden data-act="shareMemento">🎬 Game memory</button>
+        <button class="ghost goldb" data-act="shareImage">🖼️ Share as image</button>
+        <button class="ghost goldb" data-act="shareSummary">📤 Share text</button>
+        <button class="big sm" data-act="newGame">New game</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ Overlays ============ -->
+<div class="flashbg" id="flashbg"></div>
+<div id="flash" aria-hidden="true">
+  <div class="star"><svg viewBox="0 0 200 200"><polygon points="100,2 118,42 158,22 148,66 196,64 160,96 198,122 152,126 168,170 126,150 118,198 100,160 82,198 74,150 32,170 48,126 2,122 40,96 4,64 52,66 42,22 82,42"
+    fill="#e23149" stroke="#ff5066" stroke-width="3"/></svg></div>
+  <div class="fx" id="flashTxt">Swap!</div>
+</div>
+<div id="count" aria-hidden="true"><div class="n" id="countN">3</div></div>
+<div class="toast" id="hint" role="status" aria-live="polite" data-act="hideHint" tabindex="0"><span class="hi">💡</span><p><span class="hx" id="hintKind">Hint</span><span id="hintTxt"></span></p></div>
+<div class="toast" id="topic" role="status" aria-live="polite" data-act="hideTopic" tabindex="0"><span class="hi">🎲</span><p><span class="hx">New twist!</span><span id="topicTxt"></span></p></div>
+<div class="toast" id="update" role="status" data-act="reloadApp" tabindex="0"><span class="hi">✨</span><p><span class="hx">New version</span>There is an update. Tap here to refresh</p></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<!-- ============ Card editor ============ -->
+<div id="editor" class="modal" role="dialog" aria-modal="true" aria-label="Card editor">
+  <div class="panel">
+    <button class="close" data-act="closeEditor" aria-label="Close">✕</button>
+    <h2>✏️ Card editor</h2>
+    <p class="sub">Add your own cards: inside jokes, places from your office, crazy twists. Saved on this device.</p>
+    <div class="field">
+      <div class="label">Category</div>
+      <div class="catchips" id="edCat">
+        <button data-c="set" style="--cc:var(--set)" class="on"><i></i>📍 Stage</button>
+        <button data-c="style" style="--cc:var(--style)"><i></i>🎭 Style</button>
+        <button data-c="lang" style="--cc:var(--lang)"><i></i>💬 Words</button>
+        <button data-c="body" style="--cc:var(--body)"><i></i>🤸 Body</button>
+      </div>
+    </div>
+    <div class="edrow">
+      <input id="edTitle" type="text" maxlength="40" placeholder="Card title (for example: the office kitchen)" aria-label="Card title">
+      <input id="edDesc" type="text" maxlength="90" placeholder="Short description (for example: two people fight over the last milk)" aria-label="Card description">
+    </div>
+    <div class="row" style="margin-top:14px"><button class="big sm" data-act="addCustomCard">+ Add card</button></div>
+    <div class="label" style="margin-top:18px">Your cards (<span id="edCount">0</span>)</div>
+    <div class="customlist" id="customList"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="ghost" data-act="exportCustom">📤 Export (copy)</button>
+      <button class="ghost" data-act="importCustom">📥 Import</button>
+    </div>
+    <p class="sub" style="margin:10px 0 0;font-size:12.5px;text-align:center">Export copies your pack as text. Send it to friends on WhatsApp, and they press "Import".</p>
+  </div>
+</div>
+
+<!-- ============ Settings ============ -->
+<div id="settings" class="modal" role="dialog" aria-modal="true" aria-label="Settings">
+  <div class="panel">
+    <button class="close" data-act="closeSettings" aria-label="Close">✕</button>
+    <h2>Settings</h2>
+    <p class="sub">Voice, sound, hints and accessibility.</p>
+    <div class="field">
+      <div class="label">Host personality</div>
+      <div class="seg sm" id="personaSeg" data-skey="persona">
+        <button data-v="compere">📣 The Host<small>energetic, uplifting</small></button>
+        <button data-v="cynic">🎩 The Cynic<small>dry, in control</small></button>
+        <button data-v="manic">🤪 The Hype Machine<small>fast, wild</small></button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="label">Host voice</div>
+      <div class="seg sm" id="ttsSeg" data-skey="tts"><button data-v="on">🔊 Voice on</button><button data-v="off">🔇 Off</button></div>
+      <div class="seg sm" id="voiceSeg" data-skey="voice" style="margin-top:8px" hidden><button data-v="tts">🤖 Device voice</button></div>
+      <div id="ttsVoiceWrap" hidden>
+      <div class="label" style="margin-top:12px">English voice on this device</div>
+      <select id="voiceSel" aria-label="Choose a voice"></select>
+      <p class="sub" style="margin:8px 0 0;font-size:12.5px">Uses your device's built-in voice. The voice is a bonus: everything the host says is also on the screen.</p>
+      </div>
+    </div>
+    <div class="field"><div class="label">Hints and help</div>
+      <div class="seg sm" id="hintsSeg" data-skey="hints"><button data-v="on">💡 On</button><button data-v="off">🚫 Off</button></div></div>
+    <div class="field"><div class="label">Sound effects</div>
+      <div class="seg sm" id="sfxSeg" data-skey="sfx"><button data-v="on">🔔 On</button><button data-v="off">🔕 Off</button></div></div>
+    <div class="field"><div class="label">Animations (accessibility)</div>
+      <div class="seg sm" id="motionSeg" data-skey="motion"><button data-v="on">✨ Full</button><button data-v="off">🧘 Reduced</button></div></div>
+    <div class="field"><div class="label">Team code (Team mode)</div>
+      <div class="licbox" id="licBox2"></div>
+      <div class="row" style="justify-content:flex-start;margin-top:8px"><button class="ghost goldb" data-act="enterCode">🔑 Enter code</button><button class="ghost" id="licRemoveBtn" hidden data-act="removeCode">Remove code</button></div></div>
+    <div class="field"><div class="label">Stats (saved on this device only)</div>
+      <div class="localstats" id="localStats"></div></div>
+    <div class="row"><button class="ghost" data-act="testVoice">🎤 Test voice</button><button class="ghost" data-act="resetAll">🧹 Reset data</button><button class="big sm" data-act="closeSettings">Close</button></div>
+    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:12px">Mehamoten version <span id="verLabel">2.6.3-en</span> · <a href="privacy.html" style="color:#9fe3ff">Privacy</a> · <a href="../../app/" lang="he" style="color:#9fe3ff">עברית</a></p>
+  </div>
+</div>
+
+<script src="js/data.js?v=2.6.3-en"></script>
+<script src="js/app.js?v=2.6.3-en"></script>
+</body>
+</html>

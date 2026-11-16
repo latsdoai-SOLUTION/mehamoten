@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mehamoten | Your team will laugh together</title>
+<meta name="description" content="An improv game for mixed-language teams, with no facilitator and no prep. The first two rounds are free, then you buy directly.">
+<meta property="og:title" content="Your team will laugh together from the very first round">
+<meta property="og:description" content="An improv game for mixed-language teams. No facilitator, no prep. Two free rounds.">
+<meta property="og:image" content="https://mehamoten.com/brand/hero.png">
+<meta property="og:url" content="https://mehamoten.com/en/free/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://mehamoten.com/en/free/">
+<link rel="alternate" hreflang="he" href="https://mehamoten.com/free/">
+<link rel="icon" type="image/svg+xml" href="../app/icons/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--stage:#100c17;--stage2:#14101d;--red:#e23149;--red2:#ff5066;--gold:#f6e7b4;--ink:#f4f0fb;--muted:#b9b0cb;--line:rgba(246,231,180,.16);--card:rgba(255,255,255,.045)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:17.5px;scroll-behavior:smooth}
+body{font-family:'Heebo',sans-serif;background:var(--stage);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(800px 500px at 80% -8%,rgba(226,49,73,.22),transparent 60%),radial-gradient(700px 520px at 5% 20%,rgba(140,47,201,.13),transparent 60%)}
+header,section,footer,.top{position:relative;z-index:1}
+h1,h2,h3{font-family:'Secular One',sans-serif;font-weight:400;line-height:1.15}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+.narrow{max-width:720px;margin:0 auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:'Heebo';font-weight:800;font-size:1.12rem;padding:16px 30px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 14px 34px -10px rgba(226,49,73,.75);transition:transform .2s}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);box-shadow:none;color:var(--ink)}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible,a:focus-visible,input:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:3px}
+.eyebrow{display:inline-block;font-size:.92rem;font-weight:800;color:var(--gold);border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px}
+.small{font-size:.92rem;color:var(--muted)}
+/* top */
+.top{position:sticky;top:0;z-index:50;background:rgba(16,12,23,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-family:'Secular One';font-size:1.3rem;text-decoration:none}.logo span{color:var(--red2)}
+.top .btn{padding:9px 20px;font-size:.95rem}
+/* hero */
+.hero{padding:52px 0 24px;text-align:center}
+.hero h1{font-size:clamp(2.2rem,6vw,3.9rem);margin-top:18px}
+.hero h1 em{font-style:normal;color:var(--red2)}
+.sub{margin:18px auto 26px;font-size:1.22rem;color:var(--muted);max-width:620px}
+.free-line{margin-top:12px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:900px;margin:40px auto 0}
+.cards img{width:100%;height:auto;display:block}
+/* blocks */
+.sec{padding:56px 0}
+.sec h2{font-size:clamp(1.7rem,4vw,2.5rem);margin-bottom:12px}
+.center{text-align:center}
+.punch{font-family:'Secular One';font-size:clamp(1.5rem,3.6vw,2.2rem);line-height:1.25}
+.punch span{color:var(--red2)}
+.para{color:var(--muted);font-size:1.12rem;margin-top:12px}
+.divider{height:1px;background:var(--line);max-width:720px;margin:0 auto}
+/* about */
+.about{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:start}
+.badge{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--red),#8c2fc9);display:flex;align-items:center;justify-content:center;font-family:'Secular One';font-size:2.2rem;box-shadow:0 0 0 4px var(--stage),0 0 0 6px var(--gold)}
+.about p{color:#dcd5e6;font-size:1.08rem;margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:30px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 14px;text-align:center}
+.stat b{display:block;font-family:'Secular One';font-size:2rem;color:var(--gold);line-height:1.1}
+.stat span{font-size:.95rem;color:var(--muted)}
+/* offer */
+.offers{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+.offer{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px;display:flex;flex-direction:column}
+.offer.hot{border-color:rgba(255,80,102,.55);background:linear-gradient(180deg,rgba(226,49,73,.14),rgba(255,255,255,.03) 60%)}
+.offer .ic{font-size:2rem}
+.offer h3{font-size:1.45rem;margin:6px 0 6px}
+.offer p{color:var(--muted)}
+.offer ul{list-style:none;margin:12px 0 18px;display:grid;gap:6px}
+.offer li::before{content:"✓ ";color:#3cc47a;font-weight:800}
+.offer .price{margin-top:auto;font-family:'Secular One';font-size:1.6rem;color:var(--gold)}
+.offer .price .pn{display:block;font-family:'Heebo';font-size:1rem;color:var(--muted);margin-inline-start:6px}
+/* plan */
+.plan{display:grid;gap:14px;margin-top:26px}
+.stage{display:grid;grid-template-columns:auto 1fr;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px}
+.num{width:52px;height:52px;border-radius:50%;background:var(--red);font-family:'Secular One';font-size:1.6rem;display:flex;align-items:center;justify-content:center}
+.stage.s2 .num{background:var(--gold);color:#1c1720}.stage.s3 .num{background:#8c2fc9}
+.stage .lbl{font-size:.88rem;font-weight:800;color:var(--gold);letter-spacing:.2px}
+.stage h3{font-size:1.35rem;margin:2px 0 6px}
+.stage p{color:var(--muted)}
+.get{margin-top:10px;background:rgba(0,0,0,.28);border-radius:12px;padding:10px 14px;font-size:1rem}
+.get b{color:var(--gold)}
+/* proof */
+.quote{font-family:'Secular One';font-size:clamp(1.4rem,3.4vw,2rem);line-height:1.35;text-align:center}
+.quote small{display:block;font-family:'Heebo';font-size:1rem;color:var(--muted);margin-top:12px}
+.proof{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px}
+.proof div{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px}
+.proof h3{font-size:1.15rem;margin-bottom:6px;color:var(--gold)}
+.proof p{color:var(--muted);font-size:1rem}
+/* ticket + form */
+.ticket{display:grid;grid-template-columns:1fr auto;border-radius:22px;overflow:hidden;border:1px solid rgba(255,80,102,.5);margin:26px auto 0;max-width:640px;background:linear-gradient(120deg,rgba(226,49,73,.16),rgba(140,47,201,.12))}
+.ticket .l{padding:22px 24px}
+.ticket .l h3{font-size:1.35rem}
+.ticket dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin-top:10px;font-size:1rem}
+.ticket dt{color:var(--muted)}.ticket dd{font-weight:600}
+.ticket .r{border-inline-start:2px dashed rgba(246,231,180,.35);padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:130px}
+.ticket .r b{font-family:'Secular One';font-size:2.4rem;color:var(--gold);line-height:1}
+.ticket .r span{font-size:.85rem;color:var(--muted)}
+.form{max-width:640px;margin:22px auto 0;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:22px;padding:26px}
+.form label.f{display:block;font-weight:600;font-size:.95rem;color:var(--muted);margin:0 0 6px}
+.form input[type=text],.form input[type=tel],.form input[type=email]{width:100%;padding:14px 16px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--ink);font-family:'Heebo';font-size:1.05rem;margin-bottom:14px}
+.form input:focus{outline:none;border-color:var(--red2)}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 16px}
+.choice label{display:flex;gap:10px;align-items:flex-start;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;font-size:1rem}
+.choice input{margin-top:5px;accent-color:#e23149;width:18px;height:18px;flex:none}
+.choice label:has(input:checked){border-color:var(--red2);background:rgba(226,49,73,.12)}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:var(--muted);margin-bottom:16px}
+.consent input{margin-top:4px;accent-color:#e23149;width:17px;height:17px;flex:none}
+.form .btn{width:100%;font-size:1.2rem}
+.thanks{display:none;max-width:640px;margin:22px auto 0;text-align:center;background:rgba(44,158,91,.12);border:1px solid rgba(44,158,91,.5);border-radius:22px;padding:28px}
+.thanks h3{font-size:1.6rem;margin-bottom:8px}
+.thanks p{color:#cfe9da;margin-bottom:16px}
+.disclaimer{max-width:720px;margin:0 auto;font-size:.88rem;color:var(--muted);text-align:center;line-height:1.7}
+footer{padding:26px 0 100px;text-align:center;color:var(--muted);font-size:.9rem}
+.sticky{position:fixed;bottom:0;left:0;right:0;z-index:60;padding:10px 14px;background:rgba(16,12,23,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:none}
+.sticky .btn{width:100%;padding:13px}
+@media(max-width:860px){.offers,.proof{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr;max-width:440px;gap:2px}.sticky{display:block}.top .btn{display:none}.about{grid-template-columns:1fr;justify-items:center;text-align:center}.choice{grid-template-columns:1fr}.ticket{grid-template-columns:1fr}.ticket .r{border-inline-start:none;border-top:2px dashed rgba(246,231,180,.35);flex-direction:row;gap:12px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+
+<body>
+
+<div class="top"><div class="wrap">
+  <a class="logo" href="../">Mehamoten<span>.</span></a>
+  <a class="btn" href="#prices">Buy now</a>
+</div></div>
+
+<header class="hero"><div class="wrap">
+  <span class="eyebrow">Improv game for mixed-language teams · first two rounds on us</span>
+  <h1>Your team will laugh together<br><em>from the very first round.</em></h1>
+  <p class="sub">Even if nobody is an actor. Even if half the room speaks Hebrew and half doesn't. The game gives each person a place, a character and a first line, the host counts down, and you just go.</p>
+  <div class="ctas" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a class="btn" href="../app/?preset=team" target="_blank" rel="noopener">▶ Try two rounds</a>
+    <a class="btn ghost" href="#prices">Buy now</a>
+  </div>
+  <p class="small free-line">Open it on a phone or on a screen in the room. No sign-up and no credit card for the free rounds.</p>
+  <div class="cards">
+    <img src="card-set.webp" width="800" height="481" alt="A stage card from the game: Gym, a personal trainer and a client who lies about being fit">
+    <img src="card-con.webp" width="800" height="484" alt="A twist card from the game: Only questions">
+  </div>
+</div></header>
+
+<section class="sec"><div class="wrap narrow center">
+  <p class="punch">At most team events, three people play<br><span>and everyone else looks at their phone.</span></p>
+  <p class="para">Tell people "OK, now improvise" and they freeze. In a second language, even more. They don't lack humor. They lack a starting point. So we give them one.</p>
+</div></section>
+
+<div class="divider"></div>
+
+<section class="sec"><div class="wrap narrow">
+  <div class="about">
+    <div class="badge" aria-hidden="true">L</div>
+    <div>
+      <h2>Nice to meet you, I'm Liran Shaya.</h2>
+      <p>For 25 years I have worked with people in groups. Kids, teens, adults and managers from every field. I have managed students, instructors and owners of studios and schools.</p>
+      <p>For years I ran ODT programs for large companies and production companies. I designed, built and ran escape rooms that big companies brought their teams to for team days, and that managers and HR people used to get to know a new team and see how it works together. I have produced many events and hosted large ones.</p>
+      <p>I learned this field abroad. What I learned there, and what I have seen in twenty five years in front of groups, went into this game: you don't ask people to be funny. You give them something clear to say in the first second, and it happens from there.</p>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>25</b><span>years in front of groups</span></div>
+    <div class="stat"><b>ODT</b><span>for companies and producers</span></div>
+    <div class="stat"><b>🔐</b><span>escape rooms for companies</span></div>
+    <div class="stat"><b>🎤</b><span>hosting large events</span></div>
+  </div>
+</div></section>
+
+<section class="sec" id="free"><div class="wrap narrow">
+  <div class="center">
+    <h2>Try it first. Two rounds of the real game.</h2>
+    <p class="para">Not a sample and not a video. Open the game, type the names and play two full rounds with the host. After that you'll know if it's for you.</p>
+  </div>
+  <div class="offer hot" style="margin-top:24px">
+    <div class="ic">🎭</div>
+    <h3>What's in the free rounds</h3>
+    <ul><li>A digital host that explains everything and counts down</li><li>An everyday stage, who is who, and a first line for each player</li><li>In the second round, a small task in the middle of the scene</li></ul>
+    <a class="btn" href="../app/?preset=team" target="_blank" rel="noopener" style="align-self:flex-start">▶ Try it now</a>
+  </div>
+</div></section>
+
+<section class="sec" id="prices"><div class="wrap narrow">
+  <div class="center">
+    <h2>3 stages, and you decide where to stop</h2>
+    <p class="para">Pay once. No subscription that renews by itself.</p>
+  </div>
+  <div class="plan">
+    <div class="stage">
+      <div class="num">1</div>
+      <div><span class="lbl">Trial · free</span><h3>Two rounds</h3>
+      <p>The full game, two rounds, with whoever is sitting next to you right now.</p>
+      <div class="get"><b>What you get:</b> see with your own eyes how your team gets into it, before you pay anything.</div>
+      <a class="btn ghost" href="../app/?preset=team" target="_blank" rel="noopener" style="margin-top:12px">▶ Try it</a></div>
+    </div>
+    <div class="stage s2">
+      <div class="num">2</div>
+      <div><span class="lbl">Team evening · 690 ILS</span><h3>A full team evening, no facilitator needed</h3>
+      <p>Buy one evening and play whenever it suits you.</p>
+      <div class="get"><b>What you get:</b> the full game with the digital host, a warm-up for the whole group, stages and tasks, a guided closing talk and a short summary for the manager. In English and in Hebrew.</div>
+      <div class="get" style="background:rgba(226,49,73,.16);border:1px solid rgba(255,80,102,.45)"><b>Buy now:</b> the game stays open for you until 1 January 2027.</div>
+      <a data-buy="event" class="btn" href="https://wa.me/972506325398" target="_blank" rel="noopener" style="margin-top:12px">Buy a team evening</a></div>
+    </div>
+    <div class="stage s3">
+      <div class="num">3</div>
+      <div><span class="lbl">All year</span><h3>A game that's yours</h3>
+      <p>For teams that want to come back to it: at visits from abroad, quarter kick-offs and year-end events.</p>
+      <div class="get"><b>Open year · 4,100 ILS:</b> the game is open for a full year, as often as you like, with your logo on the screen.</div>
+      <div class="get"><b>Open year + an evening with me · 5,900 ILS:</b> I come and host a one-hour evening of fun for your team, in English or Hebrew, and the game stays open for a full year after.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <a data-buy="year" class="btn" href="https://wa.me/972506325398" target="_blank" rel="noopener">Buy a year</a>
+        <a data-buy="yearPlus" class="btn ghost" href="https://wa.me/972506325398" target="_blank" rel="noopener">Year + evening with me</a>
+      </div></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <p class="quote narrow">"We tried it with a real team. After two minutes nobody was asking how to play anymore."<small>From the first pilot, with a work team</small></p>
+  <div class="proof">
+    <div><h3>What worked best</h3><p>The gym and the spaceship. Places everyone knows, with one small, clear problem. The laughs came on their own.</p></div>
+    <div><h3>What we changed after it</h3><p>Fewer instructions on the screen, a first line for each person, and the game decides who is who. That way nobody gets stuck at the start.</p></div>
+    <div><h3>What stayed exactly the same</h3><p>No scores and no losers. You don't need to be funny: whoever listens to the other person, succeeds.</p></div>
+  </div>
+</div></section>
+
+<section class="sec" id="join"><div class="wrap">
+  <div class="center">
+    <h2>Want to talk first?</h2>
+    <p class="para narrow">Leave your details, pick what interests you, and I'll get back to you on WhatsApp within one working day.</p>
+  </div>
+
+  <form class="form" id="form" data-mm-form data-mm-page="en-free" data-mm-thanks="#thanks" data-mm-hide=".sticky" action="" method="POST">
+    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="f" for="nm">Name</label><input id="nm" type="text" name="name" required autocomplete="name" placeholder="What's your name?">
+    <label class="f" for="ph">Phone (WhatsApp)</label><input id="ph" type="tel" name="phone" required autocomplete="tel" inputmode="tel" pattern="[0-9+\-\s]{9,15}" placeholder="+972 50 000 0000">
+    <label class="f" for="em">Email</label><input id="em" type="email" name="email" required autocomplete="email" placeholder="you@company.com">
+    <span style="display:block;font-weight:600;font-size:.95rem;color:var(--muted);margin-bottom:6px">What interests you?</span>
+    <div class="choice" role="radiogroup">
+      <label><input type="radio" name="want" value="EN team evening 690" checked><span><b>Team evening</b><br><span class="small">690 ILS</span></span></label>
+      <label><input type="radio" name="want" value="EN open year 4,100"><span><b>Open year</b><br><span class="small">4,100 ILS</span></span></label>
+      <label><input type="radio" name="want" value="EN year + evening with Liran 5,900"><span><b>Year + evening with me</b><br><span class="small">5,900 ILS</span></span></label>
+      <label><input type="radio" name="want" value="EN question"><span><b>I have a question</b><br><span class="small">Let's talk</span></span></label>
+    </div>
+    <label class="consent"><input type="checkbox" name="updates" value="yes">You can send me a new game idea from time to time. (Optional. Stop any time.)</label>
+    <button class="btn" type="submit">Send →</button>
+    <p class="small" style="text-align:center;margin-top:12px">Your details are only used to get back to you. <a href="../app/privacy.html">Privacy</a></p>
+  </form>
+
+  <div class="thanks" id="thanks">
+    <h3>Thanks! Got it 🙌</h3>
+    <p>I'll get back to you on WhatsApp within one working day. Meanwhile you can play the two free rounds.</p>
+    <a class="btn" href="../app/?preset=team" target="_blank" rel="noopener">▶ Try it now</a>
+  </div>
+</div></section>
+
+<section class="sec" style="padding-top:10px"><div class="wrap">
+  <p class="disclaimer">Every team is different. The game doesn't promise that everyone will go on stage, and nobody has to. What it does promise: nobody has to invent the first line alone. Prices in Israeli shekels (ILS), VAT included. Buy now and the game stays open until 1 January 2027.</p>
+</div></section>
+
+<footer>Mehamoten © 2026 · Liran Shaya · <a href="https://wa.me/972506325398" target="_blank" rel="noopener">WhatsApp</a> · <a href="../app/privacy.html">Privacy</a> · <a href="../../terms.html">Terms (in Hebrew)</a> · <a href="../app/">The game</a> · <a href="../../free/" lang="he">עברית</a></footer>
+
+<div class="sticky"><a class="btn" href="../app/?preset=team" target="_blank" rel="noopener">▶ Try two rounds</a></div>
+
+<script src="../site.en.js?v=1.0.0"></script>
+</body>
+</html>
