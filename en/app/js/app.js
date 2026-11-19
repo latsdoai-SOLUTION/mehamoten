@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.7-en";
+const APP_VERSION = "2.6.8-en"; /* 2.6.8-en: team evening open 30 days from purchase */
 const MM_LANG = "en"; /* English build: /en/app/ */
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;

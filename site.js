@@ -1,4 +1,4 @@
-/* מהמותן: הגדרות משותפות לדפי האתר (הדף הראשי, lp, free). 2.6.4
+/* מהמותן: הגדרות משותפות לדפי האתר (הדף הראשי, lp, free). 2.6.8 (מקור ליד מ-utm)
    MM_CONTACT_EMAIL: המייל שמוצג בדפים. זה המקום היחיד.
    MM_FORM_ENDPOINT: לכאן נשלחות הפניות מהטפסים (Google Apps Script). זה המקום היחיד.
    MM_BUY_LINKS: דפי התשלום (ישראכרט pay360). צריך להיות זהה ל-BUY_LINKS ב-app/js/app.js. ריק = וואטסאפ עם הודעה מוכנה. */
@@ -11,6 +11,16 @@ var MM_BUY_LINKS = {
 };
 (function () {
   var WA = "https://wa.me/972506325398";
+
+  /* שומר את ה-utm מהכניסה הראשונה לאתר, כדי שגם אם עוברים דף, הטופס יידע מאיפה באו */
+  function getSrc() {
+    var q = new URLSearchParams(location.search), s = q.get("utm_source"), c = q.get("utm_campaign");
+    try {
+      if (s) { sessionStorage.setItem("mm_src", s); sessionStorage.setItem("mm_cmp", c || ""); }
+      return { s: s || sessionStorage.getItem("mm_src") || "", c: c || sessionStorage.getItem("mm_cmp") || "" };
+    } catch (e) { return { s: s || "", c: c || "" }; }
+  }
+  getSrc();
 
   /* שליחת טופס: fetch ל-MM_FORM_ENDPOINT, בלי מעבר דף.
      בטופס: data-mm-form, data-mm-page (main / free), data-mm-thanks (הודעת התודה), data-mm-hide (מה להסתיר בהצלחה, לא חובה).
@@ -25,6 +35,10 @@ var MM_BUY_LINKS = {
       f.dataset.mmSending = "1"; if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
       var body = new URLSearchParams(new FormData(f));
       body.set("_page", f.dataset.mmPage || "");
+      /* מקור הליד (2.6.8): מאיזה ערוץ הגיע, לפי utm בלינק. נשמר בגיליון בעמודות מקור וקמפיין */
+      var src = getSrc();
+      if (!body.get("מקור")) body.set("מקור", src.s || "ישיר");
+      if (!body.get("קמפיין") && src.c) body.set("קמפיין", src.c);
       fetch(MM_FORM_ENDPOINT, { method: "POST", mode: "no-cors", body: body })
         .then(function () {
           f.style.display = "none";

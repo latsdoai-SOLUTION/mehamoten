@@ -6,7 +6,7 @@
    ============================================================ */
 "use strict";
 
-const APP_VERSION = "2.6.6";
+const APP_VERSION = "2.6.7"; /* 2.6.7: ערב צוות פתוח 30 יום מיום הקנייה (במקום עד 1.1.2027) */
 const WIN_TOKENS = 15;
 const MAX_PLAYERS = 8;
 const STORE_KEY = "mehamoten3";

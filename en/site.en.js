@@ -8,6 +8,14 @@ var MM_BUY_LINKS = {
 };
 (function () {
   var WA = "https://wa.me/972506325398";
+  function getSrc() {
+    var q = new URLSearchParams(location.search), s = q.get("utm_source"), c = q.get("utm_campaign");
+    try {
+      if (s) { sessionStorage.setItem("mm_src", s); sessionStorage.setItem("mm_cmp", c || ""); }
+      return { s: s || sessionStorage.getItem("mm_src") || "", c: c || sessionStorage.getItem("mm_cmp") || "" };
+    } catch (e) { return { s: s || "", c: c || "" }; }
+  }
+  getSrc();
 
   /* form submit: fetch to MM_FORM_ENDPOINT, no page change (no-cors: success = request left) */
   function bindForm(f) {
@@ -20,6 +28,10 @@ var MM_BUY_LINKS = {
       f.dataset.mmSending = "1"; if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
       var body = new URLSearchParams(new FormData(f));
       body.set("_page", f.dataset.mmPage || "");
+      /* lead source from utm (19.11.2026), saved in the sheet as מקור / קמפיין */
+      var src = getSrc();
+      if (!body.get("מקור")) body.set("מקור", src.s || "direct");
+      if (!body.get("קמפיין") && src.c) body.set("קמפיין", src.c);
       fetch(MM_FORM_ENDPOINT, { method: "POST", mode: "no-cors", body: body })
         .then(function () {
           f.style.display = "none";

@@ -1,6 +1,6 @@
 /* Mehamoten (English) service worker. Scope /en/app/. Own cache namespace "mehamoten-en-",
    so it never deletes the Hebrew app caches. Navigations network-first, assets stale-while-revalidate. */
-const VERSION = "2.6.7-en";
+const VERSION = "2.6.8-en";
 const CACHE = "mehamoten-en-" + VERSION;
 const ASSETS = [
   "./",
