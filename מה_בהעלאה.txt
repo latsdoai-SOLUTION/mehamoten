@@ -1,8 +1,0 @@
-העלאה 2.6.8 (19.11.2026) · 4 קבצים
-מעלים את התוכן של התיקייה (לא את התיקייה ולא את הקובץ הזה) ל-https://github.com/latsdoai-SOLUTION/mehamoten/upload/main
-
-1. app/privacy.html: סעיף חדש על טופס יצירת הקשר באתר (מה נאסף, למה, איפה, הסרה). ממצא 10 בביקורת.
-2. index.html, free/index.html, lp/index.html: site.js?v=2.6.8 במקום 2.6.4, כדי שכל דפדפן יטען את site.js החדש שרושם את מקור הליד. ממצא 12.
-
-הודעת commit: 2.6.8: privacy covers the contact form; site.js cache bump
-בדיקה אחרי 6 דקות: https://mehamoten.com/app/privacy.html?x=51 ← סעיף 8 "טופס יצירת קשר באתר"
